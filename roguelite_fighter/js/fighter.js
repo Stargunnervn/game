@@ -173,6 +173,7 @@ class TacticalFighter {
     this.hasHit = false;
     this.hitsDealt = 0;
     this.lastHitFrame = -999;
+    this.hasMomentumBoost = false;
 
     // Visual trails
     this.afterimages = [];
@@ -210,6 +211,13 @@ class TacticalFighter {
     this.lastHitFrame = -999;
 
     const rad = (aimDeg * Math.PI) / 180;
+
+    // Momentum Engine Perk
+    if (['DASH', 'JUMP', 'SUPER_DASH', 'DOUBLE_JUMP', 'GHOST_STEP'].includes(moveKey)) {
+      if (this.isPlayer && window.engine && window.engine.hasPerk('momentum_engine')) {
+        this.hasMomentumBoost = true;
+      }
+    }
 
     // ── MOVEMENT RESOLUTION ──
     if (moveKey === 'DASH') {
@@ -339,6 +347,13 @@ class TacticalFighter {
       if (attacker) {
         attacker.hitstunFrames = 35;
         attacker.currentMove = null;
+
+        // Iron Retaliation Perk
+        if (this.isPlayer && window.engine && window.engine.hasPerk('iron_parry')) {
+          attacker.takeHit(12, null, false);
+          window.engine.addDamageText(attacker.x, attacker.y - 70, '12 RETALIATE!', '#ffd166', true);
+          window.engine.spawnSparks(attacker.x, attacker.y - 45, '#ffd166', 12);
+        }
       }
       return 0;
     }
@@ -362,6 +377,10 @@ class TacticalFighter {
       if (moveData.reflectDmg && attacker) {
         attacker.takeHit(moveData.reflectDmg, null, false);
         if (window.engine) window.engine.addDamageText(attacker.x, attacker.y - 60, `${moveData.reflectDmg} REFLECT!`, '#00f0ff', true);
+      } else if (this.isPlayer && window.engine && window.engine.hasPerk('iron_parry') && attacker) {
+        attacker.takeHit(12, null, false);
+        window.engine.addDamageText(attacker.x, attacker.y - 70, '12 RETALIATE!', '#ffd166', true);
+        window.engine.spawnSparks(attacker.x, attacker.y - 45, '#ffd166', 10);
       }
       return reduced;
     }

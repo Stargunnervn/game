@@ -245,6 +245,11 @@ canvas#game-canvas {
   display: flex;
   gap: 4px;
   flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.btn-row::-webkit-scrollbar {
+  display: none;
 }
 
 .btn-move {
@@ -647,6 +652,44 @@ canvas#aim-canvas:hover {
   background: rgba(0, 240, 255, 0.25);
   box-shadow: 0 0 16px rgba(0, 240, 255, 0.55);
   transform: translateY(-1px);
+}
+
+.btn-top-deck {
+  border-color: #ffd166;
+  color: #ffd166;
+  box-shadow: 0 0 10px rgba(255, 209, 102, 0.25);
+}
+
+.btn-top-deck:hover {
+  background: rgba(255, 209, 102, 0.22);
+  box-shadow: 0 0 16px rgba(255, 209, 102, 0.55);
+  transform: translateY(-1px);
+}
+
+.combat-toast {
+  position: absolute;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(14, 21, 33, 0.94);
+  border: 1.5px solid #00f0ff;
+  border-radius: 6px;
+  padding: 6px 18px;
+  color: #fff;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 50;
+}
+
+.combat-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .replay-bar {

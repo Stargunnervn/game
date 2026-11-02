@@ -323,9 +323,25 @@ class YomiEngine {
           SFX.init();
           this.startReplay();
         }
-      } else if (e.code === 'Escape' && this.turnState === 'REPLAY') {
+      } else if (e.code === 'KeyD') {
         e.preventDefault();
-        this.exitReplay();
+        const deckModal = document.getElementById('screen-deck-modal');
+        if (deckModal && deckModal.classList.contains('active')) {
+          this.closeDeckModal();
+        } else if (this.turnState === 'DECISION') {
+          this.openDeckModal();
+        }
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        const deckModal = document.getElementById('screen-deck-modal');
+        const swapModal = document.getElementById('screen-deck-swap');
+        if (deckModal && deckModal.classList.contains('active')) {
+          this.closeDeckModal();
+        } else if (swapModal && swapModal.classList.contains('active')) {
+          swapModal.classList.remove('active');
+        } else if (this.turnState === 'REPLAY') {
+          this.exitReplay();
+        }
       }
     });
 
@@ -361,6 +377,21 @@ class YomiEngine {
       btnTopReplay.addEventListener('click', () => {
         SFX.init();
         this.startReplay();
+      });
+    }
+
+    const btnTopDeck = document.getElementById('btn-top-deck');
+    if (btnTopDeck) {
+      btnTopDeck.addEventListener('click', () => {
+        SFX.init();
+        this.openDeckModal();
+      });
+    }
+
+    const btnCloseDeckModal = document.getElementById('btn-close-deck-modal');
+    if (btnCloseDeckModal) {
+      btnCloseDeckModal.addEventListener('click', () => {
+        this.closeDeckModal();
       });
     }
 
@@ -554,12 +585,140 @@ class YomiEngine {
     }
   }
 
+  showCombatToast(msg) {
+    const el = document.getElementById('combat-toast');
+    if (!el) return;
+    el.innerText = msg;
+    el.classList.add('show');
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
+      el.classList.remove('show');
+    }, 2400);
+  }
+
   unlockMove(moveKey) {
     this.ownedMoves.add(moveKey);
-    if (this.equippedMoves.size < 10) {
+    const MAX_EQUIPPED = 14;
+
+    if (this.equippedMoves.size < MAX_EQUIPPED) {
       this.equippedMoves.add(moveKey);
+      const mData = this.getMoveData(moveKey, true);
+      const mName = mData ? mData.name : moveKey;
+      this.showCombatToast(`✨ New Skill Equipped: ${mName}`);
+      this.rebuildMoveButtons();
+      this.updateHUD();
+    } else {
+      this.openDeckReplacementModal(moveKey);
     }
+  }
+
+  openDeckReplacementModal(newMoveKey) {
+    const modal = document.getElementById('screen-deck-swap');
+    if (!modal) return;
+    const mData = this.getMoveData(newMoveKey, true);
+    const mName = mData ? mData.name : newMoveKey;
+    const nameEl = document.getElementById('swap-new-move-name');
+    if (nameEl) nameEl.innerText = mName;
+
+    const grid = document.getElementById('swap-deck-grid');
+    if (grid) {
+      grid.innerHTML = '';
+      Array.from(this.equippedMoves).forEach(eqKey => {
+        const eqData = this.getMoveData(eqKey, true);
+        if (!eqData) return;
+        const card = document.createElement('div');
+        card.className = 'deck-item equipped';
+        card.innerHTML = `
+          <span class="deck-tag tag-equipped">CLICK TO REPLACE</span>
+          <div style="font-size: 13px; font-weight: 700; color: #fff;">${eqData.name}</div>
+          <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
+            ${eqData.damage > 0 ? `${eqData.startup}f • ${eqData.damage} Dmg` : 'Mobility / Guard'}
+          </div>
+          <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${eqData.desc}</div>
+        `;
+        card.addEventListener('click', () => {
+          this.equippedMoves.delete(eqKey);
+          this.equippedMoves.add(newMoveKey);
+          this.rebuildMoveButtons();
+          this.updateHUD();
+          modal.classList.remove('active');
+          this.showCombatToast(`✨ Swapped: ${eqData.name} ➔ ${mName}`);
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    const btnStash = document.getElementById('btn-swap-send-stash');
+    if (btnStash) {
+      btnStash.onclick = () => {
+        modal.classList.remove('active');
+        this.showCombatToast(`📦 ${mName} sent to Stash!`);
+      };
+    }
+
+    modal.classList.add('active');
+  }
+
+  openDeckModal() {
+    const modal = document.getElementById('screen-deck-modal');
+    if (!modal) return;
+    this.renderDeckModalGrid();
+    modal.classList.add('active');
+  }
+
+  closeDeckModal() {
+    const modal = document.getElementById('screen-deck-modal');
+    if (modal) modal.classList.remove('active');
     this.rebuildMoveButtons();
+    this.updateHUD();
+  }
+
+  renderDeckModalGrid() {
+    const container = document.getElementById('modal-deck-grid');
+    const countEl = document.getElementById('modal-deck-count');
+    if (!container) return;
+    container.innerHTML = '';
+    if (countEl) countEl.innerText = `${this.equippedMoves.size} / 14 Moves (Owned: ${this.ownedMoves.size})`;
+
+    Array.from(this.ownedMoves).forEach(moveKey => {
+      const moveData = this.getMoveData(moveKey, true);
+      if (!moveData) return;
+      const isEquipped = this.equippedMoves.has(moveKey);
+      const card = document.createElement('div');
+      card.className = `deck-item ${isEquipped ? 'equipped' : 'stashed'}`;
+      const tagClass = isEquipped ? 'tag-equipped' : 'tag-stashed';
+      const tagText = isEquipped ? 'EQUIPPED (CLICK TO BENCH)' : 'STASHED (CLICK TO EQUIP)';
+
+      card.innerHTML = `
+        <span class="deck-tag ${tagClass}">${tagText}</span>
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">${moveData.name}</div>
+        <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
+          ${moveData.damage > 0 ? `${moveData.startup}f • ${moveData.damage} Dmg` : 'Mobility / Guard'}
+        </div>
+        <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${moveData.desc}</div>
+      `;
+
+      card.addEventListener('click', () => {
+        if (isEquipped) {
+          if (this.equippedMoves.size <= 4) {
+            this.showCombatToast('⚠️ Minimum 4 equipped moves required!');
+            return;
+          }
+          this.equippedMoves.delete(moveKey);
+        } else {
+          if (this.equippedMoves.size >= 14) {
+            this.showCombatToast('⚠️ Deck full (14/14)! Bench a move first.');
+            return;
+          }
+          this.equippedMoves.add(moveKey);
+        }
+        this.renderDeckModalGrid();
+        this.rebuildMoveButtons();
+        this.updateHUD();
+      });
+
+      container.appendChild(card);
+    });
   }
 
   upgradeMove(moveKey) {
@@ -615,7 +774,8 @@ class YomiEngine {
     // Apply Meta & Relic upgrades to Player
     const metaHp = (this.meta.upgrades.hp || 0) * 15;
     const relicHp = this.hasPerk('dragon_bone_charm') ? 45 : 0;
-    this.player.maxHp = 100 + metaHp + relicHp;
+    const titanHp = this.hasPerk('titan_vitality') ? 35 : 0;
+    this.player.maxHp = 100 + metaHp + relicHp + titanHp;
     this.player.hp = this.player.maxHp;
 
     const metaSp = (this.meta.upgrades.sp || 0) * 15;
@@ -633,6 +793,9 @@ class YomiEngine {
     this.enemy.maxHp = enemyData.maxHp;
     this.enemy.hp = enemyData.maxHp;
     this.enemy.superMeter = enemyData.isBoss ? 40 : 10;
+    if (this.hasPerk('temporal_compass')) {
+      this.enemy.hitstunFrames = 2;
+    }
 
     // Stage HUD Updates
     const stagePill = document.getElementById('stage-display');
@@ -676,6 +839,12 @@ class YomiEngine {
 
     this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
     this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
+
+    // Tactical Foresight Passive Perk
+    if (this.hasPerk('tactical_foresight')) {
+      if (this.player.hitstunFrames > 0) this.player.hitstunFrames = Math.max(0, this.player.hitstunFrames - 1);
+      else this.enemy.hitstunFrames += 1;
+    }
 
     // Update Advantage Pill
     const advTag = document.getElementById('advantage-display');
@@ -812,7 +981,7 @@ class YomiEngine {
       return 60;
     }
     if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE'].includes(moveKey)) {
-      return this.player.isAirborne ? -30 : 15;
+      return this.player.isAirborne ? 35 : 0;
     }
     return 0;
   }
@@ -1016,6 +1185,14 @@ class YomiEngine {
           dmg *= 1.55;
         }
 
+        // Momentum Engine Perk
+        if (attacker.isPlayer && attacker.hasMomentumBoost) {
+          dmg = Math.round(dmg * 1.25);
+          attacker.hasMomentumBoost = false;
+          this.addDamageText(attacker.x, attacker.y - 85, '+25% MOMENTUM!', '#00f0ff', true);
+          this.spawnSparks(attacker.x, attacker.y - 45, '#00f0ff', 12);
+        }
+
         const isSpike = !!move.spikesDown;
         const isHeavy = !!move.launchesAir || (move.damage >= 24 && attacker.hitsDealt === maxHits);
         const realDmg = defender.takeHit(dmg, attacker, isHeavy, isSpike);
@@ -1101,6 +1278,9 @@ class YomiEngine {
     if (p1HpTxt) p1HpTxt.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
     if (p1SpBar) p1SpBar.style.width = `${p1Sp}%`;
     if (goldDisplay) goldDisplay.innerText = `🪙 ${this.gold} Gold`;
+
+    const hudDeckCount = document.getElementById('hud-deck-count');
+    if (hudDeckCount) hudDeckCount.innerText = `${this.equippedMoves.size}/14`;
 
     // Enemy Bars
     const p2Hp = Math.max(0, (this.enemy.hp / this.enemy.maxHp) * 100);
@@ -1399,6 +1579,13 @@ class YomiEngine {
               this.player.hp = this.player.maxHp;
             } else if (relic.id === 'ki_reactor_core' && this.player) {
               this.player.superMeter = Math.min(this.player.maxSuper, this.player.superMeter + 40);
+            } else if (relic.id === 'apex_catalyst_stone') {
+              const eligible = Array.from(this.ownedMoves).filter(k => !this.apexMoves.has(k));
+              if (eligible.length > 0) {
+                const upgraded = eligible.filter(k => this.moveUpgrades.has(k));
+                const targetKey = upgraded.length > 0 ? upgraded[0] : eligible[0];
+                this.openBreakthrough(targetKey);
+              }
             }
 
             document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
@@ -1423,7 +1610,7 @@ class YomiEngine {
     container.innerHTML = '';
     const deckCountEl = document.getElementById('deck-count-text');
     if (deckCountEl) {
-      deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+      deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
     }
 
     Array.from(this.ownedMoves).forEach(moveKey => {
@@ -1452,18 +1639,18 @@ class YomiEngine {
             if (deckCountEl) {
               deckCountEl.innerHTML = `<span style="color: #ff3366;">Minimum 4 combat moves required!</span>`;
               setTimeout(() => {
-                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
               }, 1800);
             }
             return;
           }
           this.equippedMoves.delete(moveKey);
         } else {
-          if (this.equippedMoves.size >= 10) {
+          if (this.equippedMoves.size >= 14) {
             if (deckCountEl) {
-              deckCountEl.innerHTML = `<span style="color: #ff3366;">Deck Full (10/10)! Unequip a move first.</span>`;
+              deckCountEl.innerHTML = `<span style="color: #ff3366;">Deck Full (14/14)! Unequip a move first.</span>`;
               setTimeout(() => {
-                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
               }, 1800);
             }
             return;
@@ -1471,6 +1658,7 @@ class YomiEngine {
           this.equippedMoves.add(moveKey);
         }
         this.rebuildMoveButtons();
+        this.updateHUD();
         this.renderDeckCustomizer();
       });
 
@@ -2048,3 +2236,7 @@ class YomiEngine {
 // Global Engine Instance
 window.engine = new YomiEngine();
 window.engine.loop();
+
+if (typeof module !== 'undefined') {
+  module.exports = { YomiEngine };
+}

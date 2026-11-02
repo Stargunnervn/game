@@ -57,25 +57,31 @@ function renderFighterModel(ctx, f, isPlayer) {
     bobY = 4;
     lArmAngle = -0.8;
     rArmAngle = -0.6;
-  } else if (f.isBlocking || f.isParrying) {
+  } else if (f.isBlocking || f.isParrying || moveKey === 'BLOCK' || moveKey === 'PARRY' || moveKey === 'AEGIS_REFLECT') {
     bodyAngle = -0.1 * facing;
     lArmAngle = 1.2 * facing;
     rArmAngle = 1.0 * facing;
-  } else if ((moveKey === 'QUICK_JAB' || moveKey === 'THUNDER_GALE') && moveFrame > 0 && moveFrame <= 7) {
+  } else if ((moveKey === 'QUICK_JAB' || moveKey === 'THUNDER_GALE' || moveKey === 'LIGHTNING_PALM' || moveKey === 'KI_BLAST' || moveKey === 'FIRE_BURST') && moveFrame > 0 && moveFrame <= 9) {
     bodyAngle = 0.22 * facing;
-    punchReach = 34 * facing;
+    punchReach = 36 * facing;
     rArmAngle = 1.4 * facing;
-  } else if ((moveKey === 'HEAVY_SLASH' || moveKey === 'VOID_CLEAVE') && moveFrame > 0 && moveFrame <= 13) {
-    bodyAngle = 0.3 * facing;
-    bladeSlashArc = (moveFrame / 13) * Math.PI;
+  } else if ((moveKey === 'HEAVY_SLASH' || moveKey === 'VOID_CLEAVE' || moveKey === 'WHIRLWIND' || moveKey === 'JUDGMENT_CUT' || moveKey === 'BLADE_COUNTER') && moveFrame > 0 && moveFrame <= 15) {
+    bodyAngle = 0.35 * facing;
+    bladeSlashArc = (moveFrame / 15) * Math.PI * 1.5;
+    rArmAngle = -0.8 * facing + (moveFrame / 15) * 2.4 * facing;
   } else if ((moveKey === 'SWEEP' || moveKey === 'PHANTOM_SLIDE') && moveFrame > 0) {
     bobY = 16;
     lLegAngle = 1.4 * facing;
     rLegAngle = -1.1 * facing;
-  } else if ((moveKey === 'LAUNCHER' || moveKey === 'COMET_CRASH' || moveKey === 'DRAGON_UPPER') && moveFrame > 0) {
-    bodyAngle = -0.2 * facing;
-    rArmAngle = -1.8 * facing;
-    bobY = -12;
+  } else if ((moveKey === 'LAUNCHER' || moveKey === 'COMET_CRASH' || moveKey === 'DRAGON_UPPER' || moveKey === 'METEOR_STRIKE' || moveKey === 'GROUND_POUND') && moveFrame > 0) {
+    bodyAngle = -0.25 * facing;
+    rArmAngle = -2.0 * facing;
+    bobY = -14;
+  } else if ((moveKey === 'DASH' || moveKey === 'SUPER_DASH' || moveKey === 'GHOST_STEP' || moveKey === 'SHADOW_TELEPORT') && moveFrame > 0) {
+    bodyAngle = 0.45 * facing;
+    bobY = 6;
+    lLegAngle = -0.9 * facing;
+    rLegAngle = 1.3 * facing;
   } else if (moveKey === 'DIVE_KICK' && moveFrame > 0) {
     bodyAngle = 0.7 * facing;
     rLegAngle = 1.2 * facing;
