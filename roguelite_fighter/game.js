@@ -166,6 +166,24 @@ class SoundFX {
     osc.stop(now + 0.1);
   }
 
+  playUpgradeFanfare() {
+    if (!this.enabled || !this.ctx) return;
+    const notes = [440.00, 554.37, 659.25, 880.00];
+    notes.forEach((freq, idx) => {
+      const now = this.ctx.currentTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    });
+  }
+
   playFanfare() {
     if (!this.enabled || !this.ctx) return;
     const notes = [329.63, 440.00, 554.37, 659.25];
@@ -187,9 +205,9 @@ class SoundFX {
 
 const SFX = new SoundFX();
 
-// ── 2. MOVE DEFINITIONS (OMNI-DIRECTIONAL YOMI HUSTLE STYLE) ─────────────────
+// ── 2. MOVE DEFINITIONS & UPGRADED DATA ──────────────────────────────────────
 const MOVES = {
-  // BASE MOVEMENT (FULL 360° FREEDOM)
+  // BASE MOVEMENT
   STEP_FWD: {
     name: 'Step Forward',
     desc: 'Micro-step forward (+1 Frame Advantage on neutral)',
@@ -198,7 +216,6 @@ const MOVES = {
     duration: 12,
     moveDist: 85,
     startup: 0,
-    hitFrame: 0,
     damage: 0,
     superCost: 0
   },
@@ -210,7 +227,6 @@ const MOVES = {
     duration: 12,
     moveDist: -85,
     startup: 0,
-    hitFrame: 0,
     damage: 0,
     superCost: 0
   },
@@ -264,7 +280,7 @@ const MOVES = {
     superCost: 0
   },
 
-  // BASE ATTACKS (GROUND & MID-AIR COMPATIBLE)
+  // BASE ATTACKS
   QUICK_JAB: {
     name: 'Quick Jab',
     desc: 'Ultra fast 3f startup. Air or ground punch/thrust',
@@ -351,7 +367,7 @@ const MOVES = {
     superCost: 60
   },
 
-  // ── UNLOCKABLE ATTACK SKILLS (DRAFTABLE REWARDS) ──
+  // UNLOCKABLE ATTACK SKILLS
   JUDGMENT_CUT: {
     name: 'Judgment Cut',
     desc: 'Spatial dimensional distortion slash at aimed coordinate',
@@ -424,7 +440,7 @@ const MOVES = {
     superCost: 15
   },
 
-  // ── UNLOCKABLE MOVEMENT SKILLS (DRAFTABLE REWARDS) ──
+  // UNLOCKABLE MOVEMENT SKILLS
   SHADOW_TELEPORT: {
     name: 'Shadow Blink',
     desc: 'Instant teleportation along the 360° aim wheel vector',
@@ -467,7 +483,140 @@ const MOVES = {
   }
 };
 
-// ── 3. VISUAL PARTICLES, DAMAGE NUMBERS, AND SHOCKWAVES ─────────────────────
+// ── 3. MOVE UPGRADE DEFINITIONS (EVOLVED MOVES) ─────────────────────────────
+const MOVE_UPGRADES_CATALOG = {
+  QUICK_JAB: {
+    name: 'Swift Flash Jab ★',
+    desc: 'Startup reduced to 2f, Damage increased to 15, extended reach.',
+    buffs: { startup: 2, damage: 15, range: 85 }
+  },
+  HEAVY_SLASH: {
+    name: 'Excalibur Cleave ★',
+    desc: 'Damage increased to 36, massive knockback with guaranteed Wall Bounce.',
+    buffs: { damage: 36, range: 110, knockbackBoost: 40 }
+  },
+  SWEEP: {
+    name: 'Quake Sweep ★',
+    desc: 'Damage increased to 24, trip creates +14f frame advantage advantage.',
+    buffs: { damage: 24, hitstun: 32 }
+  },
+  LAUNCHER: {
+    name: 'Sky Sever Launcher ★',
+    desc: 'Damage increased to 28, extreme upward velocity for prolonged air juggles.',
+    buffs: { damage: 28, launchBoost: 6 }
+  },
+  DASH: {
+    name: 'Warp Blitz Dash ★',
+    desc: 'Leaves an electrified decoy trap that detonates for 20 bonus damage.',
+    buffs: { hasMine: true, speedBoost: 4 }
+  },
+  JUMP: {
+    name: 'Gravity Leap ★',
+    desc: 'Higher altitude and faster airborne recovery frames.',
+    buffs: { jumpBoost: 5 }
+  },
+  BLOCK: {
+    name: 'Fortress Guard ★',
+    desc: 'Absorbs 95% damage and reflects 14 unblockable damage back at attacker.',
+    buffs: { blockDamageReduce: 0.95, reflectDmg: 14 }
+  },
+  PARRY: {
+    name: 'Mirror Counter ★',
+    desc: 'Parry window expanded to 12f. Successful parry restores +25 HP and 50 SP.',
+    buffs: { parryWindow: 12, parryHeal: 25 }
+  },
+  KI_BLAST: {
+    name: 'Twin Hadou Blast ★',
+    desc: 'Fires dual twin energy projectiles dealing 40 total damage.',
+    buffs: { dualProjectile: true, damage: 40 }
+  },
+  DRAGON_UPPER: {
+    name: 'God Dragon Uppercut ★',
+    desc: 'Damage increased to 60 with expanded vacuum vortex radius.',
+    buffs: { damage: 60, range: 115 }
+  },
+  JUDGMENT_CUT: {
+    name: 'Judgment Cut: End ★',
+    desc: 'Damage increased to 50, spatial slice radius expanded to 80px.',
+    buffs: { damage: 50, riftRadius: 80 }
+  },
+  DIVE_KICK: {
+    name: 'Meteor Falcon Dive ★',
+    desc: 'Damage increased to 34, causes floor quake on landing.',
+    buffs: { damage: 34, quakeFloor: true }
+  },
+  WHIRLWIND: {
+    name: 'Tempest Cyclone ★',
+    desc: 'Delivers 5 rapid slices with doubled vacuum pull strength, 42 damage.',
+    buffs: { damage: 42, range: 120 }
+  },
+  SHADOW_TELEPORT: {
+    name: 'Void Blink ★',
+    desc: 'Zero SP cost and grants 6 frames of invulnerability on arrival.',
+    buffs: { superCost: 0, postInvuln: 6 }
+  }
+};
+
+// ── 4. STAGE OPPONENTS: DISTINCT ARCHETYPES & SCALING AI ────────────────────
+const OPPONENTS = [
+  {
+    name: 'SHAOLIN NOVICE',
+    title: 'Rushdown Monk',
+    color: '#e76f51',
+    hp: 90,
+    atk: 8,
+    defense: 0,
+    moveset: ['QUICK_JAB', 'SWEEP', 'JUMP', 'DASH', 'BLOCK', 'STEP_FWD'],
+    aiType: 'RUSHDOWN',
+    desc: 'Agile martial artist favoring rapid jabs and low sweeping kicks.'
+  },
+  {
+    name: 'WANDERING RONIN',
+    title: 'Counter Blademaster',
+    color: '#d90429',
+    hp: 130,
+    atk: 12,
+    defense: 0.1,
+    moveset: ['HEAVY_SLASH', 'PARRY', 'STEP_BACK', 'DASH', 'JUDGMENT_CUT', 'SWEEP'],
+    aiType: 'COUNTER_ZONER',
+    desc: 'Master of spacing and iaijutsu. Slashes across space and parries aggressive strikes.'
+  },
+  {
+    name: 'ARMORED COLOSSUS',
+    title: 'Iron Juggernaut',
+    color: '#9d4edd',
+    hp: 190,
+    atk: 16,
+    defense: 0.2,
+    moveset: ['METEOR_STRIKE', 'BLOCK', 'LAUNCHER', 'STEP_FWD', 'DASH'],
+    aiType: 'SUPER_ARMOR_TANK',
+    desc: 'Heavy walking fortress with armored punches that ignore light hits and launch foes.'
+  },
+  {
+    name: 'SHADOW ASSASSIN',
+    title: 'Phantom Shinobi',
+    color: '#3a0ca3',
+    hp: 230,
+    atk: 20,
+    defense: 0.15,
+    moveset: ['SHADOW_TELEPORT', 'DIVE_KICK', 'SUPER_DASH', 'KI_BLAST', 'QUICK_JAB', 'LIGHTNING_PALM'],
+    aiType: 'AMBUSH_NINJA',
+    desc: 'Elusive phantom that teleports across angles, dives from the sky, and casts ki barrages.'
+  },
+  {
+    name: 'GRANDMASTER VANE',
+    title: 'Supreme Hustler (Boss)',
+    color: '#ff0054',
+    hp: 330,
+    atk: 26,
+    defense: 0.25,
+    moveset: ['WHIRLWIND', 'JUDGMENT_CUT', 'DRAGON_UPPER', 'PARRY', 'SUPER_DASH', 'METEOR_STRIKE', 'LAUNCHER', 'DIVE_KICK'],
+    aiType: 'GRANDMASTER',
+    desc: 'Supreme fighting master who reads frame advantage, executes 360° cyclones, and chains deadly aerial combos.'
+  }
+];
+
+// ── 5. VISUAL PARTICLES, DAMAGE NUMBERS, AND RIFTS ──────────────────────────
 class Particle {
   constructor(x, y, vx, vy, color, size, life) {
     this.x = x;
@@ -562,12 +711,12 @@ class Projectile {
 }
 
 class SpatialRift {
-  constructor(x, y, isPlayer, damage) {
+  constructor(x, y, isPlayer, damage, radius = 55) {
     this.x = x;
     this.y = y;
     this.isPlayer = isPlayer;
     this.damage = damage;
-    this.radius = 55;
+    this.radius = radius;
     this.life = 20;
     this.maxLife = 20;
     this.hasHit = false;
@@ -584,12 +733,10 @@ class SpatialRift {
     ctx.shadowBlur = 14;
     ctx.lineWidth = 2.5;
 
-    // Distorting ring
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius * (0.8 + progress * 0.4), 0, Math.PI * 2);
     ctx.stroke();
 
-    // Criss-crossing spatial cut lines
     for (let i = 0; i < 4; i++) {
       const angle = (i * Math.PI / 4) + progress * 2;
       const len = this.radius * 1.1;
@@ -602,13 +749,13 @@ class SpatialRift {
   }
 }
 
-// ── 4. YOMI HUSTLE AIM WHEEL CONTROLLER ──────────────────────────────────────
+// ── 6. YOMI HUSTLE AIM WHEEL CONTROLLER ──────────────────────────────────────
 class AimWheel {
   constructor(canvasId, readoutId, onAngleChange) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext('2d');
     this.readout = document.getElementById(readoutId);
-    this.angleDeg = 0; // -180 to 180 degrees
+    this.angleDeg = 0;
     this.isDragging = false;
     this.onAngleChange = onAngleChange;
 
@@ -696,7 +843,6 @@ class AimWheel {
 
     this.ctx.clearRect(0, 0, w, h);
 
-    // Outer dial
     this.ctx.beginPath();
     this.ctx.arc(cx, cy, r, 0, Math.PI * 2);
     this.ctx.fillStyle = '#080d15';
@@ -705,7 +851,6 @@ class AimWheel {
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
 
-    // Cardinal tick marks
     this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
     this.ctx.lineWidth = 1;
     for (let i = 0; i < 8; i++) {
@@ -717,7 +862,6 @@ class AimWheel {
       this.ctx.stroke();
     }
 
-    // Crosshair axes
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     this.ctx.beginPath();
     this.ctx.moveTo(cx - r, cy);
@@ -726,13 +870,11 @@ class AimWheel {
     this.ctx.lineTo(cx, cy + r);
     this.ctx.stroke();
 
-    // Direction needle pointer
     const rad = -this.angleDeg * (Math.PI / 180);
     const pointerLen = r - 6;
     const px = cx + Math.cos(rad) * pointerLen;
     const py = cy + Math.sin(rad) * pointerLen;
 
-    // Needle line
     this.ctx.strokeStyle = '#00f0ff';
     this.ctx.shadowColor = '#00f0ff';
     this.ctx.shadowBlur = 8;
@@ -743,7 +885,6 @@ class AimWheel {
     this.ctx.stroke();
     this.ctx.shadowBlur = 0;
 
-    // Reticle knob
     this.ctx.beginPath();
     this.ctx.arc(px, py, 4.5, 0, Math.PI * 2);
     this.ctx.fillStyle = '#ffd166';
@@ -755,7 +896,6 @@ class AimWheel {
     this.ctx.stroke();
     this.ctx.shadowBlur = 0;
 
-    // Center hub
     this.ctx.beginPath();
     this.ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
     this.ctx.fillStyle = '#00f0ff';
@@ -763,7 +903,7 @@ class AimWheel {
   }
 }
 
-// ── 5. TACTICAL FIGHTER CLASS (ANIME COMBAT & MOBILITY) ─────────────────────
+// ── 7. TACTICAL FIGHTER CLASS ────────────────────────────────────────────────
 class TacticalFighter {
   constructor(name, x, isPlayer, color) {
     this.name = name;
@@ -800,7 +940,7 @@ class TacticalFighter {
     this.hitstunFrames = 0;
     this.isAirborne = false;
 
-    // Visual trails (Anime afterimages)
+    // Visual trails
     this.afterimages = [];
   }
 
@@ -816,7 +956,7 @@ class TacticalFighter {
   }
 
   executeMove(moveKey, aimDeg = 0) {
-    const moveData = MOVES[moveKey];
+    const moveData = engine.getMoveData(moveKey, this.isPlayer);
     if (!moveData) return;
 
     this.currentMove = moveData;
@@ -830,20 +970,24 @@ class TacticalFighter {
 
     const rad = (aimDeg * Math.PI) / 180;
 
-    // ── OMNI-DIRECTIONAL ANIME MOVEMENT ──
+    // ── MOVEMENT RESOLUTION ──
     if (moveKey === 'DASH') {
       SFX.playDash();
       this.spawnAfterimage();
-      // True 360° omni-directional dash (air or ground)
-      const dashSpeed = 16.5;
+      const dashSpeed = 16.5 + (moveData.speedBoost || 0);
       this.vx = Math.cos(rad) * dashSpeed * this.facing;
       this.vy = -Math.sin(rad) * 14.5;
       if (Math.abs(this.vy) > 2) this.isAirborne = true;
+
+      // Upgraded Dash Spark Trap
+      if (moveData.hasMine && this.isPlayer) {
+        engine.projectiles.push(new Projectile(this.x, this.y - 40, 0, 0, true, 20, '#ffd166'));
+        engine.spawnSparks(this.x, this.y - 40, '#ffd166', 14);
+      }
     } else if (moveKey === 'JUMP') {
       SFX.playDash();
       this.spawnAfterimage();
-      // 360° directional jump trajectory
-      const jumpPower = Math.sin(rad) > 0.1 ? Math.sin(rad) * 17 + 2 : 15;
+      const jumpPower = (Math.sin(rad) > 0.1 ? Math.sin(rad) * 17 + 2 : 15) + (moveData.jumpBoost || 0);
       this.vy = -jumpPower;
       this.vx = Math.cos(rad) * 9.5 * this.facing;
       this.isAirborne = true;
@@ -867,6 +1011,7 @@ class TacticalFighter {
       this.y = Math.min(this.floorY, Math.max(160, this.y - Math.sin(rad) * 140));
       this.isAirborne = this.y < this.floorY;
       engine.spawnSparks(this.x, this.y - 45, '#ffd166', 16);
+      if (moveData.postInvuln) this.isInvulnerable = true;
     } else if (moveKey === 'DIVE_KICK') {
       SFX.playDash();
       this.spawnAfterimage();
@@ -888,6 +1033,14 @@ class TacticalFighter {
       const pvx = Math.cos(rad) * spd * this.facing;
       const pvy = -Math.sin(rad) * spd;
       engine.projectiles.push(new Projectile(this.x + this.facing * 35, this.y - 45, pvx, pvy, this.isPlayer, moveData.damage, '#00f0ff'));
+
+      // Upgraded Twin Blast
+      if (moveData.dualProjectile) {
+        const spreadRad = rad + 0.22;
+        const pvx2 = Math.cos(spreadRad) * spd * this.facing;
+        const pvy2 = -Math.sin(spreadRad) * spd;
+        engine.projectiles.push(new Projectile(this.x + this.facing * 35, this.y - 45, pvx2, pvy2, this.isPlayer, moveData.damage * 0.75, '#ffd166'));
+      }
     }
 
     // Spatial Slash Spawning
@@ -896,7 +1049,7 @@ class TacticalFighter {
       const targetDist = 150;
       const tx = Math.min(960, Math.max(64, this.x + Math.cos(rad) * targetDist * this.facing));
       const ty = Math.min(this.floorY - 20, Math.max(160, (this.y - 45) - Math.sin(rad) * 120));
-      engine.spatialRifts.push(new SpatialRift(tx, ty, this.isPlayer, moveData.damage));
+      engine.spatialRifts.push(new SpatialRift(tx, ty, this.isPlayer, moveData.damage, moveData.riftRadius || 55));
     }
 
     this.isInvulnerable = !!moveData.isInvuln;
@@ -911,12 +1064,19 @@ class TacticalFighter {
     if (this.isInvulnerable) return 0;
 
     // PARRY CHECK
-    if (this.isParrying && this.moveFrame <= (this.currentMove.parryWindow || 8)) {
+    const moveData = this.currentMove || {};
+    const parryWin = moveData.parryWindow || 8;
+    if (this.isParrying && this.moveFrame <= parryWin) {
       SFX.playParry();
       engine.addScreenShake(8, 15);
       engine.spawnSparks(this.x, this.y - 45, '#00f0ff', 24);
       engine.addDamageText(this.x, this.y - 65, 'PARRY!', '#00f0ff', true);
       this.superMeter = Math.min(this.maxSuper, this.superMeter + 25);
+
+      if (moveData.parryHeal && this.isPlayer) {
+        this.hp = Math.min(this.maxHp, this.hp + moveData.parryHeal);
+        engine.addDamageText(this.x, this.y - 85, `+${moveData.parryHeal} HP`, '#06d6a0');
+      }
 
       if (attacker) {
         attacker.hitstunFrames = 35;
@@ -927,12 +1087,19 @@ class TacticalFighter {
 
     // BLOCK CHECK
     if (this.isBlocking) {
-      const reduced = Math.max(1, Math.round(dmg * 0.2));
+      const blockRate = moveData.blockDamageReduce || 0.8;
+      const reduced = Math.max(1, Math.round(dmg * (1 - blockRate)));
       this.hp = Math.max(0, this.hp - reduced);
       this.vx = -this.facing * 3.5;
       SFX.playPunch(90);
       engine.spawnSparks(this.x, this.y - 45, '#ffd166', 8);
       engine.addDamageText(this.x, this.y - 55, `GUARD -${reduced}`, '#7d8b99');
+
+      // Fortress Guard Reflection
+      if (moveData.reflectDmg && attacker) {
+        attacker.takeHit(moveData.reflectDmg, null, false);
+        engine.addDamageText(attacker.x, attacker.y - 60, `${moveData.reflectDmg} REFLECT!`, '#00f0ff', true);
+      }
       return reduced;
     }
 
@@ -950,34 +1117,32 @@ class TacticalFighter {
     const finalDmg = Math.max(1, Math.round(dmg * (1 - this.defenseBonus)));
     this.hp = Math.max(0, this.hp - finalDmg);
 
-    // Dynamic launch vector based on attacker's Aim Wheel
     const aimDeg = attacker ? attacker.aimAngle : 0;
     const rad = (aimDeg * Math.PI) / 180;
+    const launchBonus = (attacker && attacker.currentMove && attacker.currentMove.launchBoost) || 0;
+    const kbBonus = (attacker && attacker.currentMove && attacker.currentMove.knockbackBoost) || 0;
 
     if (isSpike || aimDeg < -20) {
-      // Downward Spike into floor
       SFX.playHeavySlash();
       engine.addScreenShake(9, 18);
       engine.spawnSparks(this.x, this.floorY, '#ff3366', 26);
       this.hitstunFrames = 26;
       this.vy = 13;
-      this.vx = -this.facing * 4;
+      this.vx = -this.facing * (4 + kbBonus / 10);
     } else if (isHeavy || aimDeg > 20) {
-      // High Aerial Juggle Launch
       SFX.playHeavySlash();
       engine.addScreenShake(7, 16);
       engine.spawnSparks(this.x, this.y - 45, '#ff3366', 22);
       this.hitstunFrames = 28;
-      this.vy = -10 - Math.sin(rad) * 7;
+      this.vy = -10 - Math.sin(rad) * 7 - launchBonus;
       this.isAirborne = true;
-      this.vx = -this.facing * (4 + Math.cos(rad) * 4);
+      this.vx = -this.facing * (4 + Math.cos(rad) * 4 + kbBonus / 10);
     } else {
-      // Standard Impact
       SFX.playPunch(140);
       engine.addScreenShake(3, 8);
       engine.spawnSparks(this.x, this.y - 45, '#ffd166', 14);
       this.hitstunFrames = 18;
-      this.vx = -this.facing * 4;
+      this.vx = -this.facing * (4 + kbBonus / 10);
     }
 
     this.currentMove = null;
@@ -1001,7 +1166,7 @@ class TacticalFighter {
       this.vx *= 0.82;
     }
 
-    // ── ANIME WALL BOUNCE / WALL SPLAT ──
+    // Wall Bounce
     if (this.x <= 65) {
       this.x = 65;
       if (Math.abs(this.vx) >= 4) {
@@ -1009,7 +1174,7 @@ class TacticalFighter {
         engine.addScreenShake(8, 16);
         engine.spawnSparks(65, this.y - 45, '#00f0ff', 24);
         engine.addDamageText(80, this.y - 65, 'WALL BOUNCE!', '#00f0ff', true);
-        this.vx = Math.abs(this.vx) * 0.7; // Bounce off left wall
+        this.vx = Math.abs(this.vx) * 0.7;
         this.vy = -6;
         this.isAirborne = true;
       } else {
@@ -1022,7 +1187,7 @@ class TacticalFighter {
         engine.addScreenShake(8, 16);
         engine.spawnSparks(959, this.y - 45, '#ff3366', 24);
         engine.addDamageText(940, this.y - 65, 'WALL BOUNCE!', '#ff3366', true);
-        this.vx = -Math.abs(this.vx) * 0.7; // Bounce off right wall
+        this.vx = -Math.abs(this.vx) * 0.7;
         this.vy = -6;
         this.isAirborne = true;
       } else {
@@ -1030,19 +1195,16 @@ class TacticalFighter {
       }
     }
 
-    // Decay afterimages
     for (let i = this.afterimages.length - 1; i >= 0; i--) {
       this.afterimages[i].alpha *= 0.8;
       if (this.afterimages[i].alpha < 0.05) this.afterimages.splice(i, 1);
     }
 
-    // Hitstun reduction
     if (this.hitstunFrames > 0) {
       this.hitstunFrames--;
       return;
     }
 
-    // Move progression
     if (this.currentMove) {
       this.moveFrame++;
       if (this.moveFrame >= this.currentMove.duration) {
@@ -1058,7 +1220,6 @@ class TacticalFighter {
   draw(ctx) {
     ctx.save();
 
-    // Draw afterimages
     this.afterimages.forEach(img => {
       ctx.save();
       ctx.globalAlpha = img.alpha;
@@ -1067,7 +1228,6 @@ class TacticalFighter {
       ctx.restore();
     });
 
-    // Shadow on ground
     ctx.beginPath();
     ctx.ellipse(this.x, this.floorY + 2, 26, 6, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -1076,7 +1236,6 @@ class TacticalFighter {
     const drawX = this.x - this.width / 2;
     const drawY = this.y - this.height;
 
-    // Invulnerability aura
     if (this.isInvulnerable) {
       ctx.globalAlpha = 0.45;
       ctx.fillStyle = this.color;
@@ -1084,28 +1243,23 @@ class TacticalFighter {
       ctx.globalAlpha = 1.0;
     }
 
-    // Body Color
     ctx.fillStyle = this.hitstunFrames > 0 ? '#ffffff' : this.color;
     ctx.strokeStyle = '#05080f';
     ctx.lineWidth = 2.5;
 
-    // Torso / Body
     ctx.beginPath();
     ctx.roundRect(drawX, drawY + 20, this.width, this.height - 20, 6);
     ctx.fill();
     ctx.stroke();
 
-    // Head
     ctx.beginPath();
     ctx.arc(this.x, drawY + 11, 13, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Visor / Eyes
     ctx.fillStyle = this.isPlayer ? '#00f0ff' : '#ff3366';
     ctx.fillRect(this.x + this.facing * 4 - 3, drawY + 8, 7, 3.5);
 
-    // Guard shield aura
     if (this.isBlocking || this.isParrying) {
       ctx.beginPath();
       ctx.arc(this.x + this.facing * 16, this.y - 45, 42, -Math.PI / 2, Math.PI / 2, this.facing === -1);
@@ -1118,7 +1272,7 @@ class TacticalFighter {
   }
 
   drawGhostPreview(ctx, moveKey, aimDeg = 0) {
-    const moveData = MOVES[moveKey];
+    const moveData = engine.getMoveData(moveKey, this.isPlayer);
     if (!moveData) return;
 
     ctx.save();
@@ -1133,7 +1287,7 @@ class TacticalFighter {
     let targetY = this.y;
 
     if (moveKey === 'DASH') {
-      targetX = this.x + Math.cos(rad) * 220 * this.facing;
+      targetX = this.x + Math.cos(rad) * (220 + (moveData.speedBoost || 0) * 8) * this.facing;
       targetY = Math.min(this.floorY, this.y - Math.sin(rad) * 160);
     } else if (moveKey === 'JUMP') {
       targetX = this.x + Math.cos(rad) * 150 * this.facing;
@@ -1155,27 +1309,23 @@ class TacticalFighter {
       targetY = this.y + (moveData.jumpY ? moveData.jumpY * 2.5 : 0);
     }
 
-    // Trajectory Dotted Arrow for Movement
     if (moveData.category === 'movement' || moveKey === 'DIVE_KICK') {
       ctx.beginPath();
       ctx.moveTo(this.x, this.y - 45);
       ctx.lineTo(targetX, targetY - 45);
       ctx.stroke();
 
-      // Arrow head
       ctx.beginPath();
       ctx.arc(targetX, targetY - 45, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = '#00f0ff';
       ctx.fill();
     }
 
-    // Ghost body silhouette
     ctx.beginPath();
     ctx.roundRect(targetX - this.width / 2, targetY - this.height, this.width, this.height, 6);
     ctx.fill();
     ctx.stroke();
 
-    // Attack Previews
     if (moveKey === 'KI_BLAST') {
       ctx.beginPath();
       ctx.strokeStyle = '#00f0ff';
@@ -1186,22 +1336,24 @@ class TacticalFighter {
     } else if (moveKey === 'JUDGMENT_CUT') {
       const tx = Math.min(960, Math.max(64, this.x + Math.cos(rad) * 150 * this.facing));
       const ty = Math.min(this.floorY - 20, Math.max(160, (this.y - 45) - Math.sin(rad) * 120));
+      const r = moveData.riftRadius || 55;
       ctx.beginPath();
-      ctx.arc(tx, ty, 55, 0, Math.PI * 2);
+      ctx.arc(tx, ty, r, 0, Math.PI * 2);
       ctx.strokeStyle = '#00f0ff';
       ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
       ctx.fill();
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(tx - 65, ty);
-      ctx.lineTo(tx + 65, ty);
-      ctx.moveTo(tx, ty - 65);
-      ctx.lineTo(tx, ty + 65);
+      ctx.moveTo(tx - r - 10, ty);
+      ctx.lineTo(tx + r + 10, ty);
+      ctx.moveTo(tx, ty - r - 10);
+      ctx.lineTo(tx, ty + r + 10);
       ctx.stroke();
     } else if (moveKey === 'WHIRLWIND') {
+      const r = moveData.range || 90;
       ctx.beginPath();
-      ctx.arc(targetX, targetY - 45, 90, 0, Math.PI * 2);
+      ctx.arc(targetX, targetY - 45, r, 0, Math.PI * 2);
       ctx.strokeStyle = '#ffd166';
       ctx.fillStyle = 'rgba(255, 209, 102, 0.18)';
       ctx.fill();
@@ -1228,7 +1380,7 @@ class TacticalFighter {
   }
 }
 
-// ── 6. ROGUELITE REWARDS: PERKS & ACTIVE SKILL UNLOCKS ──────────────────────
+// ── 8. ROGUELITE REWARDS: PERKS & ACTIVE SKILL UNLOCKS ──────────────────────
 const ROGUELITE_PERKS = [
   // ACTIVE ATTACK SKILLS
   {
@@ -1389,7 +1541,7 @@ const ROGUELITE_PERKS = [
   }
 ];
 
-// ── 7. MAIN ENGINE (SIMULTANEOUS YOMI CONTROLLER & REPLAY RECORDER) ──────────
+// ── 9. MAIN ENGINE ──────────────────────────────────────────────────────────
 class YomiEngine {
   constructor() {
     this.canvas = document.getElementById('game-canvas');
@@ -1405,7 +1557,7 @@ class YomiEngine {
     this.selectedEnemyMove = 'QUICK_JAB';
     this.selectedAimAngle = 0;
 
-    // Replay Recorder & Playback Engine
+    // Replay Recorder
     this.replayFrames = [];
     this.replayCurrentFrame = 0;
     this.replayPlaying = false;
@@ -1419,6 +1571,9 @@ class YomiEngine {
     this.maxStages = 5;
     this.activePerks = new Set();
     this.unlockedMoves = new Set();
+    this.moveUpgrades = new Map(); // moveKey -> upgradeData
+    this.currentOpponentData = null;
+
     this.comboCount = 0;
     this.screenShake = { intensity: 0, duration: 0 };
     this.hitStop = 0;
@@ -1449,28 +1604,34 @@ class YomiEngine {
     localStorage.setItem('yomi_rogue_meta', JSON.stringify(this.meta));
   }
 
+  getMoveData(moveKey, isPlayer) {
+    const base = MOVES[moveKey];
+    if (!base) return null;
+
+    if (isPlayer && this.moveUpgrades.has(moveKey)) {
+      const upg = this.moveUpgrades.get(moveKey);
+      return { ...base, ...upg.buffs, isUpgraded: true, name: upg.name };
+    }
+    return base;
+  }
+
   setupUI() {
-    // Initialize Aim Wheel
     this.aimWheel = new AimWheel('aim-canvas', 'aim-readout', (angle) => {
       this.selectedAimAngle = angle;
     });
 
-    // Move Selection Buttons
     document.querySelectorAll('.btn-move').forEach(btn => {
       this.wireMoveButton(btn);
     });
 
-    // Default selection
     const defaultBtn = document.querySelector('.btn-move[data-move="QUICK_JAB"]');
     if (defaultBtn) defaultBtn.classList.add('selected');
 
-    // LOCK IN BUTTON
     document.getElementById('btn-lock-in').addEventListener('click', () => {
       SFX.init();
       this.lockInTurn();
     });
 
-    // Keyboard Shortcuts: Space / Enter to Lock In or Replay Play/Pause
     window.addEventListener('keydown', (e) => {
       SFX.init();
       if ((e.code === 'Space' || e.code === 'Enter') && this.turnState === 'DECISION') {
@@ -1488,14 +1649,10 @@ class YomiEngine {
       }
     });
 
-    // Top Replay Button
     document.getElementById('btn-top-replay').addEventListener('click', () => this.startReplay());
-
-    // Overlay Replay Buttons
     document.getElementById('btn-draft-replay').addEventListener('click', () => this.startReplay());
     document.getElementById('btn-gameover-replay').addEventListener('click', () => this.startReplay());
 
-    // Replay Bar Controls
     document.getElementById('btn-replay-play').addEventListener('click', () => this.toggleReplayPlay());
     document.getElementById('btn-replay-restart').addEventListener('click', () => this.restartReplay());
     document.getElementById('btn-replay-speed').addEventListener('click', () => this.cycleReplaySpeed());
@@ -1508,7 +1665,6 @@ class YomiEngine {
       document.getElementById('replay-play-icon').innerText = '▶ PLAY';
     });
 
-    // Title / Overlay Buttons
     document.getElementById('btn-start-run').addEventListener('click', () => {
       SFX.init();
       this.startRun();
@@ -1530,14 +1686,15 @@ class YomiEngine {
       document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       this.selectedPlayerMove = btn.dataset.move;
-      const moveData = MOVES[this.selectedPlayerMove];
-      document.getElementById('move-desc').innerText = `${moveData.name} (${moveData.desc})`;
+      const moveData = this.getMoveData(this.selectedPlayerMove, true);
+      const tag = moveData.isUpgraded ? '[UPGRADED ★] ' : '';
+      document.getElementById('move-desc').innerText = `${tag}${moveData.name} (${moveData.desc})`;
     });
   }
 
   unlockMove(moveKey) {
     this.unlockedMoves.add(moveKey);
-    const moveData = MOVES[moveKey];
+    const moveData = this.getMoveData(moveKey, true);
     if (!moveData) return;
 
     let containerId = 'attack-btns';
@@ -1575,9 +1732,41 @@ class YomiEngine {
     document.getElementById('move-desc').innerText = `${moveData.name} (${moveData.desc})`;
   }
 
-  resetUnlockedMoveButtons() {
+  upgradeMove(moveKey) {
+    const upg = MOVE_UPGRADES_CATALOG[moveKey];
+    if (!upg) return;
+
+    this.moveUpgrades.set(moveKey, upg);
+    SFX.playUpgradeFanfare();
+
+    // Update button in UI
+    const btn = document.querySelector(`.btn-move[data-move="${moveKey}"]`);
+    if (btn) {
+      btn.classList.add('upgraded-move');
+      const spanTitle = btn.querySelector('span:first-child');
+      if (spanTitle) {
+        spanTitle.innerText = `${spanTitle.innerText.replace(' ★', '')} ★`;
+      }
+      const spanFrames = btn.querySelector('.move-frames');
+      if (spanFrames && upg.buffs.damage) {
+        spanFrames.innerText = `${upg.buffs.startup || '★'}f • ${upg.buffs.damage} Dmg`;
+      }
+    }
+
+    const currentMoveData = this.getMoveData(moveKey, true);
+    document.getElementById('move-desc').innerText = `[UPGRADED ★] ${currentMoveData.name} (${upg.desc})`;
+  }
+
+  resetMovesAndUpgrades() {
     document.querySelectorAll('.btn-move.unlocked-btn').forEach(btn => btn.remove());
+    document.querySelectorAll('.btn-move.upgraded-move').forEach(btn => {
+      btn.classList.remove('upgraded-move');
+      const span = btn.querySelector('span:first-child');
+      if (span) span.innerText = span.innerText.replace(' ★', '');
+    });
     this.unlockedMoves.clear();
+    this.moveUpgrades.clear();
+
     const defaultBtn = document.querySelector('.btn-move[data-move="QUICK_JAB"]');
     if (defaultBtn) {
       document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
@@ -1594,7 +1783,7 @@ class YomiEngine {
     this.stage = 1;
     this.activePerks.clear();
     this.replayFrames = [];
-    this.resetUnlockedMoveButtons();
+    this.resetMovesAndUpgrades();
     this.hideAllOverlays();
     this.initStage(this.stage);
   }
@@ -1619,25 +1808,21 @@ class YomiEngine {
     this.player.critChance = 0.1 + bonusCrit + (this.hasPerk('crit_master') ? 0.25 : 0);
     if (this.hasPerk('iron_wall')) this.player.defenseBonus += 0.25;
 
-    // Create Stage Opponents
-    const opponents = [
-      { name: 'SHAOLIN NOVICE', hp: 85, color: '#e76f51', atk: 8 },
-      { name: 'WANDERING RONIN', hp: 125, color: '#d90429', atk: 12 },
-      { name: 'ARMORED COLOSSUS', hp: 180, color: '#9d4edd', atk: 16 },
-      { name: 'SHADOW ASSASSIN', hp: 220, color: '#3a0ca3', atk: 20 },
-      { name: 'GRANDMASTER VANE', hp: 320, color: '#ff0054', atk: 26 }
-    ];
+    // Select Current Boss / Opponent Profile
+    this.currentOpponentData = OPPONENTS[Math.min(num - 1, OPPONENTS.length - 1)];
+    const opp = this.currentOpponentData;
 
-    const currentOpponent = opponents[Math.min(num - 1, opponents.length - 1)];
-    this.enemy = new TacticalFighter(currentOpponent.name, 760, false, currentOpponent.color);
-    this.enemy.maxHp = currentOpponent.hp;
-    this.enemy.hp = currentOpponent.hp;
-    this.enemy.atkBonus = currentOpponent.atk;
+    this.enemy = new TacticalFighter(opp.name, 760, false, opp.color);
+    this.enemy.maxHp = opp.hp;
+    this.enemy.hp = opp.hp;
+    this.enemy.atkBonus = opp.atk;
+    this.enemy.defenseBonus = opp.defense || 0;
 
     // Update Stage UI
     document.getElementById('stage-display').innerText = `STAGE ${this.stage} / ${this.maxStages}`;
     document.getElementById('p1-name').innerText = 'HUSTLER (YOU)';
-    document.getElementById('p2-name').innerText = this.enemy.name;
+    document.getElementById('p2-name').innerText = opp.name;
+    document.getElementById('p2-archetype').innerText = opp.title;
 
     this.openDecisionTurn();
     this.updateHUD();
@@ -1667,29 +1852,126 @@ class YomiEngine {
     }
   }
 
+  // ── INTELLIGENT SCALING AI (ARCHETYPE-BASED COMBAT) ────────────────────────
   chooseAIMove() {
+    const opp = this.currentOpponentData;
+    const aiType = opp.aiType || 'RUSHDOWN';
     const dist = Math.abs(this.enemy.x - this.player.x);
     const rand = Math.random();
+    const playerInHitstun = this.player.hitstunFrames > 0;
+    const isEnemyAirborne = this.enemy.isAirborne;
+    const isPlayerAirborne = this.player.isAirborne;
 
+    // Guard if in hitstun
     if (this.enemy.hitstunFrames > 0) {
       return 'BLOCK';
     }
 
-    if (dist > 280) {
-      if (this.enemy.superMeter >= 30 && rand < 0.4) return 'KI_BLAST';
-      return rand < 0.6 ? 'DASH' : 'JUMP';
-    } else if (dist > 95) {
-      if (rand < 0.3) return 'HEAVY_SLASH';
-      if (rand < 0.55) return 'SWEEP';
-      if (rand < 0.8) return 'DASH';
-      return 'STEP_FWD';
-    } else {
-      if (this.enemy.superMeter >= 60 && rand < 0.35) return 'DRAGON_UPPER';
-      if (rand < 0.3) return 'PARRY';
-      if (rand < 0.65) return 'QUICK_JAB';
-      if (rand < 0.85) return 'LAUNCHER';
-      return 'BLOCK';
+    // 1. RUSHDOWN (Shaolin Novice)
+    if (aiType === 'RUSHDOWN') {
+      if (playerInHitstun) {
+        return dist < 85 ? (rand < 0.6 ? 'QUICK_JAB' : 'LAUNCHER') : 'DASH';
+      }
+      if (dist > 200) return rand < 0.6 ? 'DASH' : 'JUMP';
+      if (dist < 85) {
+        if (rand < 0.55) return 'QUICK_JAB';
+        if (rand < 0.8) return 'SWEEP';
+        return 'BLOCK';
+      }
+      return rand < 0.5 ? 'STEP_FWD' : 'SWEEP';
     }
+
+    // 2. COUNTER_ZONER (Wandering Ronin)
+    if (aiType === 'COUNTER_ZONER') {
+      if (dist > 220) {
+        if (this.enemy.superMeter >= 35 && rand < 0.5) return 'JUDGMENT_CUT';
+        return rand < 0.5 ? 'STEP_BACK' : 'DASH';
+      }
+      if (dist <= 100) {
+        // High likelihood to frame-trap parry or heavy slash punish
+        if (rand < 0.35) return 'PARRY';
+        if (rand < 0.7) return 'HEAVY_SLASH';
+        return 'SWEEP';
+      }
+      return rand < 0.6 ? 'HEAVY_SLASH' : 'STEP_BACK';
+    }
+
+    // 3. SUPER_ARMOR_TANK (Armored Colossus)
+    if (aiType === 'SUPER_ARMOR_TANK') {
+      if (dist > 180) return rand < 0.6 ? 'DASH' : 'STEP_FWD';
+      if (dist <= 110) {
+        if (this.enemy.superMeter >= 25 && rand < 0.45) return 'METEOR_STRIKE';
+        if (rand < 0.4) return 'LAUNCHER';
+        return 'BLOCK';
+      }
+      return rand < 0.5 ? 'METEOR_STRIKE' : 'LAUNCHER';
+    }
+
+    // 4. AMBUSH_NINJA (Shadow Assassin)
+    if (aiType === 'AMBUSH_NINJA') {
+      if (dist > 180) {
+        if (this.enemy.superMeter >= 20 && rand < 0.5) return 'SHADOW_TELEPORT';
+        if (rand < 0.7) return 'SUPER_DASH';
+        return 'KI_BLAST';
+      }
+      if (isEnemyAirborne) {
+        return 'DIVE_KICK';
+      }
+      if (dist < 80) {
+        if (rand < 0.4) return 'LIGHTNING_PALM';
+        if (rand < 0.7) return 'QUICK_JAB';
+        return 'SUPER_DASH';
+      }
+      return rand < 0.5 ? 'DIVE_KICK' : 'KI_BLAST';
+    }
+
+    // 5. GRANDMASTER (Grandmaster Vane - Final Boss)
+    if (aiType === 'GRANDMASTER') {
+      // Exploit frame advantage ruthlessly with aerial combos
+      if (playerInHitstun) {
+        if (isPlayerAirborne) {
+          if (this.enemy.superMeter >= 60) return 'DRAGON_UPPER';
+          return 'WHIRLWIND';
+        }
+        return 'LAUNCHER';
+      }
+
+      // Read telegraphed strikes with tight parries
+      if (dist <= 95 && rand < 0.35) return 'PARRY';
+
+      if (dist > 220) {
+        if (this.enemy.superMeter >= 35 && rand < 0.4) return 'JUDGMENT_CUT';
+        return rand < 0.6 ? 'SUPER_DASH' : 'DIVE_KICK';
+      }
+
+      if (dist <= 100) {
+        if (this.enemy.superMeter >= 20 && rand < 0.4) return 'WHIRLWIND';
+        if (this.enemy.superMeter >= 25 && rand < 0.6) return 'METEOR_STRIKE';
+        return rand < 0.5 ? 'LAUNCHER' : 'QUICK_JAB';
+      }
+
+      return 'SUPER_DASH';
+    }
+
+    return 'QUICK_JAB';
+  }
+
+  getAIAimAngle(moveKey) {
+    const opp = this.currentOpponentData;
+    const aiType = opp.aiType || 'RUSHDOWN';
+
+    if (moveKey === 'LAUNCHER') return 55;
+    if (moveKey === 'JUMP') return 60;
+    if (moveKey === 'DIVE_KICK') return -45;
+    if (moveKey === 'JUDGMENT_CUT') return 15;
+    if (moveKey === 'SHADOW_TELEPORT') {
+      // Teleport behind or above player
+      return aiType === 'AMBUSH_NINJA' ? 35 : 0;
+    }
+    if (moveKey === 'DASH' || moveKey === 'SUPER_DASH') {
+      return this.enemy.isAirborne ? -30 : 15;
+    }
+    return 0;
   }
 
   lockInTurn() {
@@ -1700,30 +1982,24 @@ class YomiEngine {
     document.getElementById('tactical-panel').classList.add('hidden');
 
     this.selectedEnemyMove = this.chooseAIMove();
+    const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove);
 
-    // AI Aim Vector: intelligent aiming based on move
-    let enemyAimAngle = 0;
-    if (this.selectedEnemyMove === 'LAUNCHER') enemyAimAngle = 45;
-    else if (this.selectedEnemyMove === 'JUMP') enemyAimAngle = 60;
-    else if (this.selectedEnemyMove === 'DASH') enemyAimAngle = this.enemy.isAirborne ? -30 : 20;
-
-    // Trigger moves simultaneously with aim angles
     this.player.executeMove(this.selectedPlayerMove, this.selectedAimAngle);
     this.enemy.executeMove(this.selectedEnemyMove, enemyAimAngle);
 
-    // Phantom dash perk
     if (this.selectedPlayerMove === 'DASH' && this.hasPerk('phantom_dash')) {
       this.spawnSparks(this.player.x, this.player.y - 40, '#00f0ff', 16);
       this.projectiles.push(new Projectile(this.player.x, this.player.y - 40, 0, 0, true, 32, '#00f0ff'));
     }
 
-    const pDur = MOVES[this.selectedPlayerMove].duration || 16;
-    const eDur = MOVES[this.selectedEnemyMove].duration || 16;
+    const pData = this.getMoveData(this.selectedPlayerMove, true);
+    const eData = this.getMoveData(this.selectedEnemyMove, false);
+    const pDur = pData.duration || 16;
+    const eDur = eData.duration || 16;
     this.simFramesLeft = Math.max(pDur, eDur, 18);
   }
 
   recordFrame() {
-    // Record continuous frame snapshot without decision pauses
     const snapshot = {
       p: {
         x: this.player.x,
@@ -1834,7 +2110,6 @@ class YomiEngine {
     this.evaluateHit(this.player, this.enemy);
     this.evaluateHit(this.enemy, this.player);
 
-    // Check Spatial Rifts
     for (let i = this.spatialRifts.length - 1; i >= 0; i--) {
       const rift = this.spatialRifts[i];
       rift.update();
@@ -1956,7 +2231,6 @@ class YomiEngine {
   }
 
   update() {
-    // ── REPLAY PLAYBACK STATE ──
     if (this.turnState === 'REPLAY') {
       if (this.replayPlaying && this.replayFrames.length > 0) {
         this.replayCurrentFrame += this.replaySpeed;
@@ -1974,7 +2248,6 @@ class YomiEngine {
           const totalSec = (this.replayFrames.length / 60).toFixed(1);
           document.getElementById('replay-time-display').innerText = `${currSec}s / ${totalSec}s`;
 
-          // Live update HUD bars from replay frame
           const p1Hp = Math.max(0, (frame.p.hp / frame.p.maxHp) * 100);
           const p1Sp = Math.max(0, (frame.p.superMeter / frame.p.maxSuper) * 100);
           document.getElementById('p1-hp-bar').style.width = `${p1Hp}%`;
@@ -2004,7 +2277,6 @@ class YomiEngine {
 
       this.checkTacticalStrikes();
 
-      // Projectiles
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         const p = this.projectiles[i];
         p.update();
@@ -2018,12 +2290,9 @@ class YomiEngine {
         if (!p.active) this.projectiles.splice(i, 1);
       }
 
-      // Record this uninterrupted action frame
       this.recordFrame();
-
       this.simFramesLeft--;
 
-      // Check KO
       if (this.enemy.hp <= 0) {
         this.handleVictory();
         return;
@@ -2042,7 +2311,6 @@ class YomiEngine {
       }
     }
 
-    // Particles & Damage texts
     for (let i = this.particles.length - 1; i >= 0; i--) {
       this.particles[i].update();
       if (this.particles[i].life <= 0) this.particles.splice(i, 1);
@@ -2081,30 +2349,61 @@ class YomiEngine {
 
     document.getElementById('gameover-headline').innerText = 'KNOCKED OUT';
     document.getElementById('gameover-headline').style.color = 'var(--accent-red)';
-    document.getElementById('gameover-sub').innerText = `Fell in Stage ${this.stage}`;
+    document.getElementById('gameover-sub').innerText = `Fell in Stage ${this.stage} to ${this.enemy.name}`;
     document.getElementById('gameover-shards').innerText = `+${shardsEarned} Hustle Shards preserved 💎`;
     document.getElementById('screen-gameover').classList.add('active');
   }
 
+  // ── DRAFTING SCREEN: REWARDS WITH MOVE UPGRADES, SKILLS & BLESSINGS ────────
   showDraftOverlay() {
     const container = document.getElementById('buff-cards-container');
     container.innerHTML = '';
 
-    const available = ROGUELITE_PERKS.filter(p => {
-      if (p.kind === 'SKILL') {
-        return !this.unlockedMoves.has(p.moveKey);
+    // Collect all candidate reward options:
+    const candidates = [];
+
+    // 1. Move Upgrades for currently possessed moves that aren't upgraded yet
+    const playerMoves = [
+      'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
+      'DASH', 'JUMP', 'BLOCK', 'PARRY', 'KI_BLAST', 'DRAGON_UPPER',
+      ...Array.from(this.unlockedMoves)
+    ];
+
+    playerMoves.forEach(moveKey => {
+      if (!this.moveUpgrades.has(moveKey) && MOVE_UPGRADES_CATALOG[moveKey]) {
+        const upg = MOVE_UPGRADES_CATALOG[moveKey];
+        candidates.push({
+          kind: 'UPGRADE',
+          moveKey: moveKey,
+          name: upg.name,
+          rarity: 'rare',
+          icon: '⭐',
+          badge: 'MOVE UPGRADE ★',
+          desc: upg.desc
+        });
       }
-      return !this.activePerks.has(p.id);
     });
 
-    const randomThree = [...available].sort(() => 0.5 - Math.random()).slice(0, 3);
+    // 2. New Skill Unlocks not yet owned
+    ROGUELITE_PERKS.filter(p => p.kind === 'SKILL' && !this.unlockedMoves.has(p.moveKey)).forEach(sk => {
+      candidates.push(sk);
+    });
+
+    // 3. Passive Perks not yet active
+    ROGUELITE_PERKS.filter(p => p.kind === 'PERK' && !this.activePerks.has(p.id)).forEach(pk => {
+      candidates.push(pk);
+    });
+
+    const randomThree = [...candidates].sort(() => 0.5 - Math.random()).slice(0, 3);
 
     randomThree.forEach(reward => {
       const card = document.createElement('div');
       card.className = 'perk-card';
 
       let tierClass = `tier-${reward.rarity}`;
-      if (reward.kind === 'SKILL') {
+      if (reward.kind === 'UPGRADE') {
+        tierClass = 'tier-upgrade';
+      } else if (reward.kind === 'SKILL') {
         const moveData = MOVES[reward.moveKey];
         tierClass = (moveData && moveData.category === 'movement') ? 'tier-skill-mov' : 'tier-skill-atk';
       }
@@ -2117,7 +2416,9 @@ class YomiEngine {
       `;
 
       card.addEventListener('click', () => {
-        if (reward.kind === 'SKILL') {
+        if (reward.kind === 'UPGRADE') {
+          this.upgradeMove(reward.moveKey);
+        } else if (reward.kind === 'SKILL') {
           this.unlockMove(reward.moveKey);
         } else {
           this.activePerks.add(reward.id);
@@ -2217,7 +2518,6 @@ class YomiEngine {
   drawReplayFrame(frame) {
     this.drawArena();
 
-    // Afterimages
     if (frame.p.afterimages) {
       frame.p.afterimages.forEach(img => {
         this.ctx.save();
@@ -2237,14 +2537,12 @@ class YomiEngine {
       });
     }
 
-    // Shadows
     this.ctx.beginPath();
     this.ctx.ellipse(frame.p.x, 472, 26, 6, 0, 0, Math.PI * 2);
     this.ctx.ellipse(frame.e.x, 472, 26, 6, 0, 0, Math.PI * 2);
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     this.ctx.fill();
 
-    // Fighters Bodies
     const drawFighterSnapshot = (f) => {
       this.ctx.save();
       const drawX = f.x - f.width / 2;
@@ -2287,7 +2585,6 @@ class YomiEngine {
     drawFighterSnapshot(frame.p);
     drawFighterSnapshot(frame.e);
 
-    // Projectiles
     frame.projectiles.forEach(p => {
       this.ctx.save();
       this.ctx.fillStyle = p.color;
@@ -2302,7 +2599,6 @@ class YomiEngine {
       this.ctx.restore();
     });
 
-    // Particles
     frame.particles.forEach(pt => {
       this.ctx.save();
       this.ctx.globalAlpha = pt.alpha;
@@ -2315,7 +2611,6 @@ class YomiEngine {
       this.ctx.restore();
     });
 
-    // Damage texts
     frame.damageTexts.forEach(dt => {
       this.ctx.save();
       this.ctx.globalAlpha = dt.alpha;
@@ -2328,7 +2623,6 @@ class YomiEngine {
       this.ctx.restore();
     });
 
-    // Cinematic Anime Letterbox bars
     this.ctx.fillStyle = '#000000';
     this.ctx.fillRect(0, 0, this.width, 24);
     this.ctx.fillRect(0, this.height - 24, this.width, 24);
@@ -2337,7 +2631,6 @@ class YomiEngine {
   render() {
     this.ctx.save();
 
-    // ── REPLAY MODE RENDERING ──
     if (this.turnState === 'REPLAY') {
       const idx = Math.floor(this.replayCurrentFrame);
       const frame = this.replayFrames[idx];
@@ -2353,7 +2646,6 @@ class YomiEngine {
       return;
     }
 
-    // ── NORMAL GAMEPLAY RENDERING ──
     if (this.screenShake.duration > 0) {
       this.screenShake.duration--;
       const sx = (Math.random() - 0.5) * this.screenShake.intensity;
