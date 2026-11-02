@@ -15,7 +15,10 @@
       <!-- Player 1 Status -->
       <div class="fighter-card p1">
         <div class="fighter-header">
-          <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
+            <div class="gold-pill" id="gold-display">🪙 50 Gold</div>
+          </div>
           <span id="p1-hp-text">100 / 100</span>
         </div>
         <div class="bar-box">
@@ -28,10 +31,7 @@
 
       <!-- Center Match Indicators -->
       <div id="match-center">
-        <div style="display: flex; gap: 6px; align-items: center;">
-          <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1</div>
-          <div class="gold-pill" id="gold-display">🪙 50 Gold</div>
-        </div>
+        <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1 / 10</div>
         <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
         <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">🎬 REPLAY</button>
         <div class="combo-callout" id="combo-display">3 HITS!</div>
@@ -286,6 +286,15 @@
 
   </div>
 
+  <!-- Modular Roguelite Game Components -->
+  <script src="js/data/moves.js"></script>
+  <script src="js/data/upgrades.js"></script>
+  <script src="js/data/fusions.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/data/perks.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/animator.js"></script>
+  <script src="js/fighter.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
