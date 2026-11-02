@@ -127,7 +127,7 @@ class AimWheel {
     this.ctx.moveTo(cx - r, cy);
     this.ctx.lineTo(cx + r, cy);
     this.ctx.moveTo(cx, cy - r);
-    this.ctx.lineTo(cx, cy + r);
+    this.ctx.lineTo(cx + r, cy);
     this.ctx.stroke();
 
     const rad = -this.angleDeg * (Math.PI / 180);
@@ -174,6 +174,7 @@ class YomiEngine {
     // Tactical State Machine: 'DECISION' | 'SIMULATING' | 'ROUND_OVER' | 'REPLAY'
     this.turnState = 'DECISION';
     this.previousState = 'DECISION';
+    this.overlayBeforeReplay = null;
 
     // Entities & Combat System
     this.player = null;
@@ -193,7 +194,6 @@ class YomiEngine {
     this.replayIndex = 0;
     this.isReplayPlaying = false;
     this.replaySpeed = 1.0;
-    this.matchHistory = [];
 
     // Roguelite Expedition State
     this.currentFloor = 1;
@@ -296,13 +296,36 @@ class YomiEngine {
 
     window.addEventListener('keydown', (e) => {
       if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-      if ((e.code === 'Space' || e.code === 'Enter') && this.turnState === 'DECISION') {
+
+      if (e.code === 'Space') {
+        if (this.turnState === 'REPLAY') {
+          e.preventDefault();
+          this.isReplayPlaying = !this.isReplayPlaying;
+          const playIcon = document.getElementById('replay-play-icon');
+          if (playIcon) playIcon.innerText = this.isReplayPlaying ? '⏸ PAUSE' : '▶ PLAY';
+        } else if (this.turnState === 'DECISION') {
+          e.preventDefault();
+          SFX.init();
+          this.lockInTurn();
+        }
+      } else if (e.code === 'Enter' && this.turnState === 'DECISION') {
         e.preventDefault();
         SFX.init();
         this.lockInTurn();
-      } else if (e.code === 'KeyR' && this.turnState !== 'REPLAY' && this.replayFrames.length > 0) {
+      } else if (e.code === 'KeyR') {
         e.preventDefault();
-        this.startReplay();
+        if (this.turnState === 'REPLAY') {
+          this.replayIndex = 0;
+          this.isReplayPlaying = true;
+          const playIcon = document.getElementById('replay-play-icon');
+          if (playIcon) playIcon.innerText = '⏸ PAUSE';
+        } else if (this.replayFrames.length > 0) {
+          SFX.init();
+          this.startReplay();
+        }
+      } else if (e.code === 'Escape' && this.turnState === 'REPLAY') {
+        e.preventDefault();
+        this.exitReplay();
       }
     });
 
@@ -332,7 +355,7 @@ class YomiEngine {
       });
     }
 
-    // Top Bar Replay Button
+    // Replay Buttons Across All Screens
     const btnTopReplay = document.getElementById('btn-top-replay');
     if (btnTopReplay) {
       btnTopReplay.addEventListener('click', () => {
@@ -341,7 +364,40 @@ class YomiEngine {
       });
     }
 
-    // Victory & Game Over Screens
+    const btnDraftReplay = document.getElementById('btn-draft-replay');
+    if (btnDraftReplay) {
+      btnDraftReplay.addEventListener('click', () => {
+        SFX.init();
+        this.startReplay();
+      });
+    }
+
+    const btnVictoryReplay = document.getElementById('btn-victory-replay');
+    if (btnVictoryReplay) {
+      btnVictoryReplay.addEventListener('click', () => {
+        SFX.init();
+        this.startReplay();
+      });
+    }
+
+    const btnGameOverReplay = document.getElementById('btn-gameover-replay');
+    if (btnGameOverReplay) {
+      btnGameOverReplay.addEventListener('click', () => {
+        SFX.init();
+        this.startReplay();
+      });
+    }
+
+    const btnGameOverDojo = document.getElementById('btn-gameover-dojo');
+    if (btnGameOverDojo) {
+      btnGameOverDojo.addEventListener('click', () => {
+        SFX.init();
+        document.getElementById('screen-gameover').classList.remove('active');
+        this.openDojoScreen();
+      });
+    }
+
+    // Victory Screen: Next Floor / Sanctuary Shop
     const btnNextFloor = document.getElementById('btn-next-floor');
     if (btnNextFloor) {
       btnNextFloor.addEventListener('click', () => {
@@ -358,7 +414,7 @@ class YomiEngine {
       });
     }
 
-    // Sanctuary Shop Tabs & Exit
+    // Sanctuary Shop Tabs & Exit Buttons
     const tabArmory = document.getElementById('tab-shop-armory');
     if (tabArmory) {
       tabArmory.addEventListener('click', () => {
@@ -383,11 +439,10 @@ class YomiEngine {
       });
     }
 
-    const btnExitShop = document.getElementById('btn-exit-shop');
-    if (btnExitShop) {
-      btnExitShop.addEventListener('click', () => {
+    const btnLeaveShop = document.getElementById('btn-leave-shop');
+    if (btnLeaveShop) {
+      btnLeaveShop.addEventListener('click', () => {
         document.getElementById('screen-shop').classList.remove('active');
-        // Advance to next floor Stage 1
         this.currentFloor++;
         this.floorStage = 1;
         this.initStage(this.currentFloor, this.floorStage);
@@ -600,6 +655,9 @@ class YomiEngine {
     this.replayFrames = [];
     this.comboCount = 0;
 
+    // Record initial frame 0 so replay is ready even at match start
+    this.recordFrame();
+
     this.rebuildMoveButtons();
     this.updateHUD();
     this.openDecisionTurn();
@@ -644,7 +702,6 @@ class YomiEngine {
     const dist = Math.abs(this.enemy.x - this.player.x);
     const rand = Math.random();
     const playerInHitstun = this.player.hitstunFrames > 0;
-    const isEnemyAirborne = this.enemy.isAirborne;
 
     // Defense if stunned
     if (this.enemy.hitstunFrames > 0) {
@@ -793,12 +850,18 @@ class YomiEngine {
   }
 
   recordFrame() {
+    if (!this.player || !this.enemy) return;
+
     const snapshot = {
       p: {
         x: this.player.x,
         y: this.player.y,
+        floorY: this.player.floorY,
         facing: this.player.facing,
         color: this.player.color,
+        bodyColor: this.player.bodyColor,
+        headColor: this.player.headColor,
+        accentColor: this.player.accentColor,
         width: this.player.width,
         height: this.player.height,
         isAirborne: this.player.isAirborne,
@@ -818,8 +881,12 @@ class YomiEngine {
       e: {
         x: this.enemy.x,
         y: this.enemy.y,
+        floorY: this.enemy.floorY,
         facing: this.enemy.facing,
         color: this.enemy.color,
+        bodyColor: this.enemy.bodyColor,
+        headColor: this.enemy.headColor,
+        accentColor: this.enemy.accentColor,
         width: this.enemy.width,
         height: this.enemy.height,
         isAirborne: this.enemy.isAirborne,
@@ -1102,9 +1169,16 @@ class YomiEngine {
         // Run Complete: Defeated Final Boss!
         this.showFinalVictory();
       } else {
-        // Floor Clear: Open Sanctuary Shop
+        // Floor Clear: Open Floor Victory screen
+        const vicSub = document.getElementById('victory-sub');
+        if (vicSub) {
+          vicSub.innerText = `Floor ${this.currentFloor} Cleared! ${opp.name} Defeated! +${earnedGold} Gold & +${shardsEarned} Ki Shards Earned!`;
+        }
+        const vicShards = document.getElementById('victory-shards');
+        if (vicShards) {
+          vicShards.innerText = `+${shardsEarned} Hustle Shards Acquired!`;
+        }
         document.getElementById('screen-victory').classList.add('active');
-        document.getElementById('victory-sub').innerText = `Floor ${this.currentFloor} Cleared! ${opp.name} Defeated! +${earnedGold} Gold Earned!`;
       }
     } else {
       // Regular Stage Clear: Offer 3 Draft Rewards
@@ -1113,15 +1187,19 @@ class YomiEngine {
   }
 
   showFinalVictory() {
-    document.getElementById('screen-victory').classList.add('active');
-    document.getElementById('victory-sub').innerText = `EXPEDITION COMPLETE! You have defeated Emperor Zenith and become the Supreme God of Hustle!`;
-    const btnNext = document.getElementById('btn-next-floor');
-    if (btnNext) {
-      btnNext.innerText = 'RESTART EXPEDITION';
-      btnNext.onclick = () => {
-        document.getElementById('screen-victory').classList.remove('active');
-        this.startExpedition();
-      };
+    const vicEl = document.getElementById('screen-victory');
+    if (vicEl) {
+      document.getElementById('victory-headline').innerText = 'EXPEDITION COMPLETE!';
+      document.getElementById('victory-sub').innerText = `You have defeated Emperor Zenith and become the Supreme God of Hustle!`;
+      const btnNext = document.getElementById('btn-next-floor');
+      if (btnNext) {
+        btnNext.innerText = 'RESTART EXPEDITION';
+        btnNext.onclick = () => {
+          vicEl.classList.remove('active');
+          this.startExpedition();
+        };
+      }
+      vicEl.classList.add('active');
     }
   }
 
@@ -1132,7 +1210,14 @@ class YomiEngine {
     this.saveMeta();
 
     const opp = this.currentOpponentData || {};
-    document.getElementById('gameover-sub').innerText = `Fell in Floor ${this.currentFloor} (Stage ${this.floorStage}) to ${opp.name}`;
+    const goSub = document.getElementById('gameover-sub');
+    if (goSub) {
+      goSub.innerText = `Fell in Floor ${this.currentFloor} (Stage ${this.floorStage}) to ${opp.name}`;
+    }
+    const goShards = document.getElementById('gameover-shards');
+    if (goShards) {
+      goShards.innerText = `+${shardsEarned} Hustle Shards Acquired!`;
+    }
     document.getElementById('screen-gameover').classList.add('active');
   }
 
@@ -1590,35 +1675,46 @@ class YomiEngine {
   }
 
   openDojoScreen() {
-    document.getElementById('dojo-shards-display').innerText = `💎 ${this.meta.shards} Ki Shards`;
-    const costMap = {
-      hp: 20 + this.meta.upgrades.hp * 15,
-      sp: 25 + this.meta.upgrades.sp * 20,
-      crit: 30 + this.meta.upgrades.crit * 25,
-      def: 25 + this.meta.upgrades.def * 20
-    };
+    const shardsEl = document.getElementById('dojo-shards');
+    if (shardsEl) shardsEl.innerText = `Hustle Shards: ${this.meta.shards} 💎`;
+    const titleShards = document.getElementById('title-shards');
+    if (titleShards) titleShards.innerText = `Hustle Shards: ${this.meta.shards} 💎`;
 
-    ['hp', 'sp', 'crit', 'def'].forEach(stat => {
-      const btn = document.getElementById(`btn-upg-${stat}`);
-      const costSpan = document.getElementById(`cost-${stat}`);
-      const valSpan = document.getElementById(`val-${stat}`);
-      const cost = costMap[stat];
+    const grid = document.getElementById('dojo-upgrades-grid');
+    if (grid) {
+      grid.innerHTML = '';
+      const upgrades = [
+        { id: 'hp', name: 'Iron Body Conditioning', desc: '+15 Max HP per rank', cost: 20 + this.meta.upgrades.hp * 15, rank: this.meta.upgrades.hp },
+        { id: 'sp', name: 'Ki Flow Reservoir', desc: '+15 Max SP per rank', cost: 25 + this.meta.upgrades.sp * 20, rank: this.meta.upgrades.sp },
+        { id: 'crit', name: 'Precision Striker', desc: '+15% Weakpoint Damage per rank', cost: 30 + this.meta.upgrades.crit * 25, rank: this.meta.upgrades.crit },
+        { id: 'def', name: 'Defensive Posture', desc: '+5% Damage Reduction per rank', cost: 25 + this.meta.upgrades.def * 20, rank: this.meta.upgrades.def }
+      ];
 
-      if (costSpan) costSpan.innerText = `${cost} Shards`;
-      if (valSpan) valSpan.innerText = `Rank ${this.meta.upgrades[stat]}`;
-      if (btn) {
-        btn.disabled = this.meta.shards < cost;
-        btn.onclick = () => {
-          if (this.meta.shards >= cost) {
-            this.meta.shards -= cost;
-            this.meta.upgrades[stat]++;
+      upgrades.forEach(u => {
+        const card = document.createElement('div');
+        card.className = 'dojo-card';
+        card.innerHTML = `
+          <div class="dojo-meta">
+            <div class="dojo-title">${u.name}</div>
+            <div class="dojo-tier">Rank ${u.rank} • ${u.desc}</div>
+          </div>
+          <button class="btn-primary" style="padding: 6px 14px; font-size: 11px;" ${this.meta.shards < u.cost ? 'disabled' : ''}>
+            ${u.cost} 💎
+          </button>
+        `;
+        const btn = card.querySelector('button');
+        if (this.meta.shards >= u.cost) {
+          btn.addEventListener('click', () => {
+            this.meta.shards -= u.cost;
+            this.meta.upgrades[u.id]++;
             this.saveMeta();
             SFX.playCoin();
             this.openDojoScreen();
-          }
-        };
-      }
-    });
+          });
+        }
+        grid.appendChild(card);
+      });
+    }
 
     document.getElementById('screen-dojo').classList.add('active');
   }
@@ -1633,7 +1729,8 @@ class YomiEngine {
     if (playBtn) {
       playBtn.addEventListener('click', () => {
         this.isReplayPlaying = !this.isReplayPlaying;
-        document.getElementById('replay-play-icon').innerText = this.isReplayPlaying ? '⏸ PAUSE' : '▶ PLAY';
+        const playIcon = document.getElementById('replay-play-icon');
+        if (playIcon) playIcon.innerText = this.isReplayPlaying ? '⏸ PAUSE' : '▶ PLAY';
       });
     }
 
@@ -1642,7 +1739,8 @@ class YomiEngine {
       restartBtn.addEventListener('click', () => {
         this.replayIndex = 0;
         this.isReplayPlaying = true;
-        document.getElementById('replay-play-icon').innerText = '⏸ PAUSE';
+        const playIcon = document.getElementById('replay-play-icon');
+        if (playIcon) playIcon.innerText = '⏸ PAUSE';
       });
     }
 
@@ -1650,7 +1748,7 @@ class YomiEngine {
     if (scrubber) {
       scrubber.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
-        this.replayIndex = Math.floor((val / 100) * (this.replayFrames.length - 1));
+        this.replayIndex = Math.floor((val / 100) * Math.max(1, this.replayFrames.length - 1));
       });
     }
 
@@ -1660,7 +1758,8 @@ class YomiEngine {
         if (this.replaySpeed === 1.0) this.replaySpeed = 0.5;
         else if (this.replaySpeed === 0.5) this.replaySpeed = 2.0;
         else this.replaySpeed = 1.0;
-        document.getElementById('replay-speed-label').innerText = `${this.replaySpeed}x`;
+        const speedLabel = document.getElementById('replay-speed-label');
+        if (speedLabel) speedLabel.innerText = `${this.replaySpeed}x`;
       });
     }
 
@@ -1673,26 +1772,56 @@ class YomiEngine {
   }
 
   startReplay() {
-    if (this.replayFrames.length === 0) return;
+    if (this.replayFrames.length === 0) {
+      if (this.player) {
+        this.addDamageText(this.player.x, this.player.y - 65, 'NO REPLAY DATA YET!', '#ffd166', true);
+      }
+      return;
+    }
+
+    // Save whichever overlay was open (screen-draft, screen-victory, screen-gameover)
+    this.overlayBeforeReplay = document.querySelector('.overlay-screen.active');
+    if (this.overlayBeforeReplay) {
+      this.overlayBeforeReplay.classList.remove('active');
+    }
+
     this.previousState = this.turnState;
     this.turnState = 'REPLAY';
     this.replayIndex = 0;
     this.isReplayPlaying = true;
 
-    document.getElementById('replay-controls-bar').classList.remove('hidden');
-    document.getElementById('tactical-panel').classList.add('hidden');
-    document.getElementById('btn-top-replay').classList.add('hidden');
-    document.getElementById('replay-play-icon').innerText = '⏸ PAUSE';
+    // Show Replay HUD Bar
+    const replayHud = document.getElementById('replay-hud');
+    if (replayHud) replayHud.classList.remove('hidden');
+
+    const tacPanel = document.getElementById('tactical-panel');
+    if (tacPanel) tacPanel.classList.add('hidden');
+
+    const btnTopReplay = document.getElementById('btn-top-replay');
+    if (btnTopReplay) btnTopReplay.classList.add('hidden');
+
+    const playIcon = document.getElementById('replay-play-icon');
+    if (playIcon) playIcon.innerText = '⏸ PAUSE';
   }
 
   exitReplay() {
-    this.turnState = this.previousState || 'DECISION';
-    document.getElementById('replay-controls-bar').classList.add('hidden');
-    document.getElementById('btn-top-replay').classList.remove('hidden');
+    const replayHud = document.getElementById('replay-hud');
+    if (replayHud) replayHud.classList.add('hidden');
 
-    if (this.turnState === 'DECISION') {
-      document.getElementById('tactical-panel').classList.remove('hidden');
+    const btnTopReplay = document.getElementById('btn-top-replay');
+    if (btnTopReplay) btnTopReplay.classList.remove('hidden');
+
+    // Restore any overlay that was open before entering replay
+    if (this.overlayBeforeReplay) {
+      this.overlayBeforeReplay.classList.add('active');
+      this.overlayBeforeReplay = null;
+    } else if (this.previousState === 'DECISION') {
+      const tacPanel = document.getElementById('tactical-panel');
+      if (tacPanel) tacPanel.classList.remove('hidden');
     }
+
+    this.turnState = this.previousState || 'DECISION';
+    this.updateHUD();
   }
 
   updateReplay() {
@@ -1701,11 +1830,35 @@ class YomiEngine {
       if (this.replayIndex >= this.replayFrames.length) {
         this.replayIndex = this.replayFrames.length - 1;
         this.isReplayPlaying = false;
-        document.getElementById('replay-play-icon').innerText = '▶ PLAY';
+        const playIcon = document.getElementById('replay-play-icon');
+        if (playIcon) playIcon.innerText = '▶ PLAY';
       }
     }
 
-    const idx = Math.floor(this.replayIndex);
+    const idx = Math.min(this.replayFrames.length - 1, Math.max(0, Math.floor(this.replayIndex)));
+    const frame = this.replayFrames[idx];
+
+    // Dynamic HUD updates during replay
+    if (frame) {
+      const p1Hp = Math.max(0, (frame.p.hp / frame.p.maxHp) * 100);
+      const p1Sp = Math.max(0, (frame.p.superMeter / frame.p.maxSuper) * 100);
+      const p1HpBar = document.getElementById('p1-hp-bar');
+      const p1HpTxt = document.getElementById('p1-hp-text');
+      const p1SpBar = document.getElementById('p1-super-bar');
+      if (p1HpBar) p1HpBar.style.width = `${p1Hp}%`;
+      if (p1HpTxt) p1HpTxt.innerText = `${Math.ceil(frame.p.hp)} / ${frame.p.maxHp}`;
+      if (p1SpBar) p1SpBar.style.width = `${p1Sp}%`;
+
+      const p2Hp = Math.max(0, (frame.e.hp / frame.e.maxHp) * 100);
+      const p2Sp = Math.max(0, (frame.e.superMeter / frame.e.maxSuper) * 100);
+      const p2HpBar = document.getElementById('p2-hp-bar');
+      const p2HpTxt = document.getElementById('p2-hp-text');
+      const p2SpBar = document.getElementById('p2-super-bar');
+      if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
+      if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(frame.e.hp)} / ${frame.e.maxHp}`;
+      if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
+    }
+
     const progress = (idx / Math.max(1, this.replayFrames.length - 1)) * 100;
     const scrubber = document.getElementById('replay-scrubber');
     if (scrubber) scrubber.value = progress;
@@ -1713,8 +1866,10 @@ class YomiEngine {
     const timeEl = document.getElementById('replay-time-display');
     if (timeEl) {
       const curSec = Math.floor(idx / 60);
+      const curFrames = idx % 60;
       const totalSec = Math.floor(this.replayFrames.length / 60);
-      timeEl.innerText = `${curSec.toString().padStart(2, '0')}:00 / ${totalSec.toString().padStart(2, '0')}:00`;
+      const totalFrames = this.replayFrames.length % 60;
+      timeEl.innerText = `${curSec.toString().padStart(2, '0')}:${curFrames.toString().padStart(2, '0')} / ${totalSec.toString().padStart(2, '0')}:${totalFrames.toString().padStart(2, '0')}`;
     }
   }
 
@@ -1774,11 +1929,28 @@ class YomiEngine {
     this.drawArena();
 
     if (this.turnState === 'REPLAY') {
-      const idx = Math.min(this.replayFrames.length - 1, Math.floor(this.replayIndex));
+      const idx = Math.min(this.replayFrames.length - 1, Math.max(0, Math.floor(this.replayIndex)));
       const frame = this.replayFrames[idx];
       if (frame) {
         renderFighterModel(this.ctx, frame.p, true);
         renderFighterModel(this.ctx, frame.e, false);
+
+        if (frame.spatialRifts) {
+          frame.spatialRifts.forEach(sr => {
+            this.ctx.save();
+            const progress = 1 - (sr.life / (sr.maxLife || 20));
+            this.ctx.globalAlpha = Math.sin(progress * Math.PI);
+            this.ctx.strokeStyle = '#00f0ff';
+            this.ctx.shadowColor = '#00f0ff';
+            this.ctx.shadowBlur = 14;
+            this.ctx.lineWidth = 2.5;
+            this.ctx.beginPath();
+            this.ctx.arc(sr.x, sr.y, sr.radius * (0.8 + progress * 0.4), 0, Math.PI * 2);
+            this.ctx.stroke();
+            this.ctx.restore();
+          });
+        }
+
         frame.projectiles.forEach(p => {
           this.ctx.save();
           this.ctx.fillStyle = p.color;
