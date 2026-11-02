@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCADE VAULT: Indie Web Games Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --card-bg: #0e131d;
+      --card-border: #222d3e;
+      --accent-cyan: #00f0ff;
+      --accent-gold: #ffd166;
+      --accent-red: #ff3366;
+      --text-main: #f1f5f9;
+      --text-muted: #8292a8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 20% 15%, rgba(0, 240, 255, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 80% 85%, rgba(255, 209, 102, 0.05) 0%, transparent 45%);
+      color: var(--text-main);
+      font-family: 'Chakra Petch', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      padding: 38px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid #192231;
+    }
+
+    .brand-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .brand-tagline {
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1.5px solid #1a2434;
+      padding-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+    }
+
+    .catalog-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #233145;
+    }
+
+    /* GAME GRID */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    .card-banner {
+      height: 160px;
+      background: linear-gradient(135deg, #0b1424, #16243b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid #1f2b3c;
+    }
+
+    .banner-graphic {
+      font-size: 58px;
+      filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.6));
+    }
+
+    .banner-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .card-content {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .game-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 7px;
+      background: #151d2a;
+      border: 1px solid #28374d;
+      color: #a0aec0;
+      border-radius: 3px;
+    }
+
+    .game-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, var(--accent-cyan), #0077b6);
+      color: #030810;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.15s;
+    }
+
+    .btn-play:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    /* COMING SOON CARD */
+    .game-card.disabled {
+      opacity: 0.65;
+    }
+    .game-card.disabled:hover {
+      transform: none;
+      border-color: var(--card-border);
+      box-shadow: none;
+    }
+
+    .btn-disabled {
+      background: #17212e;
+      color: #55677d;
+      border: 1px solid #233144;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 11px 20px;
+      border-radius: 5px;
+      text-align: center;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid #141c27;
+      padding: 22px 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title">Arcade Vault</div>
+    <div class="brand-tagline">Browser Gaming Portal Powered by GitHub Pages</div>
+  </header>
+
+  <main>
+    <div class="section-header">
+      <div class="section-title">Playable Games</div>
+      <div class="catalog-count">Active: 1 Title</div>
+    </div>
+
+    <div class="game-grid">
+
+      <!-- GAME 1: YOMI ROGUE -->
+      <div class="game-card">
+        <div class="card-banner">
+          <div class="banner-graphic">⚔️</div>
+          <span class="banner-badge">Turn-Based</span>
+        </div>
+        <div class="card-content">
+          <h2 class="game-name">YOMI ROGUE</h2>
+          <div class="game-tags">
+            <span class="tag">Simultaneous Turns</span>
+            <span class="tag">Roguelite</span>
+            <span class="tag">Aim Wheel</span>
+            <span class="tag">2D Fighter</span>
+          </div>
+          <p class="game-desc">
+            Tactical fighting roguelite inspired by YOMI Hustle. Plan strikes frame by frame, dial aim trajectories, predict ghost outcomes, and draft active combat skills across 5 boss stages.
+          </p>
+          <a class="btn-play" href="./roguelite_fighter/index.html">PLAY YOMI ROGUE</a>
+        </div>
+      </div>
+
+      <!-- FUTURE GAME SLOT (HONEST COMING SOON PLACEHOLDER) -->
+      <div class="game-card disabled">
+        <div class="card-banner" style="background: linear-gradient(135deg, #0e121a, #141a24);">
+          <div class="banner-graphic" style="opacity: 0.35;">🕹️</div>
+          <span class="banner-badge" style="border-color: #4b5a6f; color: #76869b;">In Development</span>
+        </div>
+        <div class="card-content">
+          <h2 class="game-name" style="color: #8c9cb0;">Next Title: Vault Project</h2>
+          <div class="game-tags">
+            <span class="tag">Coming Soon</span>
+            <span class="tag">Retro Arcade</span>
+          </div>
+          <p class="game-desc">
+            More browser arcade games will be deployed into this portal as they are developed.
+          </p>
+          <div class="btn-disabled">COMING SOON</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    Hosted on GitHub Pages • Pure HTML5 Canvas & Web Audio • Zero Installation
+  </footer>
+
+</body>
+</html>

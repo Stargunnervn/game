@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YOMI ROGUE: Tactical Frame Fighter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    <canvas id="game-canvas" width="1024" height="600"></canvas>
+
+    <!-- TOP COMBAT HUD -->
+    <div id="top-hud">
+      <!-- Player 1 Status -->
+      <div class="fighter-card p1">
+        <div class="fighter-header">
+          <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
+          <span id="p1-hp-text">100 / 100</span>
+        </div>
+        <div class="bar-box">
+          <div id="p1-hp-bar" class="bar-fill hp-p1" style="width: 100%;"></div>
+        </div>
+        <div class="super-bar-box">
+          <div id="p1-super-bar" class="super-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Center Match Indicators -->
+      <div id="match-center">
+        <div class="stage-pill" id="stage-display">STAGE 1 / 5</div>
+        <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
+        <div class="combo-callout" id="combo-display">3 HITS!</div>
+      </div>
+
+      <!-- Opponent Status -->
+      <div class="fighter-card p2">
+        <div class="fighter-header">
+          <span id="p2-hp-text">100 / 100</span>
+          <span class="fighter-name" id="p2-name">ROGUE MONK</span>
+        </div>
+        <div class="bar-box">
+          <div id="p2-hp-bar" class="bar-fill hp-p2" style="width: 100%;"></div>
+        </div>
+        <div class="super-bar-box">
+          <div id="p2-super-bar" class="super-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM TACTICAL DECISION PANEL (YOMI HUSTLE STYLE) -->
+    <div id="tactical-panel">
+      <div class="move-categories">
+        <!-- ROW 1: MOVEMENT & DEFENSE -->
+        <div class="move-row">
+          <div class="category-group">
+            <span class="cat-label">Movement</span>
+            <div class="btn-row" id="movement-btns">
+              <button class="btn-move" data-move="STEP_FWD">
+                <span>Step Fwd</span>
+                <span class="move-frames">Adv: +1</span>
+              </button>
+              <button class="btn-move" data-move="STEP_BACK">
+                <span>Step Back</span>
+                <span class="move-frames">Adv: +1</span>
+              </button>
+              <button class="btn-move" data-move="JUMP">
+                <span>Jump</span>
+                <span class="move-frames">Airborne</span>
+              </button>
+              <button class="btn-move" data-move="DASH">
+                <span>Dash</span>
+                <span class="move-frames">Invuln</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="category-group" style="margin-left: 10px;">
+            <span class="cat-label">Defense</span>
+            <div class="btn-row" id="defense-btns">
+              <button class="btn-move" data-move="BLOCK">
+                <span>Block</span>
+                <span class="move-frames">Guard 80%</span>
+              </button>
+              <button class="btn-move" data-move="PARRY">
+                <span>Parry</span>
+                <span class="move-frames">Frame Trap</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: ATTACKS & SPECIALS -->
+        <div class="move-row">
+          <div class="category-group">
+            <span class="cat-label">Attacks</span>
+            <div class="btn-row" id="attack-btns">
+              <button class="btn-move selected" data-move="QUICK_JAB">
+                <span>Jab</span>
+                <span class="move-frames">3f • 8 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="HEAVY_SLASH">
+                <span>Slash</span>
+                <span class="move-frames">7f • 22 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="SWEEP">
+                <span>Sweep</span>
+                <span class="move-frames">5f • 14 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="LAUNCHER">
+                <span>Launcher</span>
+                <span class="move-frames">9f • Juggle</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="category-group" style="margin-left: 10px;">
+            <span class="cat-label">Special</span>
+            <div class="btn-row" id="special-btns">
+              <button class="btn-move special-btn" data-move="KI_BLAST">
+                <span>Ki Blast</span>
+                <span class="move-frames">30 SP</span>
+              </button>
+              <button class="btn-move special-btn" data-move="DRAGON_UPPER">
+                <span>Dragon</span>
+                <span class="move-frames">60 SP</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOMI HUSTLE AIM WHEEL (AIM & VECTOR SELECTOR) -->
+      <div class="aim-wheel-box">
+        <span class="aim-label">Aim / Vector</span>
+        <canvas id="aim-canvas" width="64" height="64" title="Click or drag to adjust trajectory"></canvas>
+        <span class="aim-angle-readout" id="aim-readout">0° [FWD]</span>
+      </div>
+
+      <!-- LOCK IN ACTION -->
+      <div class="lock-in-section">
+        <button id="btn-lock-in" class="btn-lockin">
+          <span>LOCK IN</span>
+          <span class="key-hint">[SPACE / ENTER]</span>
+        </button>
+        <div class="move-preview-desc" id="move-desc">Quick Jab (3f startup)</div>
+      </div>
+    </div>
+
+    <!-- TITLE SCREEN OVERLAY -->
+    <div id="screen-title" class="overlay-screen active">
+      <div class="main-title">YOMI ROGUE</div>
+      <div class="sub-title">SIMULTANEOUS TURN-BASED FIGHTING ROGUELITE</div>
+      <div class="shards-pill" id="title-shards">Hustle Shards: 0 💎</div>
+      <div style="display: flex; gap: 14px;">
+        <button id="btn-start-run" class="btn-primary">BEGIN EXPEDITION</button>
+        <button id="btn-open-dojo" class="btn-secondary">THE DOJO</button>
+      </div>
+    </div>
+
+    <!-- BUFF DRAFTING OVERLAY (VICTORY) -->
+    <div id="screen-draft" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 34px;">ROUND CLEARED!</div>
+      <div class="sub-title">Select a Tactical Synergy Perk to enhance your moveset:</div>
+      <div class="cards-row" id="buff-cards-container">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- THE DOJO OVERLAY (META PROGRESSION) -->
+    <div id="screen-dojo" class="overlay-screen">
+      <div class="main-title" style="font-size: 32px;">THE ANCIENT DOJO</div>
+      <div class="sub-title">Permanent conditioning via Hustle Shards:</div>
+      <div class="shards-pill" id="dojo-shards">Hustle Shards: 0 💎</div>
+      
+      <div class="dojo-grid" id="dojo-upgrades-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <button id="btn-close-dojo" class="btn-secondary">BACK TO MAIN</button>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="screen-gameover" class="overlay-screen">
+      <div class="main-title" id="gameover-headline" style="color: var(--accent-red);">KNOCKED OUT</div>
+      <div class="sub-title" id="gameover-sub">Defeated in Stage 3</div>
+      <div class="shards-pill" id="gameover-shards">+16 Hustle Shards acquired!</div>
+      <div style="display: flex; gap: 14px;">
+        <button id="btn-retry-run" class="btn-primary">NEW RUN</button>
+        <button id="btn-gameover-dojo" class="btn-secondary">ENTER DOJO</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
