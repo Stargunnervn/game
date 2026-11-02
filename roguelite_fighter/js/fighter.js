@@ -170,6 +170,9 @@ class TacticalFighter {
     this.hasArmor = false;
     this.hitstunFrames = 0;
     this.isAirborne = false;
+    this.hasHit = false;
+    this.hitsDealt = 0;
+    this.lastHitFrame = -999;
 
     // Visual trails
     this.afterimages = [];
@@ -202,6 +205,9 @@ class TacticalFighter {
     this.moveKey = moveKey;
     this.moveFrame = 0;
     this.aimAngle = aimDeg;
+    this.hasHit = false;
+    this.hitsDealt = 0;
+    this.lastHitFrame = -999;
 
     const rad = (aimDeg * Math.PI) / 180;
 
@@ -411,6 +417,8 @@ class TacticalFighter {
     }
 
     this.currentMove = null;
+    this.hasHit = false;
+    this.hitsDealt = 0;
     return finalDmg;
   }
 
@@ -482,6 +490,8 @@ class TacticalFighter {
         this.isParrying = false;
         this.isBlocking = false;
         this.hasArmor = false;
+        this.hasHit = false;
+        this.hitsDealt = 0;
       }
     }
     this.animTick = (this.animTick || 0) + 1;

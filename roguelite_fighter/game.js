@@ -201,7 +201,7 @@ class YomiEngine {
     this.currentOpponentData = null;
     this.gold = 50;
 
-    // Move & Deck Management
+    // Move & Deck Management (Deck Limit: 10 active combat moves)
     this.ownedMoves = new Set([
       'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
       'BLOCK', 'PARRY',
@@ -209,7 +209,7 @@ class YomiEngine {
       'KI_BLAST', 'DRAGON_UPPER'
     ]);
     this.equippedMoves = new Set([
-      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
+      'JUMP', 'DASH',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
@@ -556,7 +556,9 @@ class YomiEngine {
 
   unlockMove(moveKey) {
     this.ownedMoves.add(moveKey);
-    this.equippedMoves.add(moveKey);
+    if (this.equippedMoves.size < 10) {
+      this.equippedMoves.add(moveKey);
+    }
     this.rebuildMoveButtons();
   }
 
@@ -576,7 +578,7 @@ class YomiEngine {
     this.moveUpgrades.clear();
     this.apexMoves.clear();
 
-    // Reset standard starting deck
+    // Reset standard starting deck (10 active moves, 2 stashed)
     this.ownedMoves = new Set([
       'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
       'BLOCK', 'PARRY',
@@ -584,7 +586,7 @@ class YomiEngine {
       'KI_BLAST', 'DRAGON_UPPER'
     ]);
     this.equippedMoves = new Set([
-      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
+      'JUMP', 'DASH',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
@@ -957,17 +959,36 @@ class YomiEngine {
     const move = attacker.currentMove;
     if (move.projectile || move.isSpatial) return;
 
+    // Single-hit and multi-hit cap guard: prevent repeated damage on every active frame
+    const maxHits = move.multiHitCount || 1;
+    if (attacker.hasHit && (attacker.hitsDealt || 0) >= maxHits) return;
+
     const currentF = attacker.moveFrame;
     const startF = move.startup;
     const endF = startF + (move.activeFrames || 4);
 
     if (currentF >= startF && currentF <= endF) {
+      // For multi-hit moves: enforce frame gap interval between hits
+      if ((attacker.hitsDealt || 0) > 0) {
+        const interval = move.hitInterval || 3;
+        if (currentF - attacker.lastHitFrame < interval) return;
+      }
+
       const dist = Math.abs(attacker.x - defender.x);
       const is360 = !!move.is360;
       const withinRange = is360 ? dist <= (move.range || 90) : dist <= (move.range || 75);
 
       if (withinRange) {
-        let dmg = move.damage + attacker.atkBonus;
+        attacker.hasHit = true;
+        attacker.hitsDealt = (attacker.hitsDealt || 0) + 1;
+        attacker.lastHitFrame = currentF;
+
+        // Damage calculation (split base damage across hits for multi-hit moves)
+        let baseDmg = move.damage;
+        if (maxHits > 1) {
+          baseDmg = Math.max(1, Math.round(baseDmg / maxHits));
+        }
+        let dmg = baseDmg + (attacker.hitsDealt === 1 ? attacker.atkBonus : 0);
 
         // WEAKPOINT HIT SYSTEM (Zero RNG, 100% Tactical & Deterministic)
         const wp = this.checkWeakpointHit(attacker, defender, move);
@@ -984,7 +1005,7 @@ class YomiEngine {
           SFX.playWeakpoint();
           this.spawnSparks(defender.x, defender.y - 45, '#ffd166', 22);
 
-          if (attacker.isPlayer) {
+          if (attacker.isPlayer && attacker.hitsDealt === 1) {
             this.gold += 8;
             if (this.hasPerk('weakpoint_prism')) attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 15);
             this.updateHUD();
@@ -996,11 +1017,12 @@ class YomiEngine {
         }
 
         const isSpike = !!move.spikesDown;
-        const isHeavy = !!move.launchesAir || move.damage >= 24;
+        const isHeavy = !!move.launchesAir || (move.damage >= 24 && attacker.hitsDealt === maxHits);
         const realDmg = defender.takeHit(dmg, attacker, isHeavy, isSpike);
 
         if (realDmg > 0) {
-          attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 16);
+          const meterGain = Math.round(16 / maxHits);
+          attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + meterGain);
 
           if (attacker.isPlayer && this.hasPerk('vampiric_edge') && isWeakpoint) {
             const heal = Math.max(1, Math.round(realDmg * 0.1));
@@ -1008,7 +1030,7 @@ class YomiEngine {
             this.addDamageText(attacker.x, attacker.y - 80, `+${heal} HP`, '#06d6a0');
           }
 
-          if (attacker.isPlayer && this.hasPerk('lightning_strike')) {
+          if (attacker.isPlayer && this.hasPerk('lightning_strike') && attacker.hitsDealt === 1) {
             this.spawnSparks(defender.x, defender.y - 45, '#ffd166', 15);
             defender.hp = Math.max(0, defender.hp - 16);
             this.addDamageText(defender.x + 20, defender.y - 50, '16 ⚡', '#ffd166');
@@ -1397,8 +1419,12 @@ class YomiEngine {
 
   renderDeckCustomizer() {
     const container = document.getElementById('deck-grid-container');
+    if (!container) return;
     container.innerHTML = '';
-    document.getElementById('deck-count-text').innerText = `${this.equippedMoves.size} / ${this.ownedMoves.size} Moves`;
+    const deckCountEl = document.getElementById('deck-count-text');
+    if (deckCountEl) {
+      deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+    }
 
     Array.from(this.ownedMoves).forEach(moveKey => {
       const moveData = this.getMoveData(moveKey, true);
@@ -1422,9 +1448,26 @@ class YomiEngine {
 
       card.addEventListener('click', () => {
         if (isEquipped) {
-          if (this.equippedMoves.size <= 4) return; // Keep minimum loadout
+          if (this.equippedMoves.size <= 4) {
+            if (deckCountEl) {
+              deckCountEl.innerHTML = `<span style="color: #ff3366;">Minimum 4 combat moves required!</span>`;
+              setTimeout(() => {
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+              }, 1800);
+            }
+            return;
+          }
           this.equippedMoves.delete(moveKey);
         } else {
+          if (this.equippedMoves.size >= 10) {
+            if (deckCountEl) {
+              deckCountEl.innerHTML = `<span style="color: #ff3366;">Deck Full (10/10)! Unequip a move first.</span>`;
+              setTimeout(() => {
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 10 Active Moves (Owned: ${this.ownedMoves.size})`;
+              }, 1800);
+            }
+            return;
+          }
           this.equippedMoves.add(moveKey);
         }
         this.rebuildMoveButtons();

@@ -215,11 +215,13 @@ const MOVES = {
     category: 'special',
     duration: 22,
     startup: 4,
-    activeFrames: 10,
+    activeFrames: 12,
     damage: 28,
     range: 95,
     is360: true,
-    superCost: 20
+    superCost: 20,
+    multiHitCount: 3,
+    hitInterval: 3
   },
   METEOR_STRIKE: {
     name: 'Meteor Blow',
@@ -350,14 +352,16 @@ const MOVES = {
     type: 'SPECIAL',
     category: 'special',
     startup: 2,
-    activeFrames: 6,
-    duration: 14,
+    activeFrames: 10,
+    duration: 16,
     damage: 34,
     hitstun: 26,
     knockback: 18,
     range: 140,
     superCost: 25,
-    isFusion: true
+    isFusion: true,
+    multiHitCount: 4,
+    hitInterval: 2
   },
   VOID_CLEAVE: {
     name: 'Dimensional Void Cleave',

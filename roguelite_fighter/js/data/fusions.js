@@ -91,7 +91,7 @@ const APEX_UPGRADES_CATALOG = {
   WHIRLWIND: {
     name: 'Cataclysm Vortex [APEX ⚔️]',
     desc: '6 rapid slices, 58 damage, draws all airborne and ground foes in.',
-    buffs: { damage: 58, range: 140 }
+    buffs: { damage: 58, range: 140, multiHitCount: 6, hitInterval: 2, activeFrames: 14 }
   },
   METEOR_STRIKE: {
     name: 'Cataclysmic Comet Fist [APEX ⚔️]',
