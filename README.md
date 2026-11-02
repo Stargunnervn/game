@@ -29,3 +29,4 @@ To add a new game to this portal:
 2. Add your game assets and an `index.html` entrypoint.
 3. Add a new game card to the root [`index.html`](./index.html) linking to `./my_new_game/index.html`.
 4. Commit and push: GitHub Pages automatically deploys the updated portal!
+

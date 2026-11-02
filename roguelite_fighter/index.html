@@ -30,6 +30,7 @@
       <div id="match-center">
         <div class="stage-pill" id="stage-display">STAGE 1 / 5</div>
         <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
+        <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">🎬 REPLAY</button>
         <div class="combo-callout" id="combo-display">3 HITS!</div>
       </div>
 
@@ -66,11 +67,11 @@
               </button>
               <button class="btn-move" data-move="JUMP">
                 <span>Jump</span>
-                <span class="move-frames">Airborne</span>
+                <span class="move-frames">360° Aim</span>
               </button>
               <button class="btn-move" data-move="DASH">
-                <span>Dash</span>
-                <span class="move-frames">Invuln</span>
+                <span>Omni Dash</span>
+                <span class="move-frames">360° Air/Gnd</span>
               </button>
             </div>
           </div>
@@ -165,6 +166,7 @@
       <div class="cards-row" id="buff-cards-container">
         <!-- Injected via JavaScript -->
       </div>
+      <button id="btn-draft-replay" class="btn-secondary" style="margin-top: 10px;">🎬 WATCH MATCH REPLAY</button>
     </div>
 
     <!-- THE DOJO OVERLAY (META PROGRESSION) -->
@@ -187,8 +189,31 @@
       <div class="shards-pill" id="gameover-shards">+16 Hustle Shards acquired!</div>
       <div style="display: flex; gap: 14px;">
         <button id="btn-retry-run" class="btn-primary">NEW RUN</button>
+        <button id="btn-gameover-replay" class="btn-secondary">🎬 WATCH REPLAY</button>
         <button id="btn-gameover-dojo" class="btn-secondary">ENTER DOJO</button>
       </div>
+    </div>
+
+    <!-- CINEMATIC REPLAY CONTROLS (YOMI HUSTLE STYLE) -->
+    <div id="replay-hud" class="replay-bar hidden">
+      <div class="replay-badge">
+        <span class="replay-dot"></span>
+        <span>CINEMATIC REPLAY</span>
+      </div>
+      <button id="btn-replay-play" class="replay-ctrl-btn" title="Play / Pause [Space]">
+        <span id="replay-play-icon">⏸ PAUSE</span>
+      </button>
+      <button id="btn-replay-restart" class="replay-ctrl-btn" title="Restart Replay">
+        <span>⏮ RESTART</span>
+      </button>
+      <input type="range" id="replay-scrubber" min="0" max="100" value="0" class="replay-slider">
+      <span id="replay-time-display" class="replay-time">00:00 / 00:00</span>
+      <button id="btn-replay-speed" class="replay-speed-btn" title="Toggle Speed">
+        <span id="replay-speed-label">1.0x</span>
+      </button>
+      <button id="btn-replay-exit" class="replay-exit-btn">
+        <span>EXIT REPLAY</span>
+      </button>
     </div>
 
   </div>
