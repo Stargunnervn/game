@@ -2359,8 +2359,10 @@ class YomiEngine {
     const container = document.getElementById('buff-cards-container');
     container.innerHTML = '';
 
-    // Collect all candidate reward options:
-    const candidates = [];
+    // Separate candidates by category to guarantee a balanced, tactical choice:
+    const upgradeCandidates = [];
+    const newMoveCandidates = [];
+    const perkCandidates = [];
 
     // 1. Move Upgrades for currently possessed moves that aren't upgraded yet
     const playerMoves = [
@@ -2372,7 +2374,7 @@ class YomiEngine {
     playerMoves.forEach(moveKey => {
       if (!this.moveUpgrades.has(moveKey) && MOVE_UPGRADES_CATALOG[moveKey]) {
         const upg = MOVE_UPGRADES_CATALOG[moveKey];
-        candidates.push({
+        upgradeCandidates.push({
           kind: 'UPGRADE',
           moveKey: moveKey,
           name: upg.name,
@@ -2386,15 +2388,40 @@ class YomiEngine {
 
     // 2. New Skill Unlocks not yet owned
     ROGUELITE_PERKS.filter(p => p.kind === 'SKILL' && !this.unlockedMoves.has(p.moveKey)).forEach(sk => {
-      candidates.push(sk);
+      newMoveCandidates.push(sk);
     });
 
     // 3. Passive Perks not yet active
     ROGUELITE_PERKS.filter(p => p.kind === 'PERK' && !this.activePerks.has(p.id)).forEach(pk => {
-      candidates.push(pk);
+      perkCandidates.push(pk);
     });
 
-    const randomThree = [...candidates].sort(() => 0.5 - Math.random()).slice(0, 3);
+    // Smart Balanced Draft: Ensure player always gets a choice between Upgrading an existing move OR unlocking a New Moveset!
+    const randomThree = [];
+    const popRandom = (arr) => {
+      if (!arr || arr.length === 0) return null;
+      const idx = Math.floor(Math.random() * arr.length);
+      return arr.splice(idx, 1)[0];
+    };
+
+    // Slot 1: Guaranteed Move Upgrade (if available)
+    const cardUpgrade = popRandom(upgradeCandidates);
+    if (cardUpgrade) randomThree.push(cardUpgrade);
+
+    // Slot 2: Guaranteed New Moveset (if available)
+    const cardNewMove = popRandom(newMoveCandidates);
+    if (cardNewMove) randomThree.push(cardNewMove);
+
+    // Slot 3+: Fill up to 3 cards from all remaining candidates (Upgrades, New Moves, Passives)
+    const remainingPool = [...upgradeCandidates, ...newMoveCandidates, ...perkCandidates];
+    remainingPool.sort(() => 0.5 - Math.random());
+
+    while (randomThree.length < 3 && remainingPool.length > 0) {
+      randomThree.push(remainingPool.pop());
+    }
+
+    // Shuffle the final 3 cards so their UI positions (left, center, right) are randomized
+    randomThree.sort(() => 0.5 - Math.random());
 
     randomThree.forEach(reward => {
       const card = document.createElement('div');
