@@ -32,38 +32,57 @@ A simultaneous turn-based fighting roguelite inspired by **Your Only Move Is Hus
 
 ---
 
-## 3. Roguelite Progression & Expanded Draft Rewards
+## 3. Roguelite Progression & 3-Floor Gauntlet
 
-### 5-Stage Gauntlet:
-1. **Stage 1:** Shaolin Novice
-2. **Stage 2:** Wandering Ronin
-3. **Stage 3:** Armored Colossus
-4. **Stage 4:** Shadow Assassin
-5. **Stage 5:** Grandmaster Vane (Final Boss)
+### 3-Floor Gauntlet (Tier-Based Encounter Pools):
+1. **Floor 1 (The Outskirts):**
+   - Minion Encounters: Bandit Brawler, Spear Recruit, Rogue Monk.
+   - Floor 1 Bosses: Shaolin Master, Wandering Ronin.
+2. **Floor 2 (The Iron Citadel):**
+   - Minion Encounters: Iron Sentinel, Katana Duelist, Shadow Acolyte.
+   - Floor 2 Bosses: Armored Colossus, Thunder Shinobi.
+3. **Floor 3 (The Void Sanctum):**
+   - Minion Encounters: Void Stalker, Chaos Juggernaut, Grand Disciple.
+   - Floor 3 Final Boss: Grandmaster Vane (Supreme Hustler).
 
-### Tactical Synergy Drafts (Active Skills + Passive Blessings):
-After clearing each round, choose 1 of 3 random cards from the drafting pool:
+---
 
-#### A. New Active Attack Skills (Unlocked into your moveset):
-- **Judgment Cut (Legendary, 35 SP):** Creates a spatial distortion sphere slicing at your aimed coordinates.
-- **Falcon Dive Kick (Rare, 0 SP):** Downward plunging diagonal kick that spikes opponents into the floor.
-- **Cyclone Blade (Rare, 20 SP):** 360° spinning blade that vacuums nearby enemies in and delivers 3 quick strikes.
-- **Meteor Blow (Rare, 25 SP):** Armored lunging strike that absorbs light attacks and deals 34 heavy damage.
-- **Thunder Palm (Common, 15 SP):** Blazing fast 4f electrified palm thrust with 28f frame advantage stun.
+## 4. Post-Boss Sanctuary Shop & Skill Deck Customizer
 
-#### B. New Active Movement Skills (Unlocked into your moveset):
-- **Shadow Blink (Rare, 20 SP):** Instant teleportation along your aim wheel vector.
-- **Hyper Rocket Dash (Common, 0 SP):** Extreme-velocity blitz covering 260px distance with invulnerability.
-- **Sky Leap (Common, 0 SP):** High directional leap allowing multi-angle airborne repositioning.
+Upon conquering each Floor's Boss (Floors 1 & 2), the **Sanctuary Forge & Market** opens:
+- **Currency (Gold 🪙):** Earned by winning encounters (+35 to +150 Gold) and executing tactical Weakpoint Hits (+8 Gold).
+- **Skill Armory:** Purchase new combat techniques and upgrades with Gold.
+- **Supplies & Relics:** Restorative potions, Max HP charms, and Ki starting crystals.
+- **Skill Deck Customizer:** Freely toggle **Equip / Stash** on any unlocked technique to configure your active combat HUD loadout before embarking into the next floor!
 
-#### C. Passive Blessings:
-- **Vampiric Touch:** Siphon 14% of dealt damage as health.
-- **Thunder Step:** Strikes discharge chain lightning for +16 bonus shock damage.
-- **Aegis Parry:** +25% defense; parrying reflects 25 unblockable damage back.
-- **Phantom Afterimage:** Dashing leaves an explosive decoy behind.
-- **Overdrive Berserk:** +55% damage when HP falls below 50%.
-- **Executioner Precision:** +25% Critical Chance, dealing 240% lethal damage.
-- **Titan Vitality:** +50 Max HP and full heal.
+---
+
+## 5. Weakpoint Hit System (Zero RNG, 100% Deterministic)
+
+Critical strike RNG has been completely replaced with a deterministic **Weakpoint Hit** mechanic:
+- **Whiff Punish:** Striking an opponent who just missed an attack or is in recovery frames.
+- **Anti-Air / High-Low Alignment:** Directing your Aim Wheel into high vulnerability zones against airborne opponents, or sweeping low against standing guards.
+- **Blindside / Backstab:** Attacking an opponent from behind.
+- **Rewards:** Guaranteed x1.65 damage, +4 frames of extra combo advantage, +8 Gold bonus, and golden cross-spark particle bursts!
+
+---
+
+## 6. Skill Breakthrough: Hybrid Fusion & Apex Ascension
+
+When an already-upgraded move (`★`) is selected for evolution:
+1. **Skill Fusion (🔮):** Merge two compatible moves to form an ultimate dual-element technique:
+   - `Quick Jab` + `Ki Blast` = **Thunder Gale Barrage**
+   - `Heavy Slash` + `Judgment Cut` = **Dimensional Void Cleave**
+   - `Launcher` + `Dive Kick` = **Comet Crater Impact**
+   - `Dash` + `Sweep` = **Phantom Ghost Slide**
+   - `Block` + `Parry` = **Aegis Divine Counter**
+2. **Apex Ascension (⚔️):** Transcend the skill to its mythic standalone form with 1f startup, doubled damage, and Super-Armor!
+
+---
+
+## 7. Procedural Martial Arts Animation
+
+Capsule placeholders have been upgraded to dynamic anime martial artists with animated limbs, flowing wind bandanas, energetic punch extensions, luminous blade slash arcs, and forcefield block guards.
 
 ### The Ancient Dojo (Meta Progression):
 - Earn **Hustle Shards (💎)** across runs.

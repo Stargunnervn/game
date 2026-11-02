@@ -201,6 +201,39 @@ class SoundFX {
       osc.stop(now + 0.3);
     });
   }
+
+  playWeakpoint() {
+    if (!this.enabled || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1200, now);
+    osc.frequency.exponentialRampToValueAtTime(2200, now + 0.12);
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  playCoin() {
+    if (!this.enabled || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    [987.77, 1318.51].forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
+      gain.gain.setValueAtTime(0.2, now + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.18);
+    });
+  }
 }
 
 const SFX = new SoundFX();
@@ -480,10 +513,85 @@ const MOVES = {
     startup: 0,
     damage: 0,
     superCost: 0
+  },
+  // HYBRID FUSION MOVES (UNLOCKED VIA SKILL BREAKTHROUGH)
+  THUNDER_GALE: {
+    name: 'Thunder Gale Barrage',
+    desc: 'Rapid 4-hit storm of electric punches that release piercing shockwaves across the screen.',
+    type: 'ATTACK',
+    category: 'attack',
+    startup: 2,
+    activeFrames: 6,
+    duration: 14,
+    damage: 34,
+    hitstun: 26,
+    knockback: 18,
+    range: 130,
+    superCost: 20,
+    isFusion: true
+  },
+  VOID_CLEAVE: {
+    name: 'Dimensional Void Cleave',
+    desc: 'Space-rending greatsword slash that opens 3 slicing dimensional rifts along its trajectory.',
+    type: 'ATTACK',
+    category: 'attack',
+    startup: 5,
+    activeFrames: 8,
+    duration: 18,
+    damage: 54,
+    hitstun: 35,
+    knockback: 35,
+    range: 160,
+    superCost: 35,
+    isSpatial: true,
+    isFusion: true
+  },
+  COMET_CRASH: {
+    name: 'Comet Crater Impact',
+    desc: 'Sky launch into immediate downward flaming meteor slam that craters the arena floor.',
+    type: 'ATTACK',
+    category: 'attack',
+    startup: 5,
+    activeFrames: 7,
+    duration: 16,
+    damage: 48,
+    hitstun: 30,
+    launchY: -16,
+    spikesDown: true,
+    knockback: 30,
+    range: 110,
+    superCost: 25,
+    isFusion: true
+  },
+  PHANTOM_SLIDE: {
+    name: 'Phantom Ghost Slide',
+    desc: 'Hyper-speed low slide passing through foe to sweep legs from behind (Guaranteed Weakpoint Hit).',
+    type: 'MOVEMENT',
+    category: 'movement',
+    startup: 2,
+    activeFrames: 6,
+    duration: 14,
+    moveDist: 200,
+    damage: 26,
+    hitstun: 28,
+    superCost: 15,
+    isFusion: true
+  },
+  AEGIS_REFLECT: {
+    name: 'Aegis Divine Counter',
+    desc: 'Indestructible geometric shield that absorbs 100% and immediately reflects full damage back.',
+    type: 'DEFENSE',
+    category: 'defense',
+    startup: 0,
+    activeFrames: 10,
+    duration: 14,
+    damage: 0,
+    superCost: 10,
+    isFusion: true
   }
 };
 
-// ── 3. MOVE UPGRADE DEFINITIONS (EVOLVED MOVES) ─────────────────────────────
+// ── 3. MOVE UPGRADE DEFINITIONS (EVOLVED MOVES ★) ───────────────────────────
 const MOVE_UPGRADES_CATALOG = {
   QUICK_JAB: {
     name: 'Swift Flash Jab ★',
@@ -557,63 +665,313 @@ const MOVE_UPGRADES_CATALOG = {
   }
 };
 
-// ── 4. STAGE OPPONENTS: DISTINCT ARCHETYPES & SCALING AI ────────────────────
-const OPPONENTS = [
-  {
-    name: 'SHAOLIN NOVICE',
-    title: 'Rushdown Monk',
-    color: '#e76f51',
-    hp: 90,
-    atk: 8,
-    defense: 0,
-    moveset: ['QUICK_JAB', 'SWEEP', 'JUMP', 'DASH', 'BLOCK', 'STEP_FWD'],
-    aiType: 'RUSHDOWN',
-    desc: 'Agile martial artist favoring rapid jabs and low sweeping kicks.'
+// ── 3B. SKILL BREAKTHROUGH: FUSION & APEX ASCENSION ─────────────────────────
+const FUSION_RECIPES = {
+  'KI_BLAST+QUICK_JAB': {
+    targetKey: 'THUNDER_GALE',
+    name: 'Thunder Gale Barrage [FUSION 🔮]',
+    desc: 'Merge Jab + Ki Blast into a 4-hit electric punching storm with piercing shockwaves.'
   },
-  {
-    name: 'WANDERING RONIN',
-    title: 'Counter Blademaster',
-    color: '#d90429',
-    hp: 130,
-    atk: 12,
-    defense: 0.1,
-    moveset: ['HEAVY_SLASH', 'PARRY', 'STEP_BACK', 'DASH', 'JUDGMENT_CUT', 'SWEEP'],
-    aiType: 'COUNTER_ZONER',
-    desc: 'Master of spacing and iaijutsu. Slashes across space and parries aggressive strikes.'
+  'HEAVY_SLASH+JUDGMENT_CUT': {
+    targetKey: 'VOID_CLEAVE',
+    name: 'Dimensional Void Cleave [FUSION 🔮]',
+    desc: 'Merge Slash + Judgment Cut into a colossal space-rending slash that tears 3 reality rifts.'
   },
-  {
-    name: 'ARMORED COLOSSUS',
-    title: 'Iron Juggernaut',
-    color: '#9d4edd',
-    hp: 190,
-    atk: 16,
-    defense: 0.2,
-    moveset: ['METEOR_STRIKE', 'BLOCK', 'LAUNCHER', 'STEP_FWD', 'DASH'],
-    aiType: 'SUPER_ARMOR_TANK',
-    desc: 'Heavy walking fortress with armored punches that ignore light hits and launch foes.'
+  'DIVE_KICK+LAUNCHER': {
+    targetKey: 'COMET_CRASH',
+    name: 'Comet Crater Impact [FUSION 🔮]',
+    desc: 'Merge Launcher + Dive Kick into a skyward launch and blazing meteor ground slam.'
   },
-  {
-    name: 'SHADOW ASSASSIN',
-    title: 'Phantom Shinobi',
-    color: '#3a0ca3',
-    hp: 230,
-    atk: 20,
-    defense: 0.15,
-    moveset: ['SHADOW_TELEPORT', 'DIVE_KICK', 'SUPER_DASH', 'KI_BLAST', 'QUICK_JAB', 'LIGHTNING_PALM'],
-    aiType: 'AMBUSH_NINJA',
-    desc: 'Elusive phantom that teleports across angles, dives from the sky, and casts ki barrages.'
+  'DASH+SWEEP': {
+    targetKey: 'PHANTOM_SLIDE',
+    name: 'Phantom Ghost Slide [FUSION 🔮]',
+    desc: 'Merge Dash + Sweep into a phase-shifting slide that passes through foes to sweep their legs from behind.'
   },
-  {
-    name: 'GRANDMASTER VANE',
-    title: 'Supreme Hustler (Boss)',
-    color: '#ff0054',
-    hp: 330,
-    atk: 26,
-    defense: 0.25,
-    moveset: ['WHIRLWIND', 'JUDGMENT_CUT', 'DRAGON_UPPER', 'PARRY', 'SUPER_DASH', 'METEOR_STRIKE', 'LAUNCHER', 'DIVE_KICK'],
-    aiType: 'GRANDMASTER',
-    desc: 'Supreme fighting master who reads frame advantage, executes 360° cyclones, and chains deadly aerial combos.'
+  'BLOCK+PARRY': {
+    targetKey: 'AEGIS_REFLECT',
+    name: 'Aegis Divine Counter [FUSION 🔮]',
+    desc: 'Merge Block + Parry into an indestructible aegis that blocks 100% and reflects damage back.'
   }
+};
+
+const APEX_UPGRADES_CATALOG = {
+  QUICK_JAB: {
+    name: 'Zenith Flash Jab [APEX ⚔️]',
+    desc: '1f startup, 24 pure damage, extended reach, +12f Frame Advantage.',
+    buffs: { startup: 1, damage: 24, range: 95, hitstun: 24 }
+  },
+  HEAVY_SLASH: {
+    name: 'Sovereign Cleave [APEX ⚔️]',
+    desc: 'Extreme 52 damage, Super-Armor during swing, guaranteed double Wall Bounce.',
+    buffs: { damage: 52, hasArmor: true, range: 120, knockbackBoost: 50 }
+  },
+  SWEEP: {
+    name: 'Tectonic Quake Sweep [APEX ⚔️]',
+    desc: '34 damage, trips opponent into a massive 35f knockdown state.',
+    buffs: { damage: 34, hitstun: 35 }
+  },
+  LAUNCHER: {
+    name: 'Ascension Sky Piercer [APEX ⚔️]',
+    desc: '40 damage, launches opponent into the arena ceiling for prolonged aerial combos.',
+    buffs: { damage: 40, launchBoost: 10 }
+  },
+  DASH: {
+    name: 'Omnipresent Flash Step [APEX ⚔️]',
+    desc: '0f recovery, crosses 320px with invulnerability, drops dual blast mines.',
+    buffs: { hasMine: true, speedBoost: 8 }
+  },
+  JUMP: {
+    name: 'Sky Sovereign Leap [APEX ⚔️]',
+    desc: 'Complete air freedom: 250px vertical jump with mid-air aim redirection.',
+    buffs: { jumpBoost: 10 }
+  },
+  BLOCK: {
+    name: 'Absolute Bastion [APEX ⚔️]',
+    desc: 'Absorbs 100% damage, converts all absorbed damage directly into Super SP.',
+    buffs: { blockDamageReduce: 1.0, absorbToSP: true }
+  },
+  PARRY: {
+    name: 'Temporal Stasis Parry [APEX ⚔️]',
+    desc: '14f parry window. Freezes opponent in stasis for 40 frames on success.',
+    buffs: { parryWindow: 14, stasisFreeze: 40 }
+  },
+  KI_BLAST: {
+    name: 'Nova Sun Cannon [APEX ⚔️]',
+    desc: 'Fires massive piercing solar orb dealing 55 damage with explosive impact.',
+    buffs: { damage: 55, projectileRadius: 22 }
+  },
+  DRAGON_UPPER: {
+    name: 'Emperor Dragon Ascendant [APEX ⚔️]',
+    desc: '75 colossal damage, massive vortex pulls entire arena into the strike.',
+    buffs: { damage: 75, range: 140 }
+  },
+  JUDGMENT_CUT: {
+    name: 'Judgment Cut: Omniverse [APEX ⚔️]',
+    desc: 'Spawns 4 intersecting reality rifts dealing 65 damage across screen.',
+    buffs: { damage: 65, riftRadius: 100 }
+  },
+  DIVE_KICK: {
+    name: 'Starlight Impact [APEX ⚔️]',
+    desc: '45 damage, creates a seismic shockwave across floor on impact.',
+    buffs: { damage: 45, quakeFloor: true }
+  },
+  WHIRLWIND: {
+    name: 'Cataclysm Vortex [APEX ⚔️]',
+    desc: '6 rapid slices, 58 damage, draws all airborne and ground foes in.',
+    buffs: { damage: 58, range: 140 }
+  },
+  SHADOW_TELEPORT: {
+    name: 'Godspeed Blink [APEX ⚔️]',
+    desc: '0 SP cost, grants 12 frames of invulnerability and strikes on exit.',
+    buffs: { superCost: 0, postInvuln: 12, exitStrike: 20 }
+  }
+};
+
+// ── 4. TIER-BASED ENCOUNTER POOLS (3 FLOORS, DIFFICULTY SCALING) ────────────
+const FLOOR_DEFINITIONS = [
+  {
+    floor: 1,
+    name: 'THE OUTSKIRTS',
+    stages: 3,
+    bgGradient: ['#0d111a', '#161d2d', '#07090f'],
+    arenaFloorColor: '#2b3648'
+  },
+  {
+    floor: 2,
+    name: 'THE IRON CITADEL',
+    stages: 3,
+    bgGradient: ['#1a0f1d', '#2c1533', '#0e0811'],
+    arenaFloorColor: '#472254'
+  },
+  {
+    floor: 3,
+    name: 'THE VOID SANCTUM',
+    stages: 3,
+    bgGradient: ['#0b1622', '#0d2838', '#050c14'],
+    arenaFloorColor: '#1d4860'
+  }
+];
+
+const ENEMY_POOLS = {
+  // Floor 1 (The Outskirts)
+  floor1_minions: [
+    {
+      name: 'BANDIT BRAWLER',
+      title: 'Street Pugilist',
+      color: '#e76f51',
+      hp: 75,
+      atk: 7,
+      defense: 0,
+      moveset: ['QUICK_JAB', 'SWEEP', 'STEP_FWD', 'BLOCK', 'DASH'],
+      aiType: 'RUSHDOWN',
+      desc: 'Aggressive street fighter with quick jabs.'
+    },
+    {
+      name: 'SPEAR RECRUIT',
+      title: 'Pike Guard',
+      color: '#f4a261',
+      hp: 85,
+      atk: 8,
+      defense: 0.05,
+      moveset: ['HEAVY_SLASH', 'STEP_BACK', 'STEP_FWD', 'BLOCK'],
+      aiType: 'COUNTER_ZONER',
+      desc: 'Keeps distance with long thrusts.'
+    },
+    {
+      name: 'ROGUE MONK',
+      title: 'Shaolin Trainee',
+      color: '#e9c46a',
+      hp: 80,
+      atk: 9,
+      defense: 0,
+      moveset: ['QUICK_JAB', 'JUMP', 'SWEEP', 'DASH', 'BLOCK'],
+      aiType: 'RUSHDOWN',
+      desc: 'Agile martial trainee with jumping sweeps.'
+    }
+  ],
+  floor1_bosses: [
+    {
+      name: 'SHAOLIN MASTER',
+      title: 'Rushdown Monk (Floor 1 Boss)',
+      color: '#e76f51',
+      hp: 140,
+      atk: 10,
+      defense: 0.1,
+      moveset: ['QUICK_JAB', 'SWEEP', 'JUMP', 'DASH', 'BLOCK', 'STEP_FWD', 'LIGHTNING_PALM'],
+      aiType: 'RUSHDOWN',
+      desc: 'Fierce monk who pressures relentlessly.'
+    },
+    {
+      name: 'WANDERING RONIN',
+      title: 'Counter Blademaster (Floor 1 Boss)',
+      color: '#d90429',
+      hp: 150,
+      atk: 12,
+      defense: 0.1,
+      moveset: ['HEAVY_SLASH', 'PARRY', 'STEP_BACK', 'DASH', 'JUDGMENT_CUT', 'SWEEP'],
+      aiType: 'COUNTER_ZONER',
+      desc: 'Master of spacing, parrying strikes and slicing from afar.'
+    }
+  ],
+
+  // Floor 2 (The Iron Citadel)
+  floor2_minions: [
+    {
+      name: 'IRON SENTINEL',
+      title: 'Citadel Shieldbearer',
+      color: '#8338ec',
+      hp: 120,
+      atk: 12,
+      defense: 0.2,
+      moveset: ['BLOCK', 'LAUNCHER', 'STEP_FWD', 'METEOR_STRIKE'],
+      aiType: 'SUPER_ARMOR_TANK',
+      desc: 'Heavy shield guard that withstands frontal assaults.'
+    },
+    {
+      name: 'KATANA DUELIST',
+      title: 'Steel Ronin',
+      color: '#b5179e',
+      hp: 110,
+      atk: 14,
+      defense: 0.08,
+      moveset: ['HEAVY_SLASH', 'PARRY', 'DASH', 'SWEEP', 'JUDGMENT_CUT'],
+      aiType: 'COUNTER_ZONER',
+      desc: 'Fast swordsman punishing predictable moves.'
+    },
+    {
+      name: 'SHADOW ACOLYTE',
+      title: 'Void Ninja',
+      color: '#7209b7',
+      hp: 105,
+      atk: 13,
+      defense: 0.05,
+      moveset: ['SHADOW_TELEPORT', 'KI_BLAST', 'DIVE_KICK', 'QUICK_JAB'],
+      aiType: 'AMBUSH_NINJA',
+      desc: 'Teleporting acolyte striking from angles.'
+    }
+  ],
+  floor2_bosses: [
+    {
+      name: 'ARMORED COLOSSUS',
+      title: 'Iron Juggernaut (Floor 2 Boss)',
+      color: '#9d4edd',
+      hp: 240,
+      atk: 18,
+      defense: 0.25,
+      moveset: ['METEOR_STRIKE', 'BLOCK', 'LAUNCHER', 'STEP_FWD', 'DASH'],
+      aiType: 'SUPER_ARMOR_TANK',
+      desc: 'Unstoppable behemoth that launches players into wall bounces.'
+    },
+    {
+      name: 'THUNDER SHINOBI',
+      title: 'Lightning Shadow (Floor 2 Boss)',
+      color: '#3a0ca3',
+      hp: 210,
+      atk: 20,
+      defense: 0.15,
+      moveset: ['SHADOW_TELEPORT', 'DIVE_KICK', 'SUPER_DASH', 'KI_BLAST', 'LIGHTNING_PALM'],
+      aiType: 'AMBUSH_NINJA',
+      desc: 'Strikes at the speed of sound with airborne dive kicks.'
+    }
+  ],
+
+  // Floor 3 (The Void Sanctum)
+  floor3_minions: [
+    {
+      name: 'VOID STALKER',
+      title: 'Dimensional Phantom',
+      color: '#4361ee',
+      hp: 160,
+      atk: 18,
+      defense: 0.15,
+      moveset: ['SHADOW_TELEPORT', 'JUDGMENT_CUT', 'DIVE_KICK', 'SUPER_DASH'],
+      aiType: 'AMBUSH_NINJA',
+      desc: 'Blinks in and out of reality.'
+    },
+    {
+      name: 'CHAOS JUGGERNAUT',
+      title: 'Abyssal Titan',
+      color: '#3f37c9',
+      hp: 190,
+      atk: 20,
+      defense: 0.25,
+      moveset: ['METEOR_STRIKE', 'LAUNCHER', 'BLOCK', 'WHIRLWIND'],
+      aiType: 'SUPER_ARMOR_TANK',
+      desc: 'Devastating armor and swirling blade vortexes.'
+    },
+    {
+      name: 'GRAND DISCIPLE',
+      title: 'Sanctum Monk',
+      color: '#4895ef',
+      hp: 175,
+      atk: 21,
+      defense: 0.18,
+      moveset: ['DRAGON_UPPER', 'PARRY', 'SUPER_DASH', 'QUICK_JAB', 'LIGHTNING_PALM'],
+      aiType: 'GRANDMASTER',
+      desc: 'Elite disciple reading advantage and countering attacks.'
+    }
+  ],
+  floor3_final_boss: [
+    {
+      name: 'GRANDMASTER VANE',
+      title: 'Supreme Hustler (Final Boss)',
+      color: '#ff0054',
+      hp: 360,
+      atk: 28,
+      defense: 0.25,
+      moveset: ['WHIRLWIND', 'JUDGMENT_CUT', 'DRAGON_UPPER', 'PARRY', 'SUPER_DASH', 'METEOR_STRIKE', 'LAUNCHER', 'DIVE_KICK'],
+      aiType: 'GRANDMASTER',
+      desc: 'Supreme grandmaster who commands space, reads frames, and executes aerial juggles.'
+    }
+  ]
+};
+
+// Fallback legacy array
+const OPPONENTS = [
+  ...ENEMY_POOLS.floor1_minions,
+  ...ENEMY_POOLS.floor1_bosses,
+  ...ENEMY_POOLS.floor2_bosses,
+  ...ENEMY_POOLS.floor3_final_boss
 ];
 
 // ── 5. VISUAL PARTICLES, DAMAGE NUMBERS, AND RIFTS ──────────────────────────
@@ -648,15 +1006,15 @@ class Particle {
 }
 
 class DamageText {
-  constructor(x, y, text, color = '#fff', isCrit = false) {
+  constructor(x, y, text, color = '#fff', isWeakpoint = false) {
     this.x = x + (Math.random() * 20 - 10);
     this.y = y;
     this.text = text;
     this.color = color;
-    this.isCrit = isCrit;
-    this.life = 45;
-    this.maxLife = 45;
-    this.vy = -2.2;
+    this.isWeakpoint = isWeakpoint;
+    this.life = 48;
+    this.maxLife = 48;
+    this.vy = -2.5;
   }
   update() {
     this.y += this.vy;
@@ -666,10 +1024,12 @@ class DamageText {
   draw(ctx) {
     ctx.save();
     ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
-    ctx.font = this.isCrit ? 'bold 22px Chakra Petch' : 'bold 16px Chakra Petch';
+    ctx.font = this.isWeakpoint ? 'bold 22px "Chakra Petch", sans-serif' : 'bold 16px "Chakra Petch", sans-serif';
     ctx.fillStyle = this.color;
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = this.isWeakpoint ? '#ffd166' : 'transparent';
+    ctx.shadowBlur = this.isWeakpoint ? 12 : 0;
     ctx.strokeText(this.text, this.x, this.y);
     ctx.fillText(this.text, this.x, this.y);
     ctx.restore();
@@ -901,6 +1261,229 @@ class AimWheel {
     this.ctx.fillStyle = '#00f0ff';
     this.ctx.fill();
   }
+}
+
+// ── 6B. PROCEDURAL MARTIAL ARTS FIGHTER ANIMATOR ────────────────────────────
+function renderFighterModel(ctx, f, isPlayer) {
+  ctx.save();
+  const facing = f.facing || 1;
+  const x = f.x;
+  const y = f.y;
+  const floorY = f.floorY || 470;
+  const isAirborne = f.isAirborne || (y < floorY - 5);
+  const color = f.color || (isPlayer ? '#00f0ff' : '#ff3366');
+  const hitstun = (f.hitstunFrames || 0) > 0;
+  const moveKey = f.moveKey || (f.currentMove ? f.currentMove.name : null);
+  const moveFrame = f.moveFrame || 0;
+  const animTick = f.animTick || 0;
+
+  // Ground contact shadow
+  ctx.beginPath();
+  const shadowScale = Math.max(0.3, 1 - (floorY - y) / 320);
+  ctx.ellipse(x, floorY + 2, 28 * shadowScale, 7 * shadowScale, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fill();
+
+  // Invulnerability ghosting
+  if (f.isInvulnerable) {
+    ctx.globalAlpha = 0.5;
+  }
+
+  // Afterimages
+  if (f.afterimages && f.afterimages.length > 0) {
+    f.afterimages.forEach(img => {
+      ctx.save();
+      ctx.globalAlpha = img.alpha * 0.45;
+      ctx.fillStyle = img.color;
+      ctx.beginPath();
+      ctx.arc(img.x, img.y - 45, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  // Procedural pose calculations
+  let bobY = Math.sin(animTick * 0.15) * 2.5;
+  let headTilt = 0;
+  let bodyAngle = 0;
+  let lLegAngle = 0.2;
+  let rLegAngle = -0.2;
+  let lArmAngle = 0.5;
+  let rArmAngle = -0.4;
+  let punchReach = 0;
+  let bladeSlashArc = 0;
+
+  if (hitstun) {
+    bodyAngle = -0.32 * facing;
+    headTilt = -0.35 * facing;
+    bobY = 4;
+    lArmAngle = -0.8;
+    rArmAngle = -0.6;
+  } else if (f.isBlocking || f.isParrying) {
+    bodyAngle = -0.1 * facing;
+    lArmAngle = 1.2 * facing;
+    rArmAngle = 1.0 * facing;
+  } else if ((moveKey === 'QUICK_JAB' || moveKey === 'THUNDER_GALE') && moveFrame > 0 && moveFrame <= 7) {
+    bodyAngle = 0.22 * facing;
+    punchReach = 34 * facing;
+    rArmAngle = 1.4 * facing;
+  } else if ((moveKey === 'HEAVY_SLASH' || moveKey === 'VOID_CLEAVE') && moveFrame > 0 && moveFrame <= 13) {
+    bodyAngle = 0.3 * facing;
+    bladeSlashArc = (moveFrame / 13) * Math.PI;
+  } else if ((moveKey === 'SWEEP' || moveKey === 'PHANTOM_SLIDE') && moveFrame > 0) {
+    bobY = 16;
+    lLegAngle = 1.4 * facing;
+    rLegAngle = -1.1 * facing;
+  } else if ((moveKey === 'LAUNCHER' || moveKey === 'COMET_CRASH' || moveKey === 'DRAGON_UPPER') && moveFrame > 0) {
+    bodyAngle = -0.2 * facing;
+    rArmAngle = -1.8 * facing;
+    bobY = -12;
+  } else if (moveKey === 'DIVE_KICK' && moveFrame > 0) {
+    bodyAngle = 0.7 * facing;
+    rLegAngle = 1.2 * facing;
+  } else if (isAirborne) {
+    bobY = -5;
+    lLegAngle = 0.6;
+    rLegAngle = 0.4;
+  }
+
+  ctx.translate(x, y - 48 + bobY);
+  ctx.rotate(bodyAngle);
+
+  const mainColor = hitstun ? '#ffffff' : color;
+  const darkSuit = isPlayer ? '#0f172a' : '#1e1124';
+  const accentTrim = isPlayer ? '#38bdf8' : '#fb7185';
+
+  // 1. Back Leg
+  ctx.save();
+  ctx.strokeStyle = darkSuit;
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-4 * facing, 22);
+  ctx.lineTo(-4 * facing + Math.sin(rLegAngle) * 24, 46);
+  ctx.stroke();
+  ctx.fillStyle = mainColor;
+  ctx.fillRect(-4 * facing + Math.sin(rLegAngle) * 24 - 3, 44, 8, 5);
+  ctx.restore();
+
+  // 2. Back Arm
+  ctx.save();
+  ctx.strokeStyle = mainColor;
+  ctx.lineWidth = 4.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-6 * facing, 2);
+  ctx.lineTo(-6 * facing + Math.cos(rArmAngle) * 18, 2 + Math.sin(rArmAngle) * 18);
+  ctx.stroke();
+  ctx.restore();
+
+  // 3. Torso (Martial Gi & Armor)
+  ctx.fillStyle = darkSuit;
+  ctx.strokeStyle = mainColor;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.roundRect(-10, 0, 20, 26, 4);
+  ctx.fill();
+  ctx.stroke();
+
+  // Belt & Chest Sigil
+  ctx.fillStyle = mainColor;
+  ctx.fillRect(-8, 8, 16, 4);
+  ctx.fillStyle = accentTrim;
+  ctx.fillRect(-10, 22, 20, 3.5);
+
+  // 4. Front Leg
+  ctx.save();
+  ctx.strokeStyle = darkSuit;
+  ctx.lineWidth = 6.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(4 * facing, 22);
+  ctx.lineTo(4 * facing + Math.sin(lLegAngle) * 25, 46);
+  ctx.stroke();
+  ctx.fillStyle = mainColor;
+  ctx.fillRect(4 * facing + Math.sin(lLegAngle) * 25 - 4, 44, 9, 5);
+  ctx.restore();
+
+  // 5. Head & Flowing Scarf
+  ctx.save();
+  ctx.translate(0, -14);
+  ctx.rotate(headTilt);
+
+  ctx.fillStyle = darkSuit;
+  ctx.strokeStyle = mainColor;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Glowing Ninja Visor / Eyes
+  ctx.fillStyle = mainColor;
+  ctx.shadowColor = mainColor;
+  ctx.shadowBlur = 8;
+  ctx.fillRect(facing > 0 ? 1 : -7, -3, 7, 3.5);
+
+  // Flowing Scarf in Wind
+  ctx.fillStyle = mainColor;
+  const scarfWave1 = Math.sin(animTick * 0.2) * 5;
+  const scarfWave2 = Math.cos(animTick * 0.25) * 6;
+  ctx.beginPath();
+  ctx.moveTo(-6 * facing, 0);
+  ctx.quadraticCurveTo(-16 * facing, -4 + scarfWave1, -26 * facing, -2 + scarfWave2);
+  ctx.lineTo(-24 * facing, 2 + scarfWave2);
+  ctx.quadraticCurveTo(-15 * facing, scarfWave1, -6 * facing, 3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // 6. Front Arm & Punching Extension
+  ctx.save();
+  ctx.strokeStyle = mainColor;
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(6 * facing, 2);
+  const fistX = 6 * facing + Math.cos(lArmAngle) * (20 + Math.abs(punchReach)) * facing;
+  const fistY = 2 + Math.sin(lArmAngle) * 16;
+  ctx.lineTo(fistX, fistY);
+  ctx.stroke();
+
+  // Glowing Fist impact ring
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(fistX, fistY, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Blade Slash Arc
+  if (bladeSlashArc > 0) {
+    ctx.save();
+    ctx.strokeStyle = isPlayer ? '#00f0ff' : '#ff3366';
+    ctx.shadowColor = isPlayer ? '#00f0ff' : '#ff3366';
+    ctx.shadowBlur = 16;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(fistX + 12 * facing, fistY, 45, -Math.PI / 3, Math.PI / 3);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Forcefield Barrier during Block / Parry
+  if (f.isBlocking || f.isParrying) {
+    ctx.save();
+    ctx.strokeStyle = f.isParrying ? '#00f0ff' : '#ffd166';
+    ctx.shadowColor = f.isParrying ? '#00f0ff' : '#ffd166';
+    ctx.shadowBlur = 18;
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(18 * facing, 4, 38, -Math.PI / 2.3, Math.PI / 2.3, facing === -1);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+  ctx.restore();
 }
 
 // ── 7. TACTICAL FIGHTER CLASS ────────────────────────────────────────────────
@@ -1215,60 +1798,11 @@ class TacticalFighter {
         this.hasArmor = false;
       }
     }
+    this.animTick = (this.animTick || 0) + 1;
   }
 
   draw(ctx) {
-    ctx.save();
-
-    this.afterimages.forEach(img => {
-      ctx.save();
-      ctx.globalAlpha = img.alpha;
-      ctx.fillStyle = img.color;
-      ctx.fillRect(img.x - this.width / 2, img.y - this.height, this.width, this.height);
-      ctx.restore();
-    });
-
-    ctx.beginPath();
-    ctx.ellipse(this.x, this.floorY + 2, 26, 6, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fill();
-
-    const drawX = this.x - this.width / 2;
-    const drawY = this.y - this.height;
-
-    if (this.isInvulnerable) {
-      ctx.globalAlpha = 0.45;
-      ctx.fillStyle = this.color;
-      ctx.fillRect(this.x - this.facing * 16 - this.width / 2, drawY, this.width, this.height);
-      ctx.globalAlpha = 1.0;
-    }
-
-    ctx.fillStyle = this.hitstunFrames > 0 ? '#ffffff' : this.color;
-    ctx.strokeStyle = '#05080f';
-    ctx.lineWidth = 2.5;
-
-    ctx.beginPath();
-    ctx.roundRect(drawX, drawY + 20, this.width, this.height - 20, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(this.x, drawY + 11, 13, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = this.isPlayer ? '#00f0ff' : '#ff3366';
-    ctx.fillRect(this.x + this.facing * 4 - 3, drawY + 8, 7, 3.5);
-
-    if (this.isBlocking || this.isParrying) {
-      ctx.beginPath();
-      ctx.arc(this.x + this.facing * 16, this.y - 45, 42, -Math.PI / 2, Math.PI / 2, this.facing === -1);
-      ctx.strokeStyle = this.isParrying ? '#00f0ff' : 'rgba(255, 209, 102, 0.7)';
-      ctx.lineWidth = 3.5;
-      ctx.stroke();
-    }
-
-    ctx.restore();
+    renderFighterModel(ctx, this, this.isPlayer);
   }
 
   drawGhostPreview(ctx, moveKey, aimDeg = 0) {
@@ -1566,12 +2100,21 @@ class YomiEngine {
     // Meta Progression
     this.meta = this.loadMeta();
 
-    // Run Data
-    this.stage = 1;
-    this.maxStages = 5;
+    // Run Data (3 Floors, Minion & Boss Pools, Gold & Deck Customizer)
+    this.currentFloor = 1;
+    this.floorStage = 1;
+    this.gold = 50;
     this.activePerks = new Set();
+    this.relics = new Set();
+    this.ownedMoves = new Set([
+      'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
+      'DASH', 'JUMP', 'BLOCK', 'PARRY', 'KI_BLAST', 'DRAGON_UPPER'
+    ]);
+    this.equippedMoves = new Set(this.ownedMoves);
     this.unlockedMoves = new Set();
     this.moveUpgrades = new Map(); // moveKey -> upgradeData
+    this.apexMoves = new Set();    // moveKeys with APEX tier
+    this.activeShopTab = 'armory';
     this.currentOpponentData = null;
 
     this.comboCount = 0;
@@ -1608,9 +2151,15 @@ class YomiEngine {
     const base = MOVES[moveKey];
     if (!base) return null;
 
-    if (isPlayer && this.moveUpgrades.has(moveKey)) {
-      const upg = this.moveUpgrades.get(moveKey);
-      return { ...base, ...upg.buffs, isUpgraded: true, name: upg.name };
+    if (isPlayer) {
+      if (this.apexMoves && this.apexMoves.has(moveKey)) {
+        const apex = APEX_UPGRADES_CATALOG[moveKey];
+        if (apex) return { ...base, ...apex.buffs, isApex: true, name: apex.name };
+      }
+      if (this.moveUpgrades && this.moveUpgrades.has(moveKey)) {
+        const upg = this.moveUpgrades.get(moveKey);
+        return { ...base, ...upg.buffs, isUpgraded: true, name: upg.name };
+      }
     }
     return base;
   }
@@ -1677,6 +2226,24 @@ class YomiEngine {
       this.showDojo();
     });
 
+    // Sanctuary Shop Navigation & Deck Customizer Tabs
+    document.getElementById('btn-leave-shop').addEventListener('click', () => {
+      SFX.init();
+      this.startNextFloor();
+    });
+    document.getElementById('tab-shop-armory').addEventListener('click', () => {
+      this.activeShopTab = 'armory';
+      this.renderShopTab();
+    });
+    document.getElementById('tab-shop-supplies').addEventListener('click', () => {
+      this.activeShopTab = 'supplies';
+      this.renderShopTab();
+    });
+    document.getElementById('tab-shop-deck').addEventListener('click', () => {
+      this.activeShopTab = 'deck';
+      this.renderShopTab();
+    });
+
     this.updateTitleShards();
   }
 
@@ -1687,49 +2254,77 @@ class YomiEngine {
       btn.classList.add('selected');
       this.selectedPlayerMove = btn.dataset.move;
       const moveData = this.getMoveData(this.selectedPlayerMove, true);
-      const tag = moveData.isUpgraded ? '[UPGRADED ★] ' : '';
+      const tag = moveData.isApex ? '[APEX ⚔️] ' : (moveData.isFusion ? '[FUSION 🔮] ' : (moveData.isUpgraded ? '[UPGRADED ★] ' : ''));
       document.getElementById('move-desc').innerText = `${tag}${moveData.name} (${moveData.desc})`;
     });
   }
 
-  unlockMove(moveKey) {
-    this.unlockedMoves.add(moveKey);
-    const moveData = this.getMoveData(moveKey, true);
-    if (!moveData) return;
+  rebuildMoveButtons() {
+    const moveCat = document.getElementById('movement-btns');
+    const defCat = document.getElementById('defense-btns');
+    const atkCat = document.getElementById('attack-btns');
+    const spCat = document.getElementById('special-btns');
 
-    let containerId = 'attack-btns';
-    if (moveData.category === 'movement' || moveData.type === 'MOVEMENT') {
-      containerId = 'movement-btns';
-    } else if (moveData.type === 'SPECIAL' || moveData.superCost > 0) {
-      containerId = 'special-btns';
+    if (!moveCat || !defCat || !atkCat || !spCat) return;
+
+    moveCat.innerHTML = '';
+    defCat.innerHTML = '';
+    atkCat.innerHTML = '';
+    spCat.innerHTML = '';
+
+    this.equippedMoves.forEach(moveKey => {
+      const moveData = this.getMoveData(moveKey, true);
+      if (!moveData) return;
+
+      let targetContainer = atkCat;
+      if (moveData.category === 'movement' || moveData.type === 'MOVEMENT') {
+        targetContainer = moveCat;
+      } else if (moveData.category === 'defense' || moveData.type === 'DEFENSE') {
+        targetContainer = defCat;
+      } else if (moveData.type === 'SPECIAL' || moveData.superCost > 0) {
+        targetContainer = spCat;
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-move';
+      if (moveData.isApex) btn.classList.add('apex-move');
+      else if (moveData.isFusion) btn.classList.add('fusion-move');
+      else if (moveData.isUpgraded) btn.classList.add('upgraded-move');
+
+      if (moveData.type === 'SPECIAL') btn.classList.add('special-btn');
+      btn.dataset.move = moveKey;
+
+      let frameText = 'Mobility';
+      if (moveData.superCost > 0) frameText = `${moveData.superCost} SP`;
+      else if (moveData.damage > 0) frameText = `${moveData.startup}f • ${moveData.damage} Dmg`;
+      else if (moveKey === 'PARRY') frameText = 'Frame Trap';
+      else if (moveKey === 'BLOCK') frameText = 'Guard 80%';
+
+      btn.innerHTML = `
+        <span>${moveData.name.split(' ')[0]} ${moveData.isApex ? '⚔️' : (moveData.isFusion ? '🔮' : (moveData.isUpgraded ? '★' : ''))}</span>
+        <span class="move-frames">${frameText}</span>
+      `;
+
+      this.wireMoveButton(btn);
+      targetContainer.appendChild(btn);
+    });
+
+    const activeBtn = document.querySelector(`.btn-move[data-move="${this.selectedPlayerMove}"]`) || document.querySelector('.btn-move');
+    if (activeBtn) {
+      document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
+      activeBtn.classList.add('selected');
+      this.selectedPlayerMove = activeBtn.dataset.move;
+      const mData = this.getMoveData(this.selectedPlayerMove, true);
+      if (mData) document.getElementById('move-desc').innerText = `${mData.name} (${mData.desc})`;
     }
+  }
 
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (container.querySelector(`.btn-move[data-move="${moveKey}"]`)) return;
-
-    const btn = document.createElement('button');
-    btn.className = 'btn-move unlocked-btn';
-    if (moveData.type === 'SPECIAL') btn.classList.add('special-btn');
-    btn.dataset.move = moveKey;
-
-    const infoLabel = moveData.superCost > 0
-      ? `${moveData.superCost} SP`
-      : (moveData.damage > 0 ? `${moveData.startup}f • ${moveData.damage} Dmg` : 'Mobility');
-
-    btn.innerHTML = `
-      <span>${moveData.name.split(' ')[0]}</span>
-      <span class="move-frames">${infoLabel}</span>
-    `;
-
-    this.wireMoveButton(btn);
-    container.appendChild(btn);
-
-    document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    this.selectedPlayerMove = moveKey;
-    document.getElementById('move-desc').innerText = `${moveData.name} (${moveData.desc})`;
+  unlockMove(moveKey) {
+    this.ownedMoves.add(moveKey);
+    this.equippedMoves.add(moveKey);
+    this.unlockedMoves.add(moveKey);
+    this.rebuildMoveButtons();
+    SFX.playUpgradeFanfare();
   }
 
   upgradeMove(moveKey) {
@@ -1738,41 +2333,10 @@ class YomiEngine {
 
     this.moveUpgrades.set(moveKey, upg);
     SFX.playUpgradeFanfare();
-
-    // Update button in UI
-    const btn = document.querySelector(`.btn-move[data-move="${moveKey}"]`);
-    if (btn) {
-      btn.classList.add('upgraded-move');
-      const spanTitle = btn.querySelector('span:first-child');
-      if (spanTitle) {
-        spanTitle.innerText = `${spanTitle.innerText.replace(' ★', '')} ★`;
-      }
-      const spanFrames = btn.querySelector('.move-frames');
-      if (spanFrames && upg.buffs.damage) {
-        spanFrames.innerText = `${upg.buffs.startup || '★'}f • ${upg.buffs.damage} Dmg`;
-      }
-    }
+    this.rebuildMoveButtons();
 
     const currentMoveData = this.getMoveData(moveKey, true);
     document.getElementById('move-desc').innerText = `[UPGRADED ★] ${currentMoveData.name} (${upg.desc})`;
-  }
-
-  resetMovesAndUpgrades() {
-    document.querySelectorAll('.btn-move.unlocked-btn').forEach(btn => btn.remove());
-    document.querySelectorAll('.btn-move.upgraded-move').forEach(btn => {
-      btn.classList.remove('upgraded-move');
-      const span = btn.querySelector('span:first-child');
-      if (span) span.innerText = span.innerText.replace(' ★', '');
-    });
-    this.unlockedMoves.clear();
-    this.moveUpgrades.clear();
-
-    const defaultBtn = document.querySelector('.btn-move[data-move="QUICK_JAB"]');
-    if (defaultBtn) {
-      document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
-      defaultBtn.classList.add('selected');
-      this.selectedPlayerMove = 'QUICK_JAB';
-    }
   }
 
   updateTitleShards() {
@@ -1780,38 +2344,63 @@ class YomiEngine {
   }
 
   startRun() {
-    this.stage = 1;
+    this.currentFloor = 1;
+    this.floorStage = 1;
+    this.gold = 50;
     this.activePerks.clear();
+    this.relics.clear();
     this.replayFrames = [];
-    this.resetMovesAndUpgrades();
+    this.ownedMoves = new Set([
+      'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
+      'DASH', 'JUMP', 'BLOCK', 'PARRY', 'KI_BLAST', 'DRAGON_UPPER'
+    ]);
+    this.equippedMoves = new Set(this.ownedMoves);
+    this.moveUpgrades.clear();
+    this.apexMoves.clear();
+
     this.hideAllOverlays();
-    this.initStage(this.stage);
+    this.initStage(this.currentFloor, this.floorStage);
   }
 
-  initStage(num) {
-    this.stage = num;
+  initStage(floorNum, stageNum) {
+    this.currentFloor = floorNum || 1;
+    this.floorStage = stageNum || 1;
     this.particles = [];
     this.damageTexts = [];
     this.projectiles = [];
     this.spatialRifts = [];
     this.comboCount = 0;
 
+    // Draw Opponent from Encounter Pools
+    let opp = null;
+    if (this.floorStage < 3) {
+      const pool = ENEMY_POOLS[`floor${this.currentFloor}_minions`];
+      opp = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+      if (this.currentFloor === 3) {
+        opp = ENEMY_POOLS.floor3_final_boss[0];
+      } else {
+        const pool = ENEMY_POOLS[`floor${this.currentFloor}_bosses`];
+        opp = pool[Math.floor(Math.random() * pool.length)];
+      }
+    }
+    this.currentOpponentData = opp;
+
     const bonusHp = this.meta.upgrades.hp * 20;
     const bonusAtk = this.meta.upgrades.atk * 3;
-    const bonusCrit = this.meta.upgrades.crit * 0.05;
 
     // Create Player
     this.player = new TacticalFighter('Hustler', 260, true, '#00f0ff');
     this.player.maxHp = 100 + bonusHp + (this.hasPerk('colossus_heart') ? 50 : 0);
     this.player.hp = this.player.maxHp;
     this.player.atkBonus = bonusAtk;
-    this.player.critChance = 0.1 + bonusCrit + (this.hasPerk('crit_master') ? 0.25 : 0);
-    if (this.hasPerk('iron_wall')) this.player.defenseBonus += 0.25;
+    this.player.defenseBonus = this.hasPerk('iron_wall') ? 0.25 : 0;
 
-    // Select Current Boss / Opponent Profile
-    this.currentOpponentData = OPPONENTS[Math.min(num - 1, OPPONENTS.length - 1)];
-    const opp = this.currentOpponentData;
+    if (this.relics.has('ki_start')) {
+      this.player.superMeter = 50;
+    }
 
+    // Create Enemy
     this.enemy = new TacticalFighter(opp.name, 760, false, opp.color);
     this.enemy.maxHp = opp.hp;
     this.enemy.hp = opp.hp;
@@ -1819,13 +2408,22 @@ class YomiEngine {
     this.enemy.defenseBonus = opp.defense || 0;
 
     // Update Stage UI
-    document.getElementById('stage-display').innerText = `STAGE ${this.stage} / ${this.maxStages}`;
+    document.getElementById('stage-display').innerText = `FLOOR ${this.currentFloor} • STAGE ${this.floorStage} / 3`;
+    document.getElementById('gold-display').innerText = `🪙 ${this.gold} Gold`;
     document.getElementById('p1-name').innerText = 'HUSTLER (YOU)';
     document.getElementById('p2-name').innerText = opp.name;
     document.getElementById('p2-archetype').innerText = opp.title;
 
+    this.rebuildMoveButtons();
     this.openDecisionTurn();
     this.updateHUD();
+  }
+
+  startNextFloor() {
+    document.getElementById('screen-shop').classList.remove('active');
+    this.currentFloor++;
+    this.floorStage = 1;
+    this.initStage(this.currentFloor, this.floorStage);
   }
 
   hasPerk(id) {
@@ -2013,6 +2611,9 @@ class YomiEngine {
         isBlocking: this.player.isBlocking,
         isParrying: this.player.isParrying,
         hitstunFrames: this.player.hitstunFrames,
+        moveKey: this.player.moveKey,
+        moveFrame: this.player.moveFrame,
+        animTick: this.player.animTick,
         hp: this.player.hp,
         maxHp: this.player.maxHp,
         superMeter: this.player.superMeter,
@@ -2031,6 +2632,9 @@ class YomiEngine {
         isBlocking: this.enemy.isBlocking,
         isParrying: this.enemy.isParrying,
         hitstunFrames: this.enemy.hitstunFrames,
+        moveKey: this.enemy.moveKey,
+        moveFrame: this.enemy.moveFrame,
+        animTick: this.enemy.animTick,
         hp: this.enemy.hp,
         maxHp: this.enemy.maxHp,
         superMeter: this.enemy.superMeter,
@@ -2127,6 +2731,27 @@ class YomiEngine {
     }
   }
 
+  checkWeakpointHit(attacker, defender, move) {
+    // 1. Whiff Punish: defender is executing an attack or just whiffed
+    if (defender.moveKey && defender.moveFrame > 0 && !defender.hasHit) {
+      return { isWeakpoint: true, reason: 'WHIFF PUNISH' };
+    }
+    // 2. High / Low vector matching:
+    // Anti-Air: defender is airborne and attacker aims high
+    if (defender.isAirborne && attacker.aimAngle >= 25) {
+      return { isWeakpoint: true, reason: 'ANTI-AIR WEAKPOINT' };
+    }
+    // Low Sweep: defender is standing on ground and attacker strikes low with sweep or negative angle
+    if (!defender.isAirborne && !defender.isBlocking && (attacker.aimAngle <= -25 || (move.name && move.name.includes('Sweep')) || (move.name && move.name.includes('Slide')))) {
+      return { isWeakpoint: true, reason: 'LOW SWEEP WEAKPOINT' };
+    }
+    // 3. Backstab / Blindside: Attacking from behind
+    if ((defender.x - attacker.x) * defender.facing < 0) {
+      return { isWeakpoint: true, reason: 'BACKSTAB WEAKPOINT' };
+    }
+    return { isWeakpoint: false };
+  }
+
   evaluateHit(attacker, defender) {
     if (!attacker.currentMove || (attacker.currentMove.type !== 'ATTACK' && attacker.currentMove.type !== 'SPECIAL')) return;
     const move = attacker.currentMove;
@@ -2143,11 +2768,22 @@ class YomiEngine {
 
       if (withinRange) {
         let dmg = move.damage + attacker.atkBonus;
-        let isCrit = false;
+        
+        // WEAKPOINT HIT SYSTEM (Zero RNG, 100% Tactical & Deterministic)
+        const wp = this.checkWeakpointHit(attacker, defender, move);
+        const isWeakpoint = wp.isWeakpoint;
 
-        if (Math.random() < attacker.critChance) {
-          isCrit = true;
-          dmg *= (attacker.isPlayer && this.hasPerk('crit_master')) ? 2.4 : 1.7;
+        if (isWeakpoint) {
+          const wpBonus = (this.meta.upgrades.crit || 0) * 0.15; // Precision Striker Dojo training
+          const wpMult = 1.65 + wpBonus + (this.hasPerk('crit_master') ? 0.4 : 0);
+          dmg = Math.round(dmg * wpMult);
+          defender.hitstunFrames += 4;
+          SFX.playWeakpoint();
+          this.spawnSparks(defender.x, defender.y - 45, '#ffd166', 22);
+          if (attacker.isPlayer) {
+            this.gold += 8;
+            this.updateHUD();
+          }
         }
 
         if (attacker.isPlayer && this.hasPerk('berserk_core') && attacker.hp < attacker.maxHp * 0.5) {
@@ -2174,7 +2810,7 @@ class YomiEngine {
           }
 
           const txt = Math.round(realDmg).toString();
-          this.addDamageText(defender.x, defender.y - 70, isCrit ? `${txt} CRIT!` : txt, isCrit ? '#ff3366' : '#fff', isCrit);
+          this.addDamageText(defender.x, defender.y - 70, isWeakpoint ? `${txt} WEAKPOINT!` : txt, isWeakpoint ? '#ffd166' : '#fff', isWeakpoint);
 
           if (attacker.isPlayer) {
             this.comboCount++;
@@ -2326,32 +2962,360 @@ class YomiEngine {
   handleVictory() {
     this.turnState = 'ROUND_OVER';
     SFX.playFanfare();
-    const shardsEarned = this.stage * 12;
+    const shardsEarned = (this.currentFloor * 12) + (this.floorStage * 6);
     this.meta.shards += shardsEarned;
     this.saveMeta();
 
-    if (this.stage >= this.maxStages) {
-      document.getElementById('gameover-headline').innerText = 'EXPEDITION VICTORIOUS!';
-      document.getElementById('gameover-headline').style.color = 'var(--accent-gold)';
-      document.getElementById('gameover-sub').innerText = 'You defeated Grandmaster Vane and conquered the arena!';
-      document.getElementById('gameover-shards').innerText = `+${shardsEarned + 60} Hustle Shards acquired! 💎`;
-      document.getElementById('screen-gameover').classList.add('active');
-    } else {
+    if (this.floorStage < 3) {
+      // Minion / Elite encounter victory
+      const goldGained = 35 + Math.floor(Math.random() * 12);
+      this.gold += goldGained;
+      SFX.playCoin();
       this.showDraftOverlay();
+    } else {
+      // Floor Boss Defeated!
+      const bossGold = 120 + this.currentFloor * 30;
+      this.gold += bossGold;
+      SFX.playCoin();
+
+      if (this.currentFloor >= 3) {
+        // Floor 3 Final Boss (Grandmaster Vane) Defeated!
+        document.getElementById('gameover-headline').innerText = 'EXPEDITION VICTORIOUS!';
+        document.getElementById('gameover-headline').style.color = 'var(--accent-gold)';
+        document.getElementById('gameover-sub').innerText = 'You defeated Grandmaster Vane and conquered all 3 Floors!';
+        document.getElementById('gameover-shards').innerText = `+${shardsEarned + 100} Hustle Shards acquired! 💎`;
+        document.getElementById('screen-gameover').classList.add('active');
+      } else {
+        // Floor 1 or 2 Boss Defeated -> Open Sanctuary Shop & Skill Forge!
+        this.showSanctuaryShop();
+      }
     }
   }
 
   handleDefeat() {
     this.turnState = 'ROUND_OVER';
-    const shardsEarned = this.stage * 5;
+    const shardsEarned = (this.currentFloor * 5) + (this.floorStage * 3);
     this.meta.shards += shardsEarned;
     this.saveMeta();
 
     document.getElementById('gameover-headline').innerText = 'KNOCKED OUT';
     document.getElementById('gameover-headline').style.color = 'var(--accent-red)';
-    document.getElementById('gameover-sub').innerText = `Fell in Stage ${this.stage} to ${this.enemy.name}`;
+    document.getElementById('gameover-sub').innerText = `Fell in Floor ${this.currentFloor} (Stage ${this.floorStage}) to ${this.enemy.name}`;
     document.getElementById('gameover-shards').innerText = `+${shardsEarned} Hustle Shards preserved 💎`;
     document.getElementById('screen-gameover').classList.add('active');
+  }
+
+  // ── SANCTUARY FORGE & MARKET (POST-BOSS SHOP & DECK CUSTOMIZER) ───────────
+  showSanctuaryShop() {
+    this.hideAllOverlays();
+    document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
+    this.activeShopTab = 'armory';
+    this.renderShopTab();
+    document.getElementById('screen-shop').classList.add('active');
+  }
+
+  generateShopWares() {
+    const wares = [];
+    
+    // Upgrades for currently owned moves
+    this.ownedMoves.forEach(mKey => {
+      if (!this.apexMoves.has(mKey)) {
+        if (this.moveUpgrades.has(mKey)) {
+          wares.push({
+            type: 'UPGRADE',
+            moveKey: mKey,
+            name: `${mKey} Breakthrough 🔮`,
+            badge: 'BREAKTHROUGH',
+            badgeClass: 'tier-fusion',
+            cost: 85,
+            desc: 'Evolve this upgraded move into a Hybrid Fusion or Apex Mastery!'
+          });
+        } else if (MOVE_UPGRADES_CATALOG[mKey]) {
+          const upg = MOVE_UPGRADES_CATALOG[mKey];
+          wares.push({
+            type: 'UPGRADE',
+            moveKey: mKey,
+            name: upg.name,
+            badge: 'UPGRADE ★',
+            badgeClass: 'tier-upgrade',
+            cost: 60,
+            desc: upg.desc
+          });
+        }
+      }
+    });
+
+    // New unowned skills from ROGUELITE_PERKS
+    ROGUELITE_PERKS.filter(p => p.kind === 'SKILL' && !this.ownedMoves.has(p.moveKey)).forEach(sk => {
+      wares.push({
+        type: 'SKILL',
+        moveKey: sk.moveKey,
+        name: sk.name,
+        badge: 'NEW SKILL',
+        badgeClass: 'tier-rare',
+        cost: 70,
+        desc: sk.desc
+      });
+    });
+
+    wares.sort(() => 0.5 - Math.random());
+    return wares.slice(0, 3);
+  }
+
+  renderShopTab() {
+    document.querySelectorAll('.shop-tab-btn').forEach(b => b.classList.remove('active'));
+    const armoryTab = document.getElementById('tab-shop-armory');
+    const suppliesTab = document.getElementById('tab-shop-supplies');
+    const deckTab = document.getElementById('tab-shop-deck');
+    const waresView = document.getElementById('shop-wares-view');
+    const deckView = document.getElementById('shop-deck-view');
+
+    waresView.innerHTML = '';
+    waresView.style.display = 'grid';
+    deckView.style.display = 'none';
+
+    if (this.activeShopTab === 'armory') {
+      armoryTab.classList.add('active');
+      const wares = this.generateShopWares();
+
+      if (wares.length === 0) {
+        waresView.innerHTML = `<div style="grid-column: 1 / -1; color: var(--accent-cyan); font-size: 14px; text-align: center; padding: 20px;">All available techniques in this tier are fully mastered!</div>`;
+        return;
+      }
+
+      wares.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'shop-card';
+        card.innerHTML = `
+          <div>
+            <div class="shop-card-header">
+              <span class="perk-badge ${item.badgeClass}">${item.badge}</span>
+              <span class="shop-price">🪙 ${item.cost} G</span>
+            </div>
+            <div class="perk-name">${item.name}</div>
+            <div class="perk-desc">${item.desc}</div>
+          </div>
+          <button class="btn-primary" style="margin-top: 12px; padding: 7px 16px; font-size: 12px;" ${this.gold < item.cost ? 'disabled' : ''}>
+            PURCHASE
+          </button>
+        `;
+        const btn = card.querySelector('button');
+        if (this.gold >= item.cost) {
+          btn.addEventListener('click', () => {
+            this.gold -= item.cost;
+            SFX.playCoin();
+            document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
+            this.updateHUD();
+            
+            if (item.type === 'UPGRADE') {
+              if (this.moveUpgrades.has(item.moveKey)) {
+                this.openBreakthrough(item.moveKey);
+              } else {
+                this.upgradeMove(item.moveKey);
+              }
+            } else if (item.type === 'SKILL') {
+              this.unlockMove(item.moveKey);
+            }
+            this.renderShopTab();
+          });
+        }
+        waresView.appendChild(card);
+      });
+
+    } else if (this.activeShopTab === 'supplies') {
+      suppliesTab.classList.add('active');
+      const supplies = [
+        {
+          id: 'heal_potion',
+          name: 'Vitality Elixir',
+          cost: 45,
+          badge: 'POTION',
+          badgeClass: 'tier-common',
+          desc: 'Restores 50% of maximum health immediately.',
+          action: () => {
+            const heal = Math.round(this.player.maxHp * 0.5);
+            this.player.hp = Math.min(this.player.maxHp, this.player.hp + heal);
+          }
+        },
+        {
+          id: 'max_hp_charm',
+          name: 'Colossus Talisman',
+          cost: 65,
+          badge: 'RELIC',
+          badgeClass: 'tier-rare',
+          desc: 'Permanently increases Max HP by +35 and heals 35 HP.',
+          action: () => {
+            this.player.maxHp += 35;
+            this.player.hp += 35;
+          }
+        },
+        {
+          id: 'super_essence',
+          name: 'Ki Conduit Crystal',
+          cost: 60,
+          badge: 'RELIC',
+          badgeClass: 'tier-rare',
+          desc: 'Start every match with +50 Super SP ready to unleash specials.',
+          action: () => {
+            this.relics.add('ki_start');
+          }
+        }
+      ];
+
+      supplies.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'shop-card';
+        card.innerHTML = `
+          <div>
+            <div class="shop-card-header">
+              <span class="perk-badge ${item.badgeClass}">${item.badge}</span>
+              <span class="shop-price">🪙 ${item.cost} G</span>
+            </div>
+            <div class="perk-name">${item.name}</div>
+            <div class="perk-desc">${item.desc}</div>
+          </div>
+          <button class="btn-primary" style="margin-top: 12px; padding: 7px 16px; font-size: 12px;" ${this.gold < item.cost ? 'disabled' : ''}>
+            ACQUIRE
+          </button>
+        `;
+        const btn = card.querySelector('button');
+        if (this.gold >= item.cost) {
+          btn.addEventListener('click', () => {
+            this.gold -= item.cost;
+            SFX.playCoin();
+            document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
+            this.updateHUD();
+            item.action();
+            this.renderShopTab();
+          });
+        }
+        waresView.appendChild(card);
+      });
+
+    } else if (this.activeShopTab === 'deck') {
+      deckTab.classList.add('active');
+      waresView.style.display = 'none';
+      deckView.style.display = 'block';
+      this.renderDeckCustomizer();
+    }
+  }
+
+  renderDeckCustomizer() {
+    const container = document.getElementById('deck-grid-container');
+    container.innerHTML = '';
+    document.getElementById('deck-count-text').innerText = `${this.equippedMoves.size} / ${this.ownedMoves.size} Moves`;
+
+    Array.from(this.ownedMoves).forEach(moveKey => {
+      const moveData = this.getMoveData(moveKey, true);
+      if (!moveData) return;
+
+      const isEquipped = this.equippedMoves.has(moveKey);
+      const card = document.createElement('div');
+      card.className = `deck-item ${isEquipped ? 'equipped' : 'stashed'}`;
+
+      const tagClass = isEquipped ? 'tag-equipped' : 'tag-stashed';
+      const tagText = isEquipped ? 'EQUIPPED' : 'STASHED';
+
+      card.innerHTML = `
+        <span class="deck-tag ${tagClass}">${tagText}</span>
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">${moveData.name}</div>
+        <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
+          ${moveData.damage > 0 ? `${moveData.startup}f • ${moveData.damage} Dmg` : 'Mobility/Guard'}
+        </div>
+        <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${moveData.desc}</div>
+      `;
+
+      card.addEventListener('click', () => {
+        if (isEquipped) {
+          if (this.equippedMoves.size <= 4) return;
+          this.equippedMoves.delete(moveKey);
+        } else {
+          this.equippedMoves.add(moveKey);
+        }
+        this.rebuildMoveButtons();
+        this.renderDeckCustomizer();
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  // ── SKILL BREAKTHROUGH: FUSION OR APEX ─────────────────────────────────────
+  openBreakthrough(moveKey) {
+    const moveData = this.getMoveData(moveKey, true);
+    document.getElementById('breakthrough-sub').innerText = `Choose the evolutionary destiny for ${moveData.name}:`;
+
+    let matchedFusion = null;
+    let partnerMoveKey = null;
+
+    for (const [keyPair, recipe] of Object.entries(FUSION_RECIPES)) {
+      const [m1, m2] = keyPair.split('+');
+      if (m1 === moveKey && this.ownedMoves.has(m2)) {
+        matchedFusion = recipe;
+        partnerMoveKey = m2;
+        break;
+      } else if (m2 === moveKey && this.ownedMoves.has(m1)) {
+        matchedFusion = recipe;
+        partnerMoveKey = m1;
+        break;
+      }
+    }
+
+    const fusionTitle = document.getElementById('fusion-title');
+    const fusionDesc = document.getElementById('fusion-desc');
+    const apexTitle = document.getElementById('apex-title');
+    const apexDesc = document.getElementById('apex-desc');
+
+    const apexUpg = APEX_UPGRADES_CATALOG[moveKey] || {
+      name: `${moveData.name} [APEX ⚔️]`,
+      desc: '1f startup, doubled damage, super armor, +15f frame advantage.'
+    };
+
+    apexTitle.innerText = apexUpg.name;
+    apexDesc.innerText = apexUpg.desc;
+
+    if (matchedFusion) {
+      fusionTitle.innerText = matchedFusion.name;
+      fusionDesc.innerText = matchedFusion.desc;
+    } else {
+      fusionTitle.innerText = `Elemental Resonance [FUSION 🔮]`;
+      fusionDesc.innerText = `Fuse ${moveData.name} with inner Ki aura to release an elemental shockwave on hit.`;
+    }
+
+    const btnFusion = document.getElementById('btn-opt-fusion');
+    const btnApex = document.getElementById('btn-opt-apex');
+
+    const newBtnFusion = btnFusion.cloneNode(true);
+    const newBtnApex = btnApex.cloneNode(true);
+    btnFusion.parentNode.replaceChild(newBtnFusion, btnFusion);
+    btnApex.parentNode.replaceChild(newBtnApex, btnApex);
+
+    newBtnFusion.addEventListener('click', () => {
+      SFX.playUpgradeFanfare();
+      if (matchedFusion) {
+        this.ownedMoves.add(matchedFusion.targetKey);
+        this.equippedMoves.add(matchedFusion.targetKey);
+      } else {
+        this.upgradeMove(moveKey);
+      }
+      this.rebuildMoveButtons();
+      document.getElementById('screen-breakthrough').classList.remove('active');
+      if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
+        this.renderShopTab();
+      }
+    });
+
+    newBtnApex.addEventListener('click', () => {
+      SFX.playUpgradeFanfare();
+      this.apexMoves.add(moveKey);
+      this.rebuildMoveButtons();
+      document.getElementById('screen-breakthrough').classList.remove('active');
+      if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
+        this.renderShopTab();
+      }
+    });
+
+    document.getElementById('screen-breakthrough').classList.add('active');
   }
 
   // ── DRAFTING SCREEN: REWARDS WITH MOVE UPGRADES, SKILLS & BLESSINGS ────────
@@ -2359,35 +3323,41 @@ class YomiEngine {
     const container = document.getElementById('buff-cards-container');
     container.innerHTML = '';
 
-    // Separate candidates by category to guarantee a balanced, tactical choice:
     const upgradeCandidates = [];
     const newMoveCandidates = [];
     const perkCandidates = [];
 
-    // 1. Move Upgrades for currently possessed moves that aren't upgraded yet
-    const playerMoves = [
-      'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
-      'DASH', 'JUMP', 'BLOCK', 'PARRY', 'KI_BLAST', 'DRAGON_UPPER',
-      ...Array.from(this.unlockedMoves)
-    ];
-
-    playerMoves.forEach(moveKey => {
-      if (!this.moveUpgrades.has(moveKey) && MOVE_UPGRADES_CATALOG[moveKey]) {
-        const upg = MOVE_UPGRADES_CATALOG[moveKey];
-        upgradeCandidates.push({
-          kind: 'UPGRADE',
-          moveKey: moveKey,
-          name: upg.name,
-          rarity: 'rare',
-          icon: '⭐',
-          badge: 'MOVE UPGRADE ★',
-          desc: upg.desc
-        });
+    // 1. Move Upgrades for currently possessed moves
+    this.ownedMoves.forEach(moveKey => {
+      if (!this.apexMoves.has(moveKey)) {
+        if (this.moveUpgrades.has(moveKey)) {
+          // Can breakthrough!
+          upgradeCandidates.push({
+            kind: 'UPGRADE',
+            moveKey: moveKey,
+            name: `${moveKey} Breakthrough 🔮`,
+            rarity: 'legendary',
+            icon: '🔮',
+            badge: 'BREAKTHROUGH',
+            desc: 'Ascend this upgraded technique into a Hybrid Fusion or Apex Mastery!'
+          });
+        } else if (MOVE_UPGRADES_CATALOG[moveKey]) {
+          const upg = MOVE_UPGRADES_CATALOG[moveKey];
+          upgradeCandidates.push({
+            kind: 'UPGRADE',
+            moveKey: moveKey,
+            name: upg.name,
+            rarity: 'rare',
+            icon: '⭐',
+            badge: 'MOVE UPGRADE ★',
+            desc: upg.desc
+          });
+        }
       }
     });
 
     // 2. New Skill Unlocks not yet owned
-    ROGUELITE_PERKS.filter(p => p.kind === 'SKILL' && !this.unlockedMoves.has(p.moveKey)).forEach(sk => {
+    ROGUELITE_PERKS.filter(p => p.kind === 'SKILL' && !this.ownedMoves.has(p.moveKey)).forEach(sk => {
       newMoveCandidates.push(sk);
     });
 
@@ -2396,7 +3366,6 @@ class YomiEngine {
       perkCandidates.push(pk);
     });
 
-    // Smart Balanced Draft: Ensure player always gets a choice between Upgrading an existing move OR unlocking a New Moveset!
     const randomThree = [];
     const popRandom = (arr) => {
       if (!arr || arr.length === 0) return null;
@@ -2420,7 +3389,6 @@ class YomiEngine {
       randomThree.push(remainingPool.pop());
     }
 
-    // Shuffle the final 3 cards so their UI positions (left, center, right) are randomized
     randomThree.sort(() => 0.5 - Math.random());
 
     randomThree.forEach(reward => {
@@ -2429,7 +3397,7 @@ class YomiEngine {
 
       let tierClass = `tier-${reward.rarity}`;
       if (reward.kind === 'UPGRADE') {
-        tierClass = 'tier-upgrade';
+        tierClass = reward.badge === 'BREAKTHROUGH' ? 'tier-fusion' : 'tier-upgrade';
       } else if (reward.kind === 'SKILL') {
         const moveData = MOVES[reward.moveKey];
         tierClass = (moveData && moveData.category === 'movement') ? 'tier-skill-mov' : 'tier-skill-atk';
@@ -2444,14 +3412,18 @@ class YomiEngine {
 
       card.addEventListener('click', () => {
         if (reward.kind === 'UPGRADE') {
-          this.upgradeMove(reward.moveKey);
+          if (this.moveUpgrades.has(reward.moveKey)) {
+            this.openBreakthrough(reward.moveKey);
+          } else {
+            this.upgradeMove(reward.moveKey);
+          }
         } else if (reward.kind === 'SKILL') {
           this.unlockMove(reward.moveKey);
         } else {
           this.activePerks.add(reward.id);
         }
         document.getElementById('screen-draft').classList.remove('active');
-        this.initStage(this.stage + 1);
+        this.initStage(this.currentFloor, this.floorStage + 1);
       });
 
       container.appendChild(card);
@@ -2469,7 +3441,7 @@ class YomiEngine {
     const upgrades = [
       { key: 'hp', name: 'Vitality Conditioning (+20 HP)', cost: 15 },
       { key: 'atk', name: 'Striking Power (+3 Damage)', cost: 20 },
-      { key: 'crit', name: 'Eagle Focus (+5% Critical Rate)', cost: 25 },
+      { key: 'crit', name: 'Precision Striker (+15% Weakpoint Damage)', cost: 25 },
       { key: 'super', name: 'Ki Resonance (+Super Generation)', cost: 30 }
     ];
 
@@ -2515,10 +3487,12 @@ class YomiEngine {
   }
 
   drawArena() {
+    const floorIdx = Math.max(0, Math.min(2, (this.currentFloor || 1) - 1));
+    const floorDef = FLOOR_DEFINITIONS[floorIdx] || FLOOR_DEFINITIONS[0];
     const grad = this.ctx.createLinearGradient(0, 0, 0, this.height);
-    grad.addColorStop(0, '#0d111a');
-    grad.addColorStop(0.65, '#161d2d');
-    grad.addColorStop(1, '#07090f');
+    grad.addColorStop(0, floorDef.bgGradient[0]);
+    grad.addColorStop(0.65, floorDef.bgGradient[1]);
+    grad.addColorStop(1, floorDef.bgGradient[2]);
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, this.width, this.height);
 
@@ -2530,10 +3504,10 @@ class YomiEngine {
     this.ctx.lineTo(this.width, floorY);
     this.ctx.stroke();
 
-    this.ctx.fillStyle = '#0b0f17';
+    this.ctx.fillStyle = floorDef.arenaFloorColor || '#0b0f17';
     this.ctx.fillRect(0, floorY, this.width, this.height - floorY);
 
-    this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     for (let x = 0; x <= this.width; x += 55) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, floorY);
@@ -2570,47 +3544,8 @@ class YomiEngine {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     this.ctx.fill();
 
-    const drawFighterSnapshot = (f) => {
-      this.ctx.save();
-      const drawX = f.x - f.width / 2;
-      const drawY = f.y - f.height;
-
-      if (f.isInvulnerable) {
-        this.ctx.globalAlpha = 0.45;
-        this.ctx.fillStyle = f.color;
-        this.ctx.fillRect(f.x - f.facing * 16 - f.width / 2, drawY, f.width, f.height);
-        this.ctx.globalAlpha = 1.0;
-      }
-
-      this.ctx.fillStyle = f.hitstunFrames > 0 ? '#ffffff' : f.color;
-      this.ctx.strokeStyle = '#05080f';
-      this.ctx.lineWidth = 2.5;
-
-      this.ctx.beginPath();
-      this.ctx.roundRect(drawX, drawY + 20, f.width, f.height - 20, 6);
-      this.ctx.fill();
-      this.ctx.stroke();
-
-      this.ctx.beginPath();
-      this.ctx.arc(f.x, drawY + 11, 13, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.stroke();
-
-      this.ctx.fillStyle = f === frame.p ? '#00f0ff' : '#ff3366';
-      this.ctx.fillRect(f.x + f.facing * 4 - 3, drawY + 8, 7, 3.5);
-
-      if (f.isBlocking || f.isParrying) {
-        this.ctx.beginPath();
-        this.ctx.arc(f.x + f.facing * 16, f.y - 45, 42, -Math.PI / 2, Math.PI / 2, f.facing === -1);
-        this.ctx.strokeStyle = f.isParrying ? '#00f0ff' : 'rgba(255, 209, 102, 0.7)';
-        this.ctx.lineWidth = 3.5;
-        this.ctx.stroke();
-      }
-      this.ctx.restore();
-    };
-
-    drawFighterSnapshot(frame.p);
-    drawFighterSnapshot(frame.e);
+    renderFighterModel(this.ctx, frame.p, true);
+    renderFighterModel(this.ctx, frame.e, false);
 
     frame.projectiles.forEach(p => {
       this.ctx.save();

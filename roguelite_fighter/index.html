@@ -28,7 +28,10 @@
 
       <!-- Center Match Indicators -->
       <div id="match-center">
-        <div class="stage-pill" id="stage-display">STAGE 1 / 5</div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1</div>
+          <div class="gold-pill" id="gold-display">🪙 50 Gold</div>
+        </div>
         <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
         <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">🎬 REPLAY</button>
         <div class="combo-callout" id="combo-display">3 HITS!</div>
@@ -183,6 +186,68 @@
       </div>
 
       <button id="btn-close-dojo" class="btn-secondary">BACK TO MAIN</button>
+    </div>
+
+    <!-- SANCTUARY SHOP & SKILL FORGE OVERLAY (POST-BOSS) -->
+    <div id="screen-shop" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 30px;">SANCTUARY FORGE & MARKET</div>
+      <div class="sub-title">Prepare your tactical loadout before entering the next floor:</div>
+      <div class="gold-pill" id="shop-gold-display" style="font-size: 14px; margin-bottom: 16px;">🪙 120 Gold Available</div>
+      
+      <!-- SHOP TABS -->
+      <div class="shop-tabs">
+        <button class="shop-tab-btn active" id="tab-shop-armory">⚔️ Skill Armory</button>
+        <button class="shop-tab-btn" id="tab-shop-supplies">🧪 Supplies & Relics</button>
+        <button class="shop-tab-btn" id="tab-shop-deck">🎴 Skill Deck Customizer</button>
+      </div>
+
+      <!-- TAB 1 & 2 CONTENT: SHOP WARES -->
+      <div id="shop-wares-view" class="shop-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- TAB 3 CONTENT: DECK CUSTOMIZER -->
+      <div id="shop-deck-view" style="display: none; width: 100%;">
+        <div class="deck-summary">
+          <span>Active Equipped Deck: <b id="deck-count-text">10 / 12 Moves</b></span>
+          <span style="color: var(--accent-cyan); font-size: 11px;">Click any move to Equip or Unequip from battle HUD</span>
+        </div>
+        <div class="deck-grid" id="deck-grid-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 14px; justify-content: center; margin-top: 10px;">
+        <button id="btn-leave-shop" class="btn-primary">ENTER NEXT FLOOR ➔</button>
+      </div>
+    </div>
+
+    <!-- SKILL BREAKTHROUGH OVERLAY (FUSION VS APEX) -->
+    <div id="screen-breakthrough" class="overlay-screen">
+      <div class="main-title" style="color: #c084fc; font-size: 30px;">SKILL BREAKTHROUGH!</div>
+      <div class="sub-title" id="breakthrough-sub">Choose the evolutionary path for your mastered skill:</div>
+      
+      <div class="breakthrough-options">
+        <div class="breakthrough-card fusion-opt" id="btn-opt-fusion">
+          <div>
+            <span class="perk-badge tier-fusion">SKILL FUSION</span>
+            <div class="perk-icon">🔮</div>
+            <div class="perk-name" id="fusion-title">Hybrid Fusion</div>
+            <div class="perk-desc" id="fusion-desc">Merge this move with another owned skill to create a devastating dual-element technique!</div>
+          </div>
+          <button class="btn-secondary" style="margin-top: 15px; border-color: #c084fc; color: #c084fc;">FUSE SKILL</button>
+        </div>
+
+        <div class="breakthrough-card apex-opt" id="btn-opt-apex">
+          <div>
+            <span class="perk-badge tier-apex">APEX ASCENSION</span>
+            <div class="perk-icon">⚔️</div>
+            <div class="perk-name" id="apex-title">Apex Mastery</div>
+            <div class="perk-desc" id="apex-desc">Ascend this skill to its ultimate standalone purity: extreme damage, 1f startup, and super armor.</div>
+          </div>
+          <button class="btn-primary" style="margin-top: 15px;">ASCEND TO APEX</button>
+        </div>
+      </div>
     </div>
 
     <!-- GAME OVER OVERLAY -->
