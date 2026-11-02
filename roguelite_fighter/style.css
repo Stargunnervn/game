@@ -395,18 +395,7 @@ canvas#aim-canvas:hover {
 .btn-lockin:hover {
   filter: brightness(1.15);
   transform: translateY(-1px);
-}
-
-.move-preview-desc {
-  font-size: 8.5px;
-  color: #94a3b8;
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
-}
-  box-shadow: 0 0 32px rgba(0, 240, 255, 0.75);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.65);
 }
 
 .btn-lockin:active {
@@ -414,7 +403,7 @@ canvas#aim-canvas:hover {
 }
 
 .move-preview-desc {
-  font-size: 10.5px;
+  font-size: 8.5px;
   color: var(--accent-gold);
   max-width: 170px;
   text-align: center;
@@ -734,6 +723,7 @@ canvas#aim-canvas:hover {
 .replay-slider {
   flex: 1;
   -webkit-appearance: none;
+  appearance: none;
   height: 6px;
   border-radius: 3px;
   background: #1e293b;
@@ -743,6 +733,7 @@ canvas#aim-canvas:hover {
 
 .replay-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 15px;
   height: 15px;
   border-radius: 50%;
