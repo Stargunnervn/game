@@ -239,3 +239,4 @@ sprite("badge_shield", { mx: true, outline: "k" }, `
   ...ky`)
 
 sheet("all_fighters", ["hustler", "iron_shogun", "crimson_oni", "shadow_kunoichi", "void_phantom_lord", "abyssal_leviathan", "soul_reaper", "celestial_emperor", "seraph_archon", "chronos_titan", "badge*"], { cols: 4, pad: 2 })
+

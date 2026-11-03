@@ -315,10 +315,7 @@ class YomiEngine {
       } else if (e.code === 'KeyR') {
         e.preventDefault();
         if (this.turnState === 'REPLAY') {
-          this.replayIndex = 0;
-          this.isReplayPlaying = true;
-          const playIcon = document.getElementById('replay-play-icon');
-          if (playIcon) playIcon.innerText = '⏸ PAUSE';
+          this.exitReplay();
         } else if (this.replayFrames.length > 0) {
           SFX.init();
           this.startReplay();
@@ -387,7 +384,11 @@ class YomiEngine {
     if (btnTopReplay) {
       btnTopReplay.addEventListener('click', () => {
         SFX.init();
-        this.startReplay();
+        if (this.turnState === 'REPLAY') {
+          this.exitReplay();
+        } else {
+          this.startReplay();
+        }
       });
     }
 
@@ -850,6 +851,8 @@ class YomiEngine {
     const tacPanel = document.getElementById('tactical-panel');
     if (tacPanel) tacPanel.classList.remove('hidden');
 
+    if (window.PixelFX) window.PixelFX.clear();
+
     this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
     this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
 
@@ -1188,6 +1191,7 @@ class YomiEngine {
         isInvulnerable: this.player.isInvulnerable,
         isBlocking: this.player.isBlocking,
         isParrying: this.player.isParrying,
+        isVulnerable: this.player.isVulnerable,
         hitstunFrames: this.player.hitstunFrames,
         moveKey: this.player.moveKey,
         moveFrame: this.player.moveFrame,
@@ -1213,6 +1217,7 @@ class YomiEngine {
         isInvulnerable: this.enemy.isInvulnerable,
         isBlocking: this.enemy.isBlocking,
         isParrying: this.enemy.isParrying,
+        isVulnerable: this.enemy.isVulnerable,
         hitstunFrames: this.enemy.hitstunFrames,
         moveKey: this.enemy.moveKey,
         moveFrame: this.enemy.moveFrame,
@@ -1221,6 +1226,9 @@ class YomiEngine {
         maxHp: this.enemy.maxHp,
         superMeter: this.enemy.superMeter,
         maxSuper: this.enemy.maxSuper,
+        catalogKey: this.enemy.catalogKey,
+        name: this.enemy.name,
+        title: (this.currentOpponentData && this.currentOpponentData.title) || '',
         afterimages: this.enemy.afterimages.map(a => ({ ...a }))
       },
       projectiles: this.projectiles.map(pr => ({ x: pr.x, y: pr.y, radius: pr.radius, color: pr.color })),
@@ -1355,6 +1363,28 @@ class YomiEngine {
         const isHeavy = !!move.launchesAir || (move.damage >= 24 && attacker.hitsDealt === maxHits);
         const realDmg = defender.takeHit(dmg, attacker, isHeavy, isSpike);
 
+        // ── MOVE HIT IMPACT PIXEL VFX (FROM PATCH-GG/PIXELFX) ──
+        if (typeof PixelFX !== 'undefined') {
+          const moveKey = attacker.moveKey || (attacker.currentMove ? attacker.currentMove.name : null);
+          const pColorRamp = attacker.isPlayer 
+            ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] 
+            : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
+
+          if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER'].includes(moveKey)) {
+            PixelFX.spawnSlash(defender.x, defender.y - 45, attacker.facing, attacker.aimAngle || 0, pColorRamp, moveKey === 'HEAVY_SLASH' ? 65 : 48);
+          } else if (moveKey === 'DRAGON_UPPER' || moveKey === 'LAUNCHER' || moveKey === 'FIRE_BURST') {
+            PixelFX.spawnFlamePillar(defender.x, defender.y, attacker.facing);
+          } else if (moveKey === 'THUNDER_GALE' || moveKey === 'LIGHTNING_PALM') {
+            PixelFX.spawnLightning(attacker.x, attacker.y - 45, defender.x, defender.y - 45);
+          } else if (moveKey === 'VOID_CLEAVE' || moveKey === 'JUDGMENT_CUT') {
+            PixelFX.spawnVoidRift(defender.x, defender.y - 45, attacker.facing, 65);
+          } else if (moveKey === 'COMET_CRASH' || moveKey === 'GROUND_POUND' || moveKey === 'METEOR_STRIKE') {
+            PixelFX.spawnGroundSlam(defender.x, defender.floorY, '#ffd166');
+          } else {
+            PixelFX.spawnHitSpark(defender.x, defender.y - 45, attacker.isPlayer ? '#00f0ff' : '#ff3366', isHeavy ? 20 : 14);
+          }
+        }
+
         const isAttackerMobility = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(attacker.moveKey) ||
           (move.moveDist > 0 || move.spikesDown);
 
@@ -1481,6 +1511,19 @@ class YomiEngine {
       return;
     }
 
+    // Unconditional FX update so effects, particles, and damage numbers fade out cleanly rather than freezing
+    if (window.PixelFX) {
+      window.PixelFX.update(1 / 60);
+    }
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      this.particles[i].update();
+      if (this.particles[i].life <= 0) this.particles.splice(i, 1);
+    }
+    for (let i = this.damageTexts.length - 1; i >= 0; i--) {
+      this.damageTexts[i].update();
+      if (this.damageTexts[i].life <= 0) this.damageTexts.splice(i, 1);
+    }
+
     if (this.turnState === 'SIMULATING') {
       this.player.updateFramePhysics();
       this.enemy.updateFramePhysics();
@@ -1498,19 +1541,6 @@ class YomiEngine {
           p.active = false;
         }
         if (!p.active) this.projectiles.splice(i, 1);
-      }
-
-      // Particles, Texts, and PixelFX
-      for (let i = this.particles.length - 1; i >= 0; i--) {
-        this.particles[i].update();
-        if (this.particles[i].life <= 0) this.particles.splice(i, 1);
-      }
-      for (let i = this.damageTexts.length - 1; i >= 0; i--) {
-        this.damageTexts[i].update();
-        if (this.damageTexts[i].life <= 0) this.damageTexts.splice(i, 1);
-      }
-      if (window.PixelFX) {
-        window.PixelFX.update(1 / 60);
       }
 
       this.recordFrame();
@@ -2192,6 +2222,8 @@ class YomiEngine {
       return;
     }
 
+    if (window.PixelFX) window.PixelFX.clear();
+
     // Save whichever overlay was open (screen-draft, screen-victory, screen-gameover)
     this.overlayBeforeReplay = document.querySelector('.overlay-screen.active');
     if (this.overlayBeforeReplay) {
@@ -2218,22 +2250,49 @@ class YomiEngine {
   }
 
   exitReplay() {
+    this.isReplayPlaying = false;
     const replayHud = document.getElementById('replay-hud');
     if (replayHud) replayHud.classList.add('hidden');
 
     const btnTopReplay = document.getElementById('btn-top-replay');
     if (btnTopReplay) btnTopReplay.classList.remove('hidden');
 
-    // Restore any overlay that was open before entering replay
+    if (window.PixelFX) window.PixelFX.clear();
+
+    // 1. If an overlay was active before replay, restore it
     if (this.overlayBeforeReplay) {
       this.overlayBeforeReplay.classList.add('active');
       this.overlayBeforeReplay = null;
-    } else if (this.previousState === 'DECISION') {
-      const tacPanel = document.getElementById('tactical-panel');
-      if (tacPanel) tacPanel.classList.remove('hidden');
+      this.turnState = 'ROUND_OVER';
+      this.updateHUD();
+      return;
     }
 
-    this.turnState = this.previousState || 'DECISION';
+    // 2. Otherwise determine destination based on match outcome
+    if (this.enemy && this.enemy.hp <= 0) {
+      this.turnState = 'ROUND_OVER';
+      if (this.floorStage >= 10) {
+        if (this.currentFloor >= 3) {
+          this.showFinalVictory();
+        } else {
+          const vicEl = document.getElementById('screen-victory');
+          if (vicEl) vicEl.classList.add('active');
+        }
+      } else {
+        this.showDraftOverlay();
+      }
+    } else if (this.player && this.player.hp <= 0) {
+      this.turnState = 'ROUND_OVER';
+      const goEl = document.getElementById('screen-gameover');
+      if (goEl) goEl.classList.add('active');
+    } else {
+      // Mid-match: resume decision turn cleanly
+      this.turnState = 'DECISION';
+      const tacPanel = document.getElementById('tactical-panel');
+      if (tacPanel) tacPanel.classList.remove('hidden');
+      this.openDecisionTurn();
+    }
+
     this.updateHUD();
   }
 

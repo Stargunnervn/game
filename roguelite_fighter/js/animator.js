@@ -3,9 +3,9 @@
 // Generated with crsolver/claude-pxl and patch-gg/pixelfx
 // ============================================================================
 
-// Global mode: Pixel Art Mode (claude-pxl) vs Vector Frame Rig
+// Global mode: Pixel Art Mode (claude-pxl) vs Vector Frame Rig (Vector Rig is default for fluid anime martial arts)
 if (typeof window !== 'undefined' && typeof window.pixelArtMode === 'undefined') {
-  window.pixelArtMode = true;
+  window.pixelArtMode = false;
 }
 
 const PIXEL_SPRITES = {};
@@ -25,17 +25,17 @@ const SPRITE_MAP = {
 function getSpriteKeyForFighter(f, isPlayer) {
   if (isPlayer) return 'hustler';
   if (f && f.catalogKey && SPRITE_MAP[f.catalogKey]) return SPRITE_MAP[f.catalogKey];
-  const n = ((f && f.name) || '').toLowerCase();
-  if (n.includes('oni') || n.includes('goryo') || n.includes('demon')) return 'crimson_oni';
-  if (n.includes('shogun') || n.includes('monk') || n.includes('samurai') || n.includes('dojo')) return 'iron_shogun';
-  if (n.includes('ninja') || n.includes('kunoichi') || n.includes('ayame') || n.includes('assassin') || n.includes('duelist')) return 'shadow_kunoichi';
-  if (n.includes('void') || n.includes('phantom') || n.includes('cultist') || n.includes('inquisitor')) return 'void_phantom_lord';
-  if (n.includes('leviathan') || n.includes('dagon') || n.includes('abomination') || n.includes('behemoth')) return 'abyssal_leviathan';
-  if (n.includes('reaper') || n.includes('thanatos') || n.includes('soul') || n.includes('stalker')) return 'soul_reaper';
-  if (n.includes('emperor') || n.includes('valkyrie') || n.includes('saint') || n.includes('templar')) return 'celestial_emperor';
+  const n = (((f && f.name) || '') + ' ' + ((f && f.title) || '')).toLowerCase();
+  if (n.includes('oni') || n.includes('goryo') || n.includes('demon') || n.includes('brawler')) return 'crimson_oni';
+  if (n.includes('shogun') || n.includes('raiden') || n.includes('monk') || n.includes('samurai') || n.includes('dojo') || n.includes('novice') || n.includes('adept') || n.includes('dummy') || n.includes('instructor')) return 'iron_shogun';
+  if (n.includes('ninja') || n.includes('kunoichi') || n.includes('ayame') || n.includes('assassin') || n.includes('duelist') || n.includes('ronin') || n.includes('windblade')) return 'shadow_kunoichi';
+  if (n.includes('void') || n.includes('phantom') || n.includes('cultist') || n.includes('inquisitor') || n.includes('malakor')) return 'void_phantom_lord';
+  if (n.includes('leviathan') || n.includes('dagon') || n.includes('abomination') || n.includes('behemoth') || n.includes('nether') || n.includes('titan')) return 'abyssal_leviathan';
+  if (n.includes('reaper') || n.includes('thanatos') || n.includes('soul') || n.includes('stalker') || n.includes('nightshade')) return 'soul_reaper';
+  if (n.includes('emperor') || n.includes('zenith') || n.includes('valkyrie') || n.includes('saint') || n.includes('templar')) return 'celestial_emperor';
   if (n.includes('seraph') || n.includes('uriel') || n.includes('archon') || n.includes('angel')) return 'seraph_archon';
-  if (n.includes('chronos') || n.includes('aeon') || n.includes('chrono') || n.includes('titan') || n.includes('weaver')) return 'chronos_titan';
-  return 'hustler';
+  if (n.includes('chronos') || n.includes('aeon') || n.includes('chrono') || n.includes('sage') || n.includes('weaver') || n.includes('sentinel')) return 'chronos_titan';
+  return 'iron_shogun';
 }
 
 function loadPixelSprite(key) {
@@ -144,7 +144,7 @@ function renderFighterModel(ctx, f, isPlayer) {
   }
 
   // ── RETRO 16-BIT PIXEL ART RENDERING MODE (FROM CLAUDE-PXL) ──
-  const usePixelArt = (typeof window !== 'undefined') && (window.pixelArtMode !== false);
+  const usePixelArt = (typeof window !== 'undefined') && (window.pixelArtMode === true);
   if (usePixelArt) {
     const sKey = getSpriteKeyForFighter(f, isPlayer);
     const spriteImg = loadPixelSprite(sKey);
@@ -168,13 +168,17 @@ function renderFighterModel(ctx, f, isPlayer) {
       ctx.restore();
 
       // Render Forcefield and Vulnerable state overlays
-      renderFighterOverlays(ctx, f, x, y, facing);
+      ctx.save();
+      ctx.translate(x, y - 48 + bobY);
+      renderFighterOverlays(ctx, f, 0, 0, facing);
+      ctx.restore();
+
       ctx.restore();
       return;
     }
   }
 
-  // ── VECTOR FRAME RIG FALLBACK RENDERING MODE ──
+  // ── VECTOR FRAME RIG DEFAULT RENDERING MODE (FLUID PROCEDURAL MARTIAL ARTS) ──
   ctx.translate(x, y - 48 + bobY);
   ctx.rotate(bodyAngle);
 
@@ -291,7 +295,7 @@ function renderFighterModel(ctx, f, isPlayer) {
   ctx.restore();
 
   // Render Overlays
-  renderFighterOverlays(ctx, f, x, y, facing);
+  renderFighterOverlays(ctx, f, 0, 0, facing);
   ctx.restore();
 }
 
