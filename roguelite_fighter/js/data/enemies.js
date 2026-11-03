@@ -105,6 +105,38 @@ const ENEMY_CATALOG = {
     introQuote: 'Tremble before the invincible blade of the Shogunate!',
     defeatQuote: 'Impossible... The Iron Dynasty falls...'
   },
+  // FLOOR 1 BOSS 2: CRIMSON ONI GORYO
+  boss_crimson_oni: {
+    name: 'Crimson Oni Goryo',
+    title: 'Berserker of the Blood Forge',
+    isBoss: true,
+    color: '#ff2a2a',
+    bodyColor: '#5c0606',
+    headColor: '#c0392b',
+    accentColor: '#ff9900',
+    baseHp: 275,
+    aiTier: 'BOSS',
+    moves: ['SUPER_DASH', 'METEOR_STRIKE', 'LIGHTNING_PALM', 'SWEEP', 'DRAGON_UPPER', 'LAUNCHER', 'GROUND_POUND'],
+    goldReward: 145,
+    introQuote: 'My horns thirst for a worthy duel! Come, break against my iron fists!',
+    defeatQuote: 'Gwahaha! What ferocious strength... You have earned my respect!'
+  },
+  // FLOOR 1 BOSS 3: SHADOW KUNOICHI AYAME
+  boss_shadow_kunoichi: {
+    name: 'Shadow Lotus Ayame',
+    title: 'Silent Fang of the Shogunate',
+    isBoss: true,
+    color: '#ff007f',
+    bodyColor: '#2b0a22',
+    headColor: '#e056fd',
+    accentColor: '#00f0ff',
+    baseHp: 245,
+    aiTier: 'BOSS',
+    moves: ['GHOST_STEP', 'PHANTOM_SLIDE', 'DIVE_KICK', 'QUICK_JAB', 'THUNDER_GALE', 'BLADE_COUNTER', 'PARRY'],
+    goldReward: 150,
+    introQuote: 'Do not blink. A shinobi strike comes from the blind spot of your soul.',
+    defeatQuote: 'A flawless counter... My shadow fades...'
+  },
 
   // ── FLOOR 2: THE SHADOW RIFT (Spectral, Dark & Spatial) ──
   spectral_stalker: {
@@ -208,6 +240,38 @@ const ENEMY_CATALOG = {
     introQuote: 'All light dissolves into the eternal void. Surrender your soul!',
     defeatQuote: 'Even the endless void can be sundered...'
   },
+  // FLOOR 2 BOSS 2: ABYSSAL LEVIATHAN
+  boss_abyssal_leviathan: {
+    name: 'Abyssal Sovereign Dagon',
+    title: 'Colossus of the Deep Trenches',
+    isBoss: true,
+    color: '#008b8b',
+    bodyColor: '#003333',
+    headColor: '#20b2aa',
+    accentColor: '#00ffcc',
+    baseHp: 410,
+    aiTier: 'BOSS',
+    moves: ['GROUND_POUND', 'COMET_CRASH', 'FIRE_BURST', 'METEOR_STRIKE', 'SUPER_DASH', 'HEAVY_SLASH', 'AEGIS_REFLECT'],
+    goldReward: 230,
+    introQuote: 'The black ocean rises to swallow your mortal spark! Drown in the deep!',
+    defeatQuote: 'The ocean floor shatters... The leviathan sinks...'
+  },
+  // FLOOR 2 BOSS 3: SOUL REAPER THANATOS
+  boss_soul_reaper: {
+    name: 'Soul Harvester Thanatos',
+    title: 'Grand Arbiter of the Nethergate',
+    isBoss: true,
+    color: '#1abc9c',
+    bodyColor: '#0e6251',
+    headColor: '#48c9b0',
+    accentColor: '#e74c3c',
+    baseHp: 370,
+    aiTier: 'BOSS',
+    moves: ['SHADOW_TELEPORT', 'PHANTOM_SLIDE', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'GHOST_STEP', 'BLADE_COUNTER', 'PARRY'],
+    goldReward: 240,
+    introQuote: 'Every breath you draw belongs to the grave. I have come to collect.',
+    defeatQuote: 'A mortal who defies death itself... Remarkable...'
+  },
 
   // ── FLOOR 3: THE ASTRAL CITADEL (Celestial, Divine & Supreme) ──
   astral_templar: {
@@ -297,6 +361,40 @@ const ENEMY_CATALOG = {
     goldReward: 500,
     introQuote: 'You stand before the creator of the arena. Witness absolute martial perfection!',
     defeatQuote: 'You have done the impossible... You are the true God of Hustle!'
+  },
+  // FLOOR 3 FINAL BOSS 2: SOLAR SERAPH URIEL
+  boss_seraph_archon: {
+    name: 'Solar Seraph Uriel',
+    title: 'Primordial Avatar of the Supernova',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ffd700',
+    bodyColor: '#78350f',
+    headColor: '#fef08a',
+    accentColor: '#ef4444',
+    baseHp: 510,
+    aiTier: 'BOSS',
+    moves: ['DOUBLE_JUMP', 'DIVE_KICK', 'COMET_CRASH', 'FIRE_BURST', 'DRAGON_UPPER', 'SUPER_DASH', 'THUNDER_GALE'],
+    goldReward: 500,
+    introQuote: 'Bask in the unyielding radiance of ten thousand suns! Purify your soul!',
+    defeatQuote: 'My sacred flames... extinguished by mortal hands...'
+  },
+  // FLOOR 3 FINAL BOSS 3: CHRONOMANCER AEON
+  boss_chronos_titan: {
+    name: 'Chronomancer Aeon',
+    title: 'Eternal Weaver of Timelines',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#00ffff',
+    bodyColor: '#0f172a',
+    headColor: '#38bdf8',
+    accentColor: '#f43f5e',
+    baseHp: 530,
+    aiTier: 'BOSS',
+    moves: ['SHADOW_TELEPORT', 'GHOST_STEP', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'THUNDER_GALE', 'AEGIS_REFLECT', 'BLADE_COUNTER'],
+    goldReward: 500,
+    introQuote: 'In ten million futures, you never defeat me. Let us see if you can break destiny.',
+    defeatQuote: 'A rupture in the timeline... You have forged a new reality!'
   }
 };
 
@@ -320,8 +418,8 @@ const FLOOR_DEFINITIONS = [
       { stage: 7, pool: ['iron_temple_monk', 'street_brawler'], hpMult: 1.3, goldBonus: 30 },
       { stage: 8, pool: ['iron_temple_monk', 'elite_dojo_master'], hpMult: 1.35, goldBonus: 35 },
       { stage: 9, pool: ['elite_dojo_master'], hpMult: 1.45, goldBonus: 45 },
-      // Stage 10: Floor Boss
-      { stage: 10, pool: ['boss_iron_shogun'], hpMult: 1.0, goldBonus: 50, isBossStage: true }
+      // Stage 10: Floor Boss (Randomized from Floor 1 Boss Pool)
+      { stage: 10, pool: ['boss_iron_shogun', 'boss_crimson_oni', 'boss_shadow_kunoichi'], hpMult: 1.0, goldBonus: 50, isBossStage: true }
     ]
   },
   {
@@ -342,8 +440,8 @@ const FLOOR_DEFINITIONS = [
       { stage: 7, pool: ['nether_abomination', 'crimson_assassin'], hpMult: 1.3, goldBonus: 40 },
       { stage: 8, pool: ['nether_abomination', 'void_inquisitor'], hpMult: 1.35, goldBonus: 45 },
       { stage: 9, pool: ['void_inquisitor'], hpMult: 1.45, goldBonus: 55 },
-      // Stage 10: Floor Boss
-      { stage: 10, pool: ['boss_void_phantom_lord'], hpMult: 1.0, goldBonus: 80, isBossStage: true }
+      // Stage 10: Floor Boss (Randomized from Floor 2 Boss Pool)
+      { stage: 10, pool: ['boss_void_phantom_lord', 'boss_abyssal_leviathan', 'boss_soul_reaper'], hpMult: 1.0, goldBonus: 80, isBossStage: true }
     ]
   },
   {
@@ -364,8 +462,8 @@ const FLOOR_DEFINITIONS = [
       { stage: 7, pool: ['divine_sword_saint', 'chrono_weaver'], hpMult: 1.3, goldBonus: 50 },
       { stage: 8, pool: ['divine_sword_saint', 'celestial_valkyrie'], hpMult: 1.35, goldBonus: 60 },
       { stage: 9, pool: ['divine_sword_saint'], hpMult: 1.45, goldBonus: 75 },
-      // Stage 10: Final Boss
-      { stage: 10, pool: ['boss_celestial_emperor'], hpMult: 1.0, goldBonus: 100, isBossStage: true, isFinalBoss: true }
+      // Stage 10: Final Boss (Randomized from Floor 3 Boss Pool)
+      { stage: 10, pool: ['boss_celestial_emperor', 'boss_seraph_archon', 'boss_chronos_titan'], hpMult: 1.0, goldBonus: 100, isBossStage: true, isFinalBoss: true }
     ]
   }
 ];

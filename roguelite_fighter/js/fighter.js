@@ -175,6 +175,13 @@ class TacticalFighter {
     this.lastHitFrame = -999;
     this.hasMomentumBoost = false;
 
+    // Mobility Spam and Punish Vulnerability System
+    this.lastMoveKey = null;
+    this.consecutiveMobilityCount = 0;
+    this.isVulnerable = false;
+    this.vulnerableTurns = 0;
+    this.hasSpamPenalty = false;
+
     // Visual trails
     this.afterimages = [];
   }
@@ -191,7 +198,7 @@ class TacticalFighter {
   }
 
   executeMove(moveKey, aimDeg = 0) {
-    const moveData = window.engine ? window.engine.getMoveData(moveKey, this.isPlayer) : (typeof MOVES !== 'undefined' ? MOVES[moveKey] : null);
+    let moveData = window.engine ? window.engine.getMoveData(moveKey, this.isPlayer) : (typeof MOVES !== 'undefined' ? MOVES[moveKey] : null);
     if (!moveData) return;
 
     // Enforce SP cost deduction
@@ -200,6 +207,39 @@ class TacticalFighter {
         return; // Insufficient SP safeguard
       }
       this.superMeter = Math.max(0, this.superMeter - moveData.superCost);
+    }
+
+    // Mobility Attack Detection and Consecutive Spam Penalty
+    const isMobilityAttack = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(moveKey) ||
+      ((moveData.type === 'ATTACK' || moveData.type === 'SPECIAL') && (moveData.moveDist > 0 || moveData.spikesDown));
+
+    if (isMobilityAttack) {
+      if (this.lastMoveKey === moveKey) {
+        this.consecutiveMobilityCount = (this.consecutiveMobilityCount || 0) + 1;
+        this.hasSpamPenalty = true;
+      } else {
+        this.consecutiveMobilityCount = 1;
+        this.hasSpamPenalty = false;
+      }
+    } else {
+      this.consecutiveMobilityCount = 0;
+      this.hasSpamPenalty = false;
+    }
+
+    this.lastMoveKey = moveKey;
+
+    if (this.hasSpamPenalty && this.consecutiveMobilityCount > 1) {
+      const extraStartup = 4 * Math.min(3, this.consecutiveMobilityCount - 1);
+      const extraRecovery = 6 * Math.min(3, this.consecutiveMobilityCount - 1);
+      moveData = {
+        ...moveData,
+        startup: (moveData.startup || 4) + extraStartup,
+        duration: (moveData.duration || 16) + extraStartup + extraRecovery
+      };
+      if (window.engine) {
+        window.engine.addDamageText(this.x, this.y - 75, `SPAM PENALTY! +${extraStartup}f LAG`, '#ffaa00', true);
+        window.engine.spawnSparks(this.x, this.y - 45, '#ffaa00', 8);
+      }
     }
 
     this.currentMove = moveData;
@@ -398,7 +438,20 @@ class TacticalFighter {
     }
 
     // FULL IMPACT HIT
-    const finalDmg = Math.max(1, Math.round(dmg * (1 - this.defenseBonus)));
+    let finalDmg = Math.max(1, Math.round(dmg * (1 - this.defenseBonus)));
+
+    // Punish Counter Check (Target was in Vulnerable state)
+    if (this.isVulnerable) {
+      finalDmg = Math.round(finalDmg * 1.35);
+      this.isVulnerable = false;
+      this.vulnerableTurns = 0;
+      if (window.engine) {
+        window.engine.addDamageText(this.x, this.y - 95, 'PUNISH COUNTER +35%!', '#ff0055', true);
+        window.engine.spawnSparks(this.x, this.y - 45, '#ff0055', 18);
+        window.engine.addScreenShake(6, 12);
+      }
+    }
+
     this.hp = Math.max(0, this.hp - finalDmg);
 
     const aimDeg = attacker ? attacker.aimAngle : 0;

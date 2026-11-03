@@ -226,6 +226,26 @@ function renderFighterModel(ctx, f, isPlayer) {
     ctx.restore();
   }
 
+  // Vulnerable Punish State Indicator
+  if (f.isVulnerable) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 51, 102, 0.85)';
+    ctx.fillStyle = 'rgba(255, 51, 102, 0.16)';
+    ctx.shadowColor = '#ff3366';
+    ctx.shadowBlur = 14;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, -10, 44, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fill();
+
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#ff3366';
+    ctx.textAlign = 'center';
+    ctx.fillText('⚠️ VULNERABLE', 0, -50);
+    ctx.restore();
+  }
+
   ctx.restore();
   ctx.restore();
 }

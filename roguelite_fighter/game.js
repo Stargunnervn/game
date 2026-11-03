@@ -757,6 +757,7 @@ class YomiEngine {
   initStage(floorNum, stageNum) {
     this.currentFloor = floorNum || 1;
     this.floorStage = stageNum || 1;
+    this.enemyLastMoveKey = null;
 
     // Generate enemy from 10-stage pool
     const enemyData = generateEnemyData(this.currentFloor, this.floorStage);
@@ -840,6 +841,28 @@ class YomiEngine {
     this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
     this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
 
+    // Vulnerable State Lifecycle and Whiff Detection for Mobility Attacks
+    [this.player, this.enemy].forEach(f => {
+      if (!f) return;
+      if (f.moveKey) {
+        const isMob = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(f.moveKey) ||
+          (f.currentMove && (f.currentMove.moveDist > 0 || f.currentMove.spikesDown));
+        if (isMob && !f.hasHit) {
+          f.isVulnerable = true;
+          f.vulnerableTurns = 0;
+          this.addDamageText(f.x, f.y - 75, 'WHIFF VULNERABLE!', '#ff5555', true);
+          this.spawnSparks(f.x, f.y - 45, '#ff5555', 8);
+        }
+      }
+      if (f.isVulnerable) {
+        f.vulnerableTurns = (f.vulnerableTurns || 0) + 1;
+        if (f.vulnerableTurns > 1) {
+          f.isVulnerable = false;
+          f.vulnerableTurns = 0;
+        }
+      }
+    });
+
     // Tactical Foresight Passive Perk
     if (this.hasPerk('tactical_foresight')) {
       if (this.player.hitstunFrames > 0) this.player.hitstunFrames = Math.max(0, this.player.hitstunFrames - 1);
@@ -865,106 +888,219 @@ class YomiEngine {
     this.rebuildMoveButtons();
   }
 
-  // ── INTELLIGENT SCALING AI (POOL & TIER BASED) ──────────────────────────────
+  // ── INTELLIGENT SCALING AI (POOL & TIER BASED, ANTI-TURTLING, MOBILITY HEAVY) ──────
   chooseAIMove() {
     const opp = this.currentOpponentData || {};
     const movePool = opp.moves || ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK'];
     const aiTier = opp.aiTier || 'BALANCED';
+    const bossKey = opp.catalogKey || '';
     const dist = Math.abs(this.enemy.x - this.player.x);
     const rand = Math.random();
     const playerInHitstun = this.player.hitstunFrames > 0;
+    const playerAirborne = this.player.isAirborne;
+    const playerVulnerable = !!this.player.isVulnerable;
 
-    // Defense if stunned
+    // Defensive moves definition
+    const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER'];
+    const wasDefending = defensiveMoves.includes(this.enemyLastMoveKey);
+
+    // ANTI-TURTLING SYSTEM: Strict defense lockouts
+    // 1. Never defend twice in a row (no consecutive defense allowed)
+    // 2. Never defend when player is in hitstun, airborne, or vulnerable (punish opportunity)
+    // 3. Berserker archetype bosses never defend
+    const isBerserker = bossKey === 'boss_crimson_oni' || opp.archetype === 'berserker';
+    const allowDefense = !wasDefending && !playerInHitstun && !playerAirborne && !playerVulnerable && !isBerserker;
+
+    // Defense if enemy is stunned
     if (this.enemy.hitstunFrames > 0) {
-      return movePool.includes('BLOCK') ? 'BLOCK' : 'STEP_BACK';
+      if (allowDefense && movePool.includes('BLOCK')) return 'BLOCK';
+      return movePool.includes('STEP_BACK') ? 'STEP_BACK' : 'STEP_FWD';
     }
 
-    // 1. NOVICE AI
-    if (aiTier === 'NOVICE') {
-      if (playerInHitstun) {
-        return (movePool.includes('QUICK_JAB') && rand < 0.7) ? 'QUICK_JAB' : 'STEP_FWD';
-      }
-      if (dist > 140) return rand < 0.6 ? 'STEP_FWD' : 'STEP_BACK';
-      if (dist < 75) return rand < 0.45 ? 'QUICK_JAB' : (rand < 0.75 ? 'SWEEP' : 'BLOCK');
-      return 'STEP_FWD';
+    // Helper: Pick best available move matching conditions and having enough SP
+    const canUse = (key, minSp = 0) => {
+      if (!movePool.includes(key)) return false;
+      if (minSp > 0 && this.enemy.superMeter < minSp) return false;
+      const mData = this.getMoveData(key, false);
+      if (mData && mData.superCost > 0 && this.enemy.superMeter < mData.superCost) return false;
+      return true;
+    };
+
+    // SITUATIONAL REACTION 1: ANTI-AIR (Player is airborne)
+    if (playerAirborne && dist < 190) {
+      if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
+      if (canUse('LAUNCHER')) return 'LAUNCHER';
+      if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
+      if (canUse('KI_BLAST', 20)) return 'KI_BLAST';
+      if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+      if (canUse('DASH')) return 'DASH';
     }
 
-    // 2. AGGRESSIVE AI
-    if (aiTier === 'AGGRESSIVE') {
-      if (dist > 180) {
-        if (movePool.includes('SUPER_DASH')) return 'SUPER_DASH';
-        if (movePool.includes('DASH')) return 'DASH';
+    // SITUATIONAL REACTION 2: PUNISH AND HIT-CONFIRM (Player stunned or vulnerable)
+    if (playerInHitstun || playerVulnerable) {
+      if (dist < 95) {
+        if (canUse('VOID_CLEAVE', 40)) return 'VOID_CLEAVE';
+        if (canUse('JUDGMENT_CUT', 35)) return 'JUDGMENT_CUT';
+        if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
+        if (canUse('COMET_CRASH', 30)) return 'COMET_CRASH';
+        if (canUse('THUNDER_GALE', 25)) return 'THUNDER_GALE';
+        if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
+        if (canUse('LAUNCHER')) return 'LAUNCHER';
+        if (canUse('HEAVY_SLASH')) return 'HEAVY_SLASH';
+        if (canUse('LIGHTNING_PALM')) return 'LIGHTNING_PALM';
+        return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
+      } else {
+        if (canUse('PHANTOM_SLIDE', 20)) return 'PHANTOM_SLIDE';
+        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+        if (canUse('DASH')) return 'DASH';
         return 'STEP_FWD';
       }
-      if (dist < 90) {
-        if (this.enemy.superMeter >= 25 && movePool.includes('METEOR_STRIKE')) return 'METEOR_STRIKE';
-        if (movePool.includes('GROUND_POUND')) return 'GROUND_POUND';
-        if (movePool.includes('LAUNCHER')) return 'LAUNCHER';
-        return 'QUICK_JAB';
-      }
-      return movePool.includes('HEAVY_SLASH') ? 'HEAVY_SLASH' : 'QUICK_JAB';
     }
 
-    // 3. TACTICAL AI
+    // SITUATIONAL REACTION 3: CORNER ESCAPE (Enemy trapped near arena edge)
+    const isCornered = (this.enemy.x < 130 && this.enemy.facing === 1) || (this.enemy.x > 890 && this.enemy.facing === -1);
+    if (isCornered) {
+      if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
+      if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+      if (canUse('PHANTOM_SLIDE', 20)) return 'PHANTOM_SLIDE';
+      if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+      if (canUse('DOUBLE_JUMP')) return 'DOUBLE_JUMP';
+      if (canUse('JUMP')) return 'JUMP';
+    }
+
+    // SITUATIONAL REACTION 4: AERIAL COMBAT (Enemy is in mid-air)
+    if (this.enemy.isAirborne) {
+      if (canUse('COMET_CRASH', 30)) return 'COMET_CRASH';
+      if (canUse('DIVE_KICK')) return 'DIVE_KICK';
+      if (canUse('GROUND_POUND')) return 'GROUND_POUND';
+    }
+
+    // TIER AND ARCHETYPE BASED LOGIC
+
+    // 1. BOSS AI (Dynamic, aggressive, archetype-aware)
+    if (aiTier === 'BOSS') {
+      // High-Super Apex / Fused Skills
+      if (canUse('VOID_CLEAVE', 50)) return 'VOID_CLEAVE';
+      if (canUse('COMET_CRASH', 50)) return 'COMET_CRASH';
+      if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
+      if (canUse('THUNDER_GALE', 35)) return 'THUNDER_GALE';
+      if (canUse('JUDGMENT_CUT', 35)) return 'JUDGMENT_CUT';
+
+      // Long range (> 210)
+      if (dist > 210) {
+        if (canUse('SHADOW_TELEPORT') && rand < 0.45) return 'SHADOW_TELEPORT';
+        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('GHOST_STEP') && rand < 0.6) return 'GHOST_STEP';
+        if (canUse('FIRE_BURST') && rand < 0.4) return 'FIRE_BURST';
+        if (canUse('KI_BLAST', 20) && rand < 0.45) return 'KI_BLAST';
+        return canUse('DASH') ? 'DASH' : 'STEP_FWD';
+      }
+
+      // Mid range (90 to 210): Active engagement and mobility attacks
+      if (dist >= 90) {
+        if (canUse('PHANTOM_SLIDE', 20) && rand < 0.45) return 'PHANTOM_SLIDE';
+        if (canUse('JUMP') && rand < 0.3) return 'JUMP';
+        if (canUse('DIVE_KICK') && rand < 0.35) return 'DIVE_KICK';
+        if (canUse('SWEEP') && dist < 125 && rand < 0.4) return 'SWEEP';
+        if (canUse('THUNDER_GALE', 25) && dist < 140 && rand < 0.45) return 'THUNDER_GALE';
+        if (canUse('METEOR_STRIKE', 25) && rand < 0.4) return 'METEOR_STRIKE';
+        if (canUse('GHOST_STEP') && rand < 0.4) return 'GHOST_STEP';
+        if (canUse('DASH')) return rand < 0.65 ? 'DASH' : 'STEP_FWD';
+        return 'STEP_FWD';
+      }
+
+      // Close range (< 90): Capped defense (15% max), high offensive pressure
+      if (allowDefense && rand < 0.15) {
+        if (canUse('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
+        if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
+        if (canUse('PARRY')) return 'PARRY';
+        if (canUse('BLOCK')) return 'BLOCK';
+      }
+
+      if (canUse('GROUND_POUND') && rand < 0.3) return 'GROUND_POUND';
+      if (canUse('LIGHTNING_PALM') && rand < 0.4) return 'LIGHTNING_PALM';
+      if (canUse('LAUNCHER') && rand < 0.35) return 'LAUNCHER';
+      if (canUse('SWEEP') && rand < 0.35) return 'SWEEP';
+      if (canUse('HEAVY_SLASH') && rand < 0.5) return 'HEAVY_SLASH';
+      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
+    }
+
+    // 2. VETERAN AI (High tier elite enemies)
+    if (aiTier === 'VETERAN') {
+      if (dist > 180) {
+        if (canUse('GHOST_STEP') && rand < 0.6) return 'GHOST_STEP';
+        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('DASH')) return 'DASH';
+        return 'STEP_FWD';
+      }
+      if (dist >= 90) {
+        if (canUse('PHANTOM_SLIDE', 20) && rand < 0.4) return 'PHANTOM_SLIDE';
+        if (canUse('SWEEP') && dist < 120 && rand < 0.45) return 'SWEEP';
+        if (canUse('KI_BLAST', 20) && rand < 0.4) return 'KI_BLAST';
+        return canUse('DASH') ? 'DASH' : 'STEP_FWD';
+      }
+      // Close range
+      if (allowDefense && rand < 0.16) {
+        if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
+        if (canUse('PARRY')) return 'PARRY';
+        if (canUse('BLOCK')) return 'BLOCK';
+      }
+      if (canUse('LAUNCHER') && rand < 0.35) return 'LAUNCHER';
+      if (canUse('HEAVY_SLASH') && rand < 0.5) return 'HEAVY_SLASH';
+      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
+    }
+
+    // 3. TACTICAL AI (Zoners and mid-range duelists)
     if (aiTier === 'TACTICAL') {
       if (dist > 160) {
-        if (this.enemy.superMeter >= 20 && movePool.includes('KI_BLAST')) return 'KI_BLAST';
-        if (movePool.includes('FIRE_BURST')) return 'FIRE_BURST';
+        if (canUse('KI_BLAST', 20) && rand < 0.55) return 'KI_BLAST';
+        if (canUse('FIRE_BURST') && rand < 0.45) return 'FIRE_BURST';
         return 'STEP_FWD';
       }
-      if (dist < 80) {
-        if (rand < 0.35 && movePool.includes('PARRY')) return 'PARRY';
-        if (movePool.includes('LIGHTNING_PALM')) return 'LIGHTNING_PALM';
-        if (movePool.includes('SWEEP')) return 'SWEEP';
-        return 'BLOCK';
+      if (dist >= 85) {
+        if (canUse('SWEEP') && rand < 0.4) return 'SWEEP';
+        if (canUse('LIGHTNING_PALM') && rand < 0.35) return 'LIGHTNING_PALM';
+        return rand < 0.5 ? 'STEP_FWD' : 'STEP_BACK';
       }
-      return 'STEP_BACK';
+      // Close range
+      if (allowDefense && rand < 0.18) {
+        if (canUse('PARRY')) return 'PARRY';
+        if (canUse('BLOCK')) return 'BLOCK';
+      }
+      if (canUse('LIGHTNING_PALM')) return 'LIGHTNING_PALM';
+      if (canUse('SWEEP')) return 'SWEEP';
+      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'HEAVY_SLASH';
     }
 
-    // 4. VETERAN AI
-    if (aiTier === 'VETERAN') {
-      if (playerInHitstun) {
-        if (this.enemy.superMeter >= 35 && movePool.includes('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
-        if (movePool.includes('LAUNCHER')) return 'LAUNCHER';
-        return 'HEAVY_SLASH';
-      }
+    // 4. AGGRESSIVE AI (Rushdown brawlers)
+    if (aiTier === 'AGGRESSIVE') {
       if (dist > 160) {
-        if (movePool.includes('GHOST_STEP')) return 'GHOST_STEP';
-        if (movePool.includes('DASH')) return 'DASH';
+        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('DASH')) return 'DASH';
         return 'STEP_FWD';
       }
-      if (dist <= 85) {
-        if (rand < 0.35 && movePool.includes('BLADE_COUNTER')) return 'BLADE_COUNTER';
-        if (rand < 0.6 && movePool.includes('QUICK_JAB')) return 'QUICK_JAB';
-        return movePool.includes('HEAVY_SLASH') ? 'HEAVY_SLASH' : 'PARRY';
+      if (dist >= 85) {
+        if (canUse('DIVE_KICK') && rand < 0.35) return 'DIVE_KICK';
+        if (canUse('SWEEP') && rand < 0.4) return 'SWEEP';
+        return canUse('DASH') ? 'DASH' : 'STEP_FWD';
       }
+      // Close range: strictly offense
+      if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
+      if (canUse('GROUND_POUND') && rand < 0.4) return 'GROUND_POUND';
+      if (canUse('LAUNCHER') && rand < 0.4) return 'LAUNCHER';
+      if (canUse('HEAVY_SLASH') && rand < 0.5) return 'HEAVY_SLASH';
+      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
     }
 
-    // 5. BOSS AI (Floor 1, 2, 3 Bosses)
-    if (aiTier === 'BOSS') {
-      // Check for High Super Apex / Fused Skills
-      if (this.enemy.superMeter >= 50 && movePool.includes('THUNDER_GALE')) return 'THUNDER_GALE';
-      if (this.enemy.superMeter >= 50 && movePool.includes('VOID_CLEAVE')) return 'VOID_CLEAVE';
-      if (this.enemy.superMeter >= 50 && movePool.includes('COMET_CRASH')) return 'COMET_CRASH';
-      if (this.enemy.superMeter >= 60 && movePool.includes('DRAGON_UPPER')) return 'DRAGON_UPPER';
-      if (this.enemy.superMeter >= 35 && movePool.includes('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
-
-      if (dist > 200) {
-        if (movePool.includes('SUPER_DASH')) return 'SUPER_DASH';
-        if (movePool.includes('GHOST_STEP')) return 'GHOST_STEP';
-        return 'DASH';
-      }
-      if (dist < 90) {
-        if (rand < 0.35 && movePool.includes('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
-        if (rand < 0.5 && movePool.includes('BLADE_COUNTER')) return 'BLADE_COUNTER';
-        if (rand < 0.75 && movePool.includes('HEAVY_SLASH')) return 'HEAVY_SLASH';
-        return 'LAUNCHER';
-      }
-      return 'QUICK_JAB';
+    // 5. NOVICE AI
+    if (dist > 130) return rand < 0.65 ? 'STEP_FWD' : 'STEP_BACK';
+    if (dist < 75) {
+      if (allowDefense && rand < 0.15 && canUse('BLOCK')) return 'BLOCK';
+      if (canUse('SWEEP') && rand < 0.35) return 'SWEEP';
+      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'HEAVY_SLASH';
     }
-
-    // Fallback: pick any valid move from enemy's pool
-    return movePool[Math.floor(Math.random() * movePool.length)];
+    return 'STEP_FWD';
   }
 
   getAIAimAngle(moveKey) {
@@ -1003,6 +1139,7 @@ class YomiEngine {
     if (tacPanel) tacPanel.classList.add('hidden');
 
     this.selectedEnemyMove = this.chooseAIMove();
+    this.enemyLastMoveKey = this.selectedEnemyMove;
     const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove);
 
     this.player.executeMove(this.selectedPlayerMove, this.selectedAimAngle);
@@ -1193,9 +1330,26 @@ class YomiEngine {
           this.spawnSparks(attacker.x, attacker.y - 45, '#00f0ff', 12);
         }
 
+        // Consecutive Mobility Attack Spam Damage Decay
+        if (attacker.hasSpamPenalty && (attacker.consecutiveMobilityCount || 0) > 1) {
+          const decayMult = Math.max(0.4, 1.0 - 0.35 * Math.min(2, attacker.consecutiveMobilityCount - 1));
+          dmg = Math.round(dmg * decayMult);
+        }
+
         const isSpike = !!move.spikesDown;
         const isHeavy = !!move.launchesAir || (move.damage >= 24 && attacker.hitsDealt === maxHits);
         const realDmg = defender.takeHit(dmg, attacker, isHeavy, isSpike);
+
+        const isAttackerMobility = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(attacker.moveKey) ||
+          (move.moveDist > 0 || move.spikesDown);
+
+        // Guard Punish: If defender blocked or parried a mobility attack, attacker enters Vulnerable Punish state
+        if (isAttackerMobility && (defender.isBlocking || defender.isParrying)) {
+          attacker.isVulnerable = true;
+          attacker.vulnerableTurns = 0;
+          this.addDamageText(attacker.x, attacker.y - 80, 'GUARD PUNISHED!', '#ff4444', true);
+          this.spawnSparks(attacker.x, attacker.y - 45, '#ff4444', 14);
+        }
 
         if (realDmg > 0) {
           const meterGain = Math.round(16 / maxHits);
