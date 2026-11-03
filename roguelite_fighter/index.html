@@ -16,6 +16,7 @@
       <div class="fighter-card p1">
         <div class="fighter-header">
           <div style="display: flex; align-items: center; gap: 8px;">
+            <img id="p1-avatar" class="fighter-pixel-avatar" src="assets/sprites/sprites/hustler.png" alt="Hustler Avatar">
             <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
             <div class="gold-pill" id="gold-display">🪙 50 Gold</div>
           </div>
@@ -34,6 +35,7 @@
         <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1 / 10</div>
         <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
         <div style="display: flex; gap: 6px; align-items: center;">
+          <button id="btn-toggle-pixel" class="btn-top-replay btn-pixel-toggle" title="Toggle Pixel Art / Vector Mode">👾 PIXEL: ON</button>
           <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">🎬 REPLAY</button>
           <button id="btn-top-deck" class="btn-top-replay btn-top-deck" title="Customize Equipped Deck [D]">🎴 DECK (<span id="hud-deck-count">10/14</span>)</button>
         </div>
@@ -44,9 +46,10 @@
       <div class="fighter-card p2">
         <div class="fighter-header">
           <span id="p2-hp-text">100 / 100</span>
-          <div style="display: flex; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
             <span class="fighter-name" id="p2-name">ROGUE MONK</span>
             <span class="boss-archetype-pill" id="p2-archetype">MONK</span>
+            <img id="p2-avatar" class="fighter-pixel-avatar" src="assets/sprites/sprites/iron_shogun.png" alt="Enemy Avatar">
           </div>
         </div>
         <div class="bar-box">
@@ -339,6 +342,7 @@
   <script src="js/data/enemies.js"></script>
   <script src="js/data/perks.js"></script>
   <script src="js/audio.js"></script>
+  <script src="js/pixelfx_engine.js"></script>
   <script src="js/animator.js"></script>
   <script src="js/fighter.js"></script>
   <script src="game.js"></script>

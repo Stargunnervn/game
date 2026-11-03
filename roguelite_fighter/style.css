@@ -90,6 +90,32 @@ canvas#game-canvas {
   text-transform: uppercase;
 }
 
+.fighter-pixel-avatar {
+  width: 32px;
+  height: 36px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  background: rgba(13, 14, 21, 0.9);
+  padding: 1px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.btn-pixel-toggle {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(6, 214, 160, 0.28)) !important;
+  border-color: #a855f7 !important;
+  color: #06d6a0 !important;
+  font-weight: 700;
+}
+
+.btn-pixel-toggle:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(6, 214, 160, 0.5)) !important;
+  border-color: #06d6a0 !important;
+  box-shadow: 0 0 12px rgba(6, 214, 160, 0.45);
+}
+
 .p1 .fighter-name { color: var(--accent-cyan); text-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
 .p2 .fighter-name { color: var(--accent-red); text-shadow: 0 0 8px rgba(255, 51, 102, 0.5); }
 

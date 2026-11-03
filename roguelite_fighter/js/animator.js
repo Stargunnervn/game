@@ -1,6 +1,58 @@
 // ============================================================================
-// PROCEDURAL MARTIAL ARTS FIGHTER ANIMATOR (ANIME RIG)
+// MARTIAL ARTS FIGHTER ANIMATOR (RETRO PIXEL-ART AND VECTOR FRAME RIG)
+// Generated with crsolver/claude-pxl and patch-gg/pixelfx
 // ============================================================================
+
+// Global mode: Pixel Art Mode (claude-pxl) vs Vector Frame Rig
+if (typeof window !== 'undefined' && typeof window.pixelArtMode === 'undefined') {
+  window.pixelArtMode = true;
+}
+
+const PIXEL_SPRITES = {};
+const SPRITE_MAP = {
+  'HUSTLER': 'hustler',
+  'boss_iron_shogun': 'iron_shogun',
+  'boss_crimson_oni': 'crimson_oni',
+  'boss_shadow_kunoichi': 'shadow_kunoichi',
+  'boss_void_phantom_lord': 'void_phantom_lord',
+  'boss_abyssal_leviathan': 'abyssal_leviathan',
+  'boss_soul_reaper': 'soul_reaper',
+  'boss_celestial_emperor': 'celestial_emperor',
+  'boss_seraph_archon': 'seraph_archon',
+  'boss_chronos_titan': 'chronos_titan'
+};
+
+function getSpriteKeyForFighter(f, isPlayer) {
+  if (isPlayer) return 'hustler';
+  if (f && f.catalogKey && SPRITE_MAP[f.catalogKey]) return SPRITE_MAP[f.catalogKey];
+  const n = ((f && f.name) || '').toLowerCase();
+  if (n.includes('oni') || n.includes('goryo') || n.includes('demon')) return 'crimson_oni';
+  if (n.includes('shogun') || n.includes('monk') || n.includes('samurai') || n.includes('dojo')) return 'iron_shogun';
+  if (n.includes('ninja') || n.includes('kunoichi') || n.includes('ayame') || n.includes('assassin') || n.includes('duelist')) return 'shadow_kunoichi';
+  if (n.includes('void') || n.includes('phantom') || n.includes('cultist') || n.includes('inquisitor')) return 'void_phantom_lord';
+  if (n.includes('leviathan') || n.includes('dagon') || n.includes('abomination') || n.includes('behemoth')) return 'abyssal_leviathan';
+  if (n.includes('reaper') || n.includes('thanatos') || n.includes('soul') || n.includes('stalker')) return 'soul_reaper';
+  if (n.includes('emperor') || n.includes('valkyrie') || n.includes('saint') || n.includes('templar')) return 'celestial_emperor';
+  if (n.includes('seraph') || n.includes('uriel') || n.includes('archon') || n.includes('angel')) return 'seraph_archon';
+  if (n.includes('chronos') || n.includes('aeon') || n.includes('chrono') || n.includes('titan') || n.includes('weaver')) return 'chronos_titan';
+  return 'hustler';
+}
+
+function loadPixelSprite(key) {
+  if (PIXEL_SPRITES[key]) return PIXEL_SPRITES[key];
+  if (typeof Image === 'undefined') return null;
+  const img = new Image();
+  img.src = `assets/sprites/sprites/${key}.png`;
+  PIXEL_SPRITES[key] = img;
+  return img;
+}
+
+// Preload all sprites
+if (typeof window !== 'undefined') {
+  ['hustler', 'iron_shogun', 'crimson_oni', 'shadow_kunoichi', 'void_phantom_lord', 'abyssal_leviathan', 'soul_reaper', 'celestial_emperor', 'seraph_archon', 'chronos_titan'].forEach(k => {
+    loadPixelSprite(k);
+  });
+}
 
 function renderFighterModel(ctx, f, isPlayer) {
   ctx.save();
@@ -54,7 +106,7 @@ function renderFighterModel(ctx, f, isPlayer) {
   if (hitstun) {
     bodyAngle = -0.32 * facing;
     headTilt = -0.35 * facing;
-    bobY = 4;
+    bobY = 4 + (Math.random() - 0.5) * 4;
     lArmAngle = -0.8;
     rArmAngle = -0.6;
   } else if (f.isBlocking || f.isParrying || moveKey === 'BLOCK' || moveKey === 'PARRY' || moveKey === 'AEGIS_REFLECT') {
@@ -91,6 +143,38 @@ function renderFighterModel(ctx, f, isPlayer) {
     rLegAngle = 0.4;
   }
 
+  // ── RETRO 16-BIT PIXEL ART RENDERING MODE (FROM CLAUDE-PXL) ──
+  const usePixelArt = (typeof window !== 'undefined') && (window.pixelArtMode !== false);
+  if (usePixelArt) {
+    const sKey = getSpriteKeyForFighter(f, isPlayer);
+    const spriteImg = loadPixelSprite(sKey);
+    if (spriteImg && spriteImg.complete && spriteImg.naturalWidth > 0) {
+      ctx.save();
+      ctx.translate(x, y - 48 + bobY);
+      ctx.rotate(bodyAngle);
+      if (facing === -1) ctx.scale(-1, 1);
+
+      ctx.imageSmoothingEnabled = false;
+      const scale = 5.2;
+      const sw = spriteImg.naturalWidth * scale;
+      const sh = spriteImg.naturalHeight * scale;
+
+      // Hitstun white flash
+      if (hitstun) {
+        ctx.filter = 'brightness(2.2) contrast(1.4)';
+      }
+
+      ctx.drawImage(spriteImg, -sw / 2, -sh / 2, sw, sh);
+      ctx.restore();
+
+      // Render Forcefield and Vulnerable state overlays
+      renderFighterOverlays(ctx, f, x, y, facing);
+      ctx.restore();
+      return;
+    }
+  }
+
+  // ── VECTOR FRAME RIG FALLBACK RENDERING MODE ──
   ctx.translate(x, y - 48 + bobY);
   ctx.rotate(bodyAngle);
 
@@ -118,84 +202,75 @@ function renderFighterModel(ctx, f, isPlayer) {
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(-6 * facing, 2);
-  ctx.lineTo(-6 * facing + Math.cos(rArmAngle) * 18, 2 + Math.sin(rArmAngle) * 18);
+  ctx.lineTo(-6 * facing + Math.cos(rArmAngle) * 20, 2 + Math.sin(rArmAngle) * 20);
   ctx.stroke();
   ctx.restore();
 
-  // 3. Torso (Martial Gi & Armor)
+  // 3. Torso Gi / Armor
+  ctx.save();
   ctx.fillStyle = darkSuit;
-  ctx.strokeStyle = mainColor;
+  ctx.beginPath();
+  ctx.roundRect(-10 * facing, -14, 20, 36, 4);
+  ctx.fill();
+
+  ctx.strokeStyle = accentTrim;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.roundRect(-10, 0, 20, 26, 4);
-  ctx.fill();
+  ctx.moveTo(-10 * facing, -4);
+  ctx.lineTo(8 * facing, 18);
   ctx.stroke();
 
-  // Belt & Chest Sigil
   ctx.fillStyle = mainColor;
-  ctx.fillRect(-8, 8, 16, 4);
-  ctx.fillStyle = accentTrim;
-  ctx.fillRect(-10, 22, 20, 3.5);
+  ctx.fillRect(-11 * facing, 16, 22, 6);
+  ctx.restore();
 
-  // 4. Front Leg
+  // 4. Head & Helmet/Mask
   ctx.save();
-  ctx.strokeStyle = darkSuit;
+  ctx.translate(0, -22);
+  ctx.rotate(headTilt);
+
+  ctx.beginPath();
+  ctx.arc(0, 0, 11, 0, Math.PI * 2);
+  ctx.fillStyle = f.headColor || (isPlayer ? '#e0f2fe' : '#fbcfe8');
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(0, -3, 11, Math.PI, 0);
+  ctx.fillStyle = darkSuit;
+  ctx.fill();
+
+  ctx.fillStyle = mainColor;
+  ctx.fillRect(facing === 1 ? 2 : -8, -1, 6, 3);
+  ctx.restore();
+
+  // 5. Front Leg
+  ctx.save();
+  ctx.strokeStyle = mainColor;
   ctx.lineWidth = 6.5;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(4 * facing, 22);
-  ctx.lineTo(4 * facing + Math.sin(lLegAngle) * 25, 46);
+  ctx.moveTo(3 * facing, 22);
+  ctx.lineTo(3 * facing + Math.sin(lLegAngle) * 25, 46);
   ctx.stroke();
-  ctx.fillStyle = mainColor;
-  ctx.fillRect(4 * facing + Math.sin(lLegAngle) * 25 - 4, 44, 9, 5);
+  ctx.fillStyle = accentTrim;
+  ctx.fillRect(3 * facing + Math.sin(lLegAngle) * 25 - 3, 44, 8, 5);
   ctx.restore();
 
-  // 5. Head & Flowing Scarf
+  // 6. Front Arm / Attack Striker
   ctx.save();
-  ctx.translate(0, -14);
-  ctx.rotate(headTilt);
-
-  ctx.fillStyle = darkSuit;
-  ctx.strokeStyle = mainColor;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.arc(0, 0, 11, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // Glowing Ninja Visor / Eyes
-  ctx.fillStyle = mainColor;
-  ctx.shadowColor = mainColor;
-  ctx.shadowBlur = 8;
-  ctx.fillRect(facing > 0 ? 1 : -7, -3, 7, 3.5);
-
-  // Flowing Scarf in Wind
-  ctx.fillStyle = mainColor;
-  const scarfWave1 = Math.sin(animTick * 0.2) * 5;
-  const scarfWave2 = Math.cos(animTick * 0.25) * 6;
-  ctx.beginPath();
-  ctx.moveTo(-6 * facing, 0);
-  ctx.quadraticCurveTo(-16 * facing, -4 + scarfWave1, -26 * facing, -2 + scarfWave2);
-  ctx.lineTo(-24 * facing, 2 + scarfWave2);
-  ctx.quadraticCurveTo(-15 * facing, scarfWave1, -6 * facing, 3);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-
-  // 6. Front Arm & Punching Extension
-  ctx.save();
-  ctx.strokeStyle = mainColor;
+  ctx.strokeStyle = accentTrim;
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
+
+  const fistX = punchReach ? punchReach : 6 * facing + Math.cos(lArmAngle) * 22;
+  const fistY = punchReach ? 2 : 2 + Math.sin(lArmAngle) * 22;
+
   ctx.beginPath();
-  ctx.moveTo(6 * facing, 2);
-  const fistX = 6 * facing + Math.cos(lArmAngle) * (20 + Math.abs(punchReach)) * facing;
-  const fistY = 2 + Math.sin(lArmAngle) * 16;
+  ctx.moveTo(4 * facing, 2);
   ctx.lineTo(fistX, fistY);
   ctx.stroke();
 
-  // Glowing Fist impact ring
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = mainColor;
   ctx.beginPath();
   ctx.arc(fistX, fistY, 4.5, 0, Math.PI * 2);
   ctx.fill();
@@ -213,6 +288,14 @@ function renderFighterModel(ctx, f, isPlayer) {
     ctx.restore();
   }
 
+  ctx.restore();
+
+  // Render Overlays
+  renderFighterOverlays(ctx, f, x, y, facing);
+  ctx.restore();
+}
+
+function renderFighterOverlays(ctx, f, x, y, facing) {
   // Forcefield Barrier during Block / Parry
   if (f.isBlocking || f.isParrying) {
     ctx.save();
@@ -245,16 +328,12 @@ function renderFighterModel(ctx, f, isPlayer) {
     ctx.fillText('⚠️ VULNERABLE', 0, -50);
     ctx.restore();
   }
-
-  ctx.restore();
-  ctx.restore();
 }
 
 if (typeof window !== 'undefined') {
   window.renderFighterModel = renderFighterModel;
+  window.getSpriteKeyForFighter = getSpriteKeyForFighter;
 }
 if (typeof module !== 'undefined') {
-  module.exports = { renderFighterModel };
+  module.exports = { renderFighterModel, getSpriteKeyForFighter };
 }
-
-

@@ -371,6 +371,17 @@ class YomiEngine {
       });
     }
 
+    // Pixel Mode Toggle Button (claude-pxl Retro Sprites vs Vector Anime Rig)
+    const btnTogglePixel = document.getElementById('btn-toggle-pixel');
+    if (btnTogglePixel) {
+      btnTogglePixel.addEventListener('click', () => {
+        SFX.init();
+        window.pixelArtMode = !window.pixelArtMode;
+        btnTogglePixel.innerText = window.pixelArtMode ? '👾 PIXEL: ON' : '📐 VECTOR: ON';
+        this.addDamageText(this.player ? this.player.x : 512, 220, window.pixelArtMode ? 'RETRO PIXEL MODE' : 'VECTOR FRAME MODE', '#06d6a0', true);
+      });
+    }
+
     // Replay Buttons Across All Screens
     const btnTopReplay = document.getElementById('btn-top-replay');
     if (btnTopReplay) {
@@ -820,6 +831,7 @@ class YomiEngine {
     this.damageTexts = [];
     this.replayFrames = [];
     this.comboCount = 0;
+    if (window.PixelFX) window.PixelFX.clear();
 
     // Record initial frame 0 so replay is ready even at match start
     this.recordFrame();
@@ -1309,6 +1321,9 @@ class YomiEngine {
           dmg = Math.round(dmg * wpMult);
           defender.hitstunFrames += 4;
           SFX.playWeakpoint();
+          if (typeof PixelFX !== 'undefined') {
+            PixelFX.spawnCrit(defender.x, defender.y - 45, '#ffd166');
+          }
           this.spawnSparks(defender.x, defender.y - 45, '#ffd166', 22);
 
           if (attacker.isPlayer && attacker.hitsDealt === 1) {
@@ -1446,6 +1461,16 @@ class YomiEngine {
     if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
     if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(this.enemy.hp)} / ${this.enemy.maxHp}`;
     if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
+
+    // Pixel Art Avatars (generated with claude-pxl)
+    const p1Avatar = document.getElementById('p1-avatar');
+    if (p1Avatar) p1Avatar.src = 'assets/sprites/sprites/hustler.png';
+
+    const p2Avatar = document.getElementById('p2-avatar');
+    if (p2Avatar && typeof getSpriteKeyForFighter !== 'undefined') {
+      const sKey = getSpriteKeyForFighter(this.enemy, false);
+      p2Avatar.src = `assets/sprites/sprites/${sKey}.png`;
+    }
   }
 
   update() {
@@ -1475,7 +1500,7 @@ class YomiEngine {
         if (!p.active) this.projectiles.splice(i, 1);
       }
 
-      // Particles & Texts
+      // Particles, Texts, and PixelFX
       for (let i = this.particles.length - 1; i >= 0; i--) {
         this.particles[i].update();
         if (this.particles[i].life <= 0) this.particles.splice(i, 1);
@@ -1483,6 +1508,9 @@ class YomiEngine {
       for (let i = this.damageTexts.length - 1; i >= 0; i--) {
         this.damageTexts[i].update();
         if (this.damageTexts[i].life <= 0) this.damageTexts.splice(i, 1);
+      }
+      if (window.PixelFX) {
+        window.PixelFX.update(1 / 60);
       }
 
       this.recordFrame();
@@ -2375,6 +2403,15 @@ class YomiEngine {
       if (this.enemy) this.enemy.draw(this.ctx);
       this.particles.forEach(pt => pt.draw(this.ctx));
       this.damageTexts.forEach(dt => dt.draw(this.ctx));
+
+      // PixelFX Layer (from patch-gg/pixelfx)
+      if (window.PixelFX) {
+        window.PixelFX.render(this.ctx);
+      }
+    }
+
+    if (this.turnState === 'REPLAY' && window.PixelFX) {
+      window.PixelFX.render(this.ctx);
     }
 
     this.ctx.restore();

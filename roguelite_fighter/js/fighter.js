@@ -361,6 +361,22 @@ class TacticalFighter {
     this.isParrying = moveKey === 'PARRY' || moveKey === 'BLADE_COUNTER';
     this.hasArmor = !!moveData.hasArmor;
 
+    // Trigger PixelFX animations (from patch-gg/pixelfx)
+    if (typeof PixelFX !== 'undefined') {
+      const pColorRamp = this.isPlayer ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
+      if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER'].includes(moveKey)) {
+        PixelFX.spawnSlash(this.x + this.facing * 35, this.y - 45, this.facing, aimDeg, pColorRamp, moveKey === 'HEAVY_SLASH' ? 65 : 48);
+      } else if (moveKey === 'DRAGON_UPPER' || moveKey === 'LAUNCHER') {
+        PixelFX.spawnFlamePillar(this.x + this.facing * 20, this.y, this.facing);
+      } else if (moveKey === 'THUNDER_GALE') {
+        PixelFX.spawnLightning(this.x, this.y - 45, this.x + this.facing * 140, this.y - 45);
+      } else if (moveKey === 'VOID_CLEAVE' || moveKey === 'JUDGMENT_CUT') {
+        PixelFX.spawnVoidRift(this.x + this.facing * 60, this.y - 45, this.facing, 65);
+      } else if (moveKey === 'COMET_CRASH' || moveKey === 'GROUND_POUND') {
+        PixelFX.spawnGroundSlam(this.x, this.floorY, '#ffd166');
+      }
+    }
+
     if (moveData.type === 'SPECIAL' && !moveData.isSpatial) SFX.playSpecial();
   }
 
@@ -372,6 +388,9 @@ class TacticalFighter {
     const parryWin = moveData.parryWindow || 8;
     if (this.isParrying && this.moveFrame <= parryWin) {
       SFX.playParry();
+      if (typeof PixelFX !== 'undefined') {
+        PixelFX.spawnParry(this.x, this.y - 45, '#00f0ff');
+      }
       if (window.engine) {
         window.engine.addScreenShake(8, 15);
         window.engine.spawnSparks(this.x, this.y - 45, '#00f0ff', 24);
@@ -408,6 +427,9 @@ class TacticalFighter {
       this.hp = Math.max(0, this.hp - reduced);
       this.vx = -this.facing * 3.5;
       SFX.playPunch(90);
+      if (typeof PixelFX !== 'undefined') {
+        PixelFX.spawnBlock(this.x, this.y - 45, '#ffd166');
+      }
       if (window.engine) {
         window.engine.spawnSparks(this.x, this.y - 45, '#ffd166', 8);
         window.engine.addDamageText(this.x, this.y - 55, reduced > 0 ? `GUARD -${reduced}` : 'GUARD BLOCKED 100%', '#7d8b99');
@@ -445,11 +467,18 @@ class TacticalFighter {
       finalDmg = Math.round(finalDmg * 1.35);
       this.isVulnerable = false;
       this.vulnerableTurns = 0;
+      if (typeof PixelFX !== 'undefined') {
+        PixelFX.spawnCrit(this.x, this.y - 45, '#ff0055');
+      }
       if (window.engine) {
         window.engine.addDamageText(this.x, this.y - 95, 'PUNISH COUNTER +35%!', '#ff0055', true);
         window.engine.spawnSparks(this.x, this.y - 45, '#ff0055', 18);
         window.engine.addScreenShake(6, 12);
       }
+    }
+
+    if (typeof PixelFX !== 'undefined') {
+      PixelFX.spawnHitSpark(this.x, this.y - 45, isSpike ? '#ff3366' : '#ffd166', isHeavy ? 20 : 12);
     }
 
     this.hp = Math.max(0, this.hp - finalDmg);
