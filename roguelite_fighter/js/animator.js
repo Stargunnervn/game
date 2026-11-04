@@ -243,7 +243,7 @@ function renderFighterOverlays(ctx, f, x, y, facing) {
     ctx.font = 'bold 11px sans-serif';
     ctx.fillStyle = '#ff3366';
     ctx.textAlign = 'center';
-    ctx.fillText('⚠️ VULNERABLE', 0, -50);
+    ctx.fillText('! VULNERABLE', 0, -50);
     ctx.restore();
   }
 }

@@ -201,15 +201,15 @@ class YomiEngine {
     this.currentOpponentData = null;
     this.gold = 50;
 
-    // Move & Deck Management (Deck Limit: 10 active combat moves)
+    // Move & Deck Management (Deck Limit: 11 active combat moves)
     this.ownedMoves = new Set([
-      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
+      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH', 'AIR_RECOVERY',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
     ]);
     this.equippedMoves = new Set([
-      'JUMP', 'DASH',
+      'JUMP', 'DASH', 'AIR_RECOVERY',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
@@ -302,7 +302,7 @@ class YomiEngine {
           e.preventDefault();
           this.isReplayPlaying = !this.isReplayPlaying;
           const playIcon = document.getElementById('replay-play-icon');
-          if (playIcon) playIcon.innerText = this.isReplayPlaying ? '⏸ PAUSE' : '▶ PLAY';
+          if (playIcon) playIcon.innerText = this.isReplayPlaying ? 'PAUSE' : 'PLAY';
         } else if (this.turnState === 'DECISION') {
           e.preventDefault();
           SFX.init();
@@ -521,6 +521,41 @@ class YomiEngine {
     return 'Pixel Hit Spark';
   }
 
+  getMoveIconSVG(moveKey) {
+    const icons = {
+      STEP_FWD: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
+      STEP_BACK: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+      JUMP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+      DASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>',
+      AIR_RECOVERY: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>',
+      SUPER_DASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l8-8 8 8M4 19l8-8 8 8"/></svg>',
+      DOUBLE_JUMP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6M18 9l-6-6-6 6"/></svg>',
+      GHOST_STEP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>',
+      SHADOW_TELEPORT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 12l10 10 10-10L12 2z"/></svg>',
+      BLOCK: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      PARRY: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19l14-14"/></svg>',
+      AEGIS_REFLECT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v8M8 12h8"/></svg>',
+      QUICK_JAB: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>',
+      HEAVY_SLASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l5.5 5.5-11 11H3.5v-5.5l11-11z"/></svg>',
+      SWEEP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h12l6 4M6 13l4 4"/></svg>',
+      LAUNCHER: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V3m0 0l-5 5m5-5l5 5"/></svg>',
+      BLADE_COUNTER: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5L5 19"/></svg>',
+      WHIRLWIND: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>',
+      DIVE_KICK: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 7v10H7"/></svg>',
+      KI_BLAST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      DRAGON_UPPER: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>',
+      FIRE_BURST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+      LIGHTNING_PALM: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      THUNDER_GALE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 13h6l-1 9 9-11h-6l1-9z"/></svg>',
+      VOID_CLEAVE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L20 4M9 20l11-11M4 15L15 4"/></svg>',
+      JUDGMENT_CUT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M7 7l10 10M7 17L17 7"/></svg>',
+      COMET_CRASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5l-7 7M15 3l-3 3M21 9l-3 3M11 13a4 4 0 1 1-4-4 4 4 0 0 1 4 4z"/></svg>',
+      GROUND_POUND: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m-6-4l6 6 6-6M4 21h16"/></svg>',
+      METEOR_STRIKE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/></svg>'
+    };
+    return icons[moveKey] || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
+  }
+
   rebuildMoveButtons() {
     const moveCat = document.getElementById('movement-btns');
     const defCat = document.getElementById('defense-btns');
@@ -533,17 +568,6 @@ class YomiEngine {
     defCat.innerHTML = '';
     atkCat.innerHTML = '';
     spCat.innerHTML = '';
-
-    const iconMap = {
-      STEP_FWD: '➡️', STEP_BACK: '⬅️', JUMP: '⬆️', DASH: '💨',
-      BLOCK: '🛡️', PARRY: '✨',
-      QUICK_JAB: '⚔️', HEAVY_SLASH: '🗡️', SWEEP: '🦶', LAUNCHER: '🔥',
-      KI_BLAST: '⚡', DRAGON_UPPER: '🐉',
-      JUDGMENT_CUT: '🌀', DIVE_KICK: '🦅', WHIRLWIND: '🌪️', METEOR_STRIKE: '☄️',
-      LIGHTNING_PALM: '⚡', GROUND_POUND: '💥', BLADE_COUNTER: '⚔️', FIRE_BURST: '🔥',
-      SHADOW_TELEPORT: '🌌', SUPER_DASH: '🚀', DOUBLE_JUMP: '🦘', GHOST_STEP: '👻',
-      THUNDER_GALE: '⚡', VOID_CLEAVE: '🌌', COMET_CRASH: '🌠', PHANTOM_SLIDE: '👻', AEGIS_REFLECT: '🛡️'
-    };
 
     this.equippedMoves.forEach(moveKey => {
       const moveData = this.getMoveData(moveKey, true);
@@ -569,17 +593,26 @@ class YomiEngine {
 
       // Frame & Spec Tag
       let frameText = 'Mobility';
+      const startupVal = (moveData.startup !== undefined && moveData.startup !== null) ? moveData.startup : 0;
       if (moveData.superCost > 0) frameText = `${moveData.superCost} SP`;
-      else if (moveData.damage > 0) frameText = `${moveData.startup}f • ${moveData.damage} Dmg`;
+      else if (moveData.damage > 0) frameText = `${startupVal}f • ${moveData.damage} Dmg`;
       else if (moveKey === 'PARRY') frameText = 'Frame Trap';
       else if (moveKey === 'BLOCK') frameText = 'Guard 80%';
+      else if (moveKey === 'AIR_RECOVERY') frameText = 'Air Tech';
 
-      const icon = iconMap[moveKey] || (moveData.category === 'movement' ? '💨' : (moveData.type === 'SPECIAL' ? '⚡' : '⚔️'));
+      const svgIcon = this.getMoveIconSVG(moveKey);
       const label = moveData.shortName || moveData.name.split(' ')[0] || moveKey;
-      const badge = moveData.isApex ? '⚔️' : (moveData.isFusion ? '🔮' : (moveData.isUpgraded ? '★' : ''));
+      let badgeHtml = '';
+      if (moveData.isApex) badgeHtml = '<span class="move-badge badge-apex">APEX</span>';
+      else if (moveData.isFusion) badgeHtml = '<span class="move-badge badge-fusion">FUSION</span>';
+      else if (moveData.isUpgraded) badgeHtml = '<span class="move-badge badge-upg">UPG</span>';
 
       btn.innerHTML = `
-        <span>${icon} ${label} ${badge}</span>
+        <div class="move-header">
+          <span class="move-icon">${svgIcon}</span>
+          <span class="move-name">${label}</span>
+          ${badgeHtml}
+        </div>
         <span class="move-frames">${frameText}</span>
       `;
 
@@ -631,7 +664,7 @@ class YomiEngine {
       this.equippedMoves.add(moveKey);
       const mData = this.getMoveData(moveKey, true);
       const mName = mData ? mData.name : moveKey;
-      this.showCombatToast(`✨ New Skill Equipped: ${mName}`);
+      this.showCombatToast(`[SKILL] Equipped: ${mName}`);
       this.rebuildMoveButtons();
       this.updateHUD();
     } else {
@@ -669,7 +702,7 @@ class YomiEngine {
           this.rebuildMoveButtons();
           this.updateHUD();
           modal.classList.remove('active');
-          this.showCombatToast(`✨ Swapped: ${eqData.name} ➔ ${mName}`);
+          this.showCombatToast(`[SWAP] ${eqData.name} -> ${mName}`);
         });
         grid.appendChild(card);
       });
@@ -679,7 +712,7 @@ class YomiEngine {
     if (btnStash) {
       btnStash.onclick = () => {
         modal.classList.remove('active');
-        this.showCombatToast(`📦 ${mName} sent to Stash!`);
+        this.showCombatToast(`${mName} sent to Stash!`);
       };
     }
 
@@ -728,13 +761,13 @@ class YomiEngine {
       card.addEventListener('click', () => {
         if (isEquipped) {
           if (this.equippedMoves.size <= 4) {
-            this.showCombatToast('⚠️ Minimum 4 equipped moves required!');
+            this.showCombatToast('[WARNING] Minimum 4 equipped moves required!');
             return;
           }
           this.equippedMoves.delete(moveKey);
         } else {
           if (this.equippedMoves.size >= 14) {
-            this.showCombatToast('⚠️ Deck full (14/14)! Bench a move first.');
+            this.showCombatToast('[WARNING] Deck full (14/14)! Bench a move first.');
             return;
           }
           this.equippedMoves.add(moveKey);
@@ -764,15 +797,15 @@ class YomiEngine {
     this.moveUpgrades.clear();
     this.apexMoves.clear();
 
-    // Reset standard starting deck (10 active moves, 2 stashed)
+    // Reset standard starting deck
     this.ownedMoves = new Set([
-      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH',
+      'STEP_FWD', 'STEP_BACK', 'JUMP', 'DASH', 'AIR_RECOVERY',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
     ]);
     this.equippedMoves = new Set([
-      'JUMP', 'DASH',
+      'JUMP', 'DASH', 'AIR_RECOVERY',
       'BLOCK', 'PARRY',
       'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER',
       'KI_BLAST', 'DRAGON_UPPER'
@@ -916,69 +949,75 @@ class YomiEngine {
     this.rebuildMoveButtons();
   }
 
-  // ── INTELLIGENT SCALING AI (POOL & TIER BASED, ANTI-TURTLING, MOBILITY HEAVY) ──────
+  // ── INTELLIGENT SCALING AI (POOL & TIER BASED, ANTI-TURTLING, AIR RECOVERY, DYNAMIC FOSTERING) ──────
   chooseAIMove() {
     const opp = this.currentOpponentData || {};
-    const movePool = opp.moves || ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK'];
+    const movePool = [...(opp.moves || ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK']), 'AIR_RECOVERY'];
     const aiTier = opp.aiTier || 'BALANCED';
     const bossKey = opp.catalogKey || '';
     const dist = Math.abs(this.enemy.x - this.player.x);
     const rand = Math.random();
     const playerInHitstun = this.player.hitstunFrames > 0;
-    const playerAirborne = this.player.isAirborne;
+    const playerAirborne = this.player.isAirborne || this.player.y < this.player.floorY - 10;
     const playerVulnerable = !!this.player.isVulnerable;
-
-    // Defensive moves definition
-    const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER'];
-    const wasDefending = defensiveMoves.includes(this.enemyLastMoveKey);
-
-    // ANTI-TURTLING SYSTEM: Strict defense lockouts
-    // 1. Never defend twice in a row (no consecutive defense allowed)
-    // 2. Never defend when player is in hitstun, airborne, or vulnerable (punish opportunity)
-    // 3. Berserker archetype bosses never defend
-    const isBerserker = bossKey === 'boss_crimson_oni' || opp.archetype === 'berserker';
-    const allowDefense = !wasDefending && !playerInHitstun && !playerAirborne && !playerVulnerable && !isBerserker;
-
-    // Defense if enemy is stunned
-    if (this.enemy.hitstunFrames > 0) {
-      if (allowDefense && movePool.includes('BLOCK')) return 'BLOCK';
-      return movePool.includes('STEP_BACK') ? 'STEP_BACK' : 'STEP_FWD';
-    }
+    const enemyAirborne = this.enemy.isAirborne || this.enemy.y < this.enemy.floorY - 10;
+    const enemyInHitstun = this.enemy.hitstunFrames > 0;
 
     // Helper: Pick best available move matching conditions and having enough SP
     const canUse = (key, minSp = 0) => {
       if (!movePool.includes(key)) return false;
-      if (minSp > 0 && this.enemy.superMeter < minSp) return false;
       const mData = this.getMoveData(key, false);
-      if (mData && mData.superCost > 0 && this.enemy.superMeter < mData.superCost) return false;
+      const cost = (mData && mData.superCost > 0) ? mData.superCost : 0;
+      const required = Math.max(minSp, cost);
+      if (required > 0 && this.enemy.superMeter < required) return false;
       return true;
     };
 
-    // SITUATIONAL REACTION 1: ANTI-AIR (Player is airborne)
-    if (playerAirborne && dist < 190) {
-      if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
-      if (canUse('LAUNCHER')) return 'LAUNCHER';
-      if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
-      if (canUse('KI_BLAST', 20)) return 'KI_BLAST';
-      if (canUse('GHOST_STEP')) return 'GHOST_STEP';
-      if (canUse('DASH')) return 'DASH';
+    // 0. AERIAL UKEMI RECOVERY: Break out of juggle combos and aerial tumble
+    if (enemyAirborne && enemyInHitstun) {
+      if (canUse('AIR_RECOVERY')) return 'AIR_RECOVERY';
     }
 
-    // SITUATIONAL REACTION 2: PUNISH AND HIT-CONFIRM (Player stunned or vulnerable)
+    // Defensive moves definition & Anti-Turtling System
+    const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER'];
+    const wasDefending = defensiveMoves.includes(this.enemyLastMoveKey);
+    const isBerserker = bossKey === 'boss_crimson_oni' || opp.archetype === 'berserker';
+    const allowDefense = !wasDefending && !playerInHitstun && !playerAirborne && !playerVulnerable && !isBerserker;
+
+    // Grounded hitstun defense: can attempt block or step back
+    if (this.enemy.hitstunFrames > 0 && !enemyAirborne) {
+      if (allowDefense && movePool.includes('BLOCK')) return 'BLOCK';
+      if (allowDefense && movePool.includes('PARRY') && rand < 0.25) return 'PARRY';
+      return movePool.includes('STEP_BACK') ? 'STEP_BACK' : 'STEP_FWD';
+    }
+
+    // SITUATIONAL REACTION 1: FREE AIR COMBAT (Enemy is in mid-air, not stunned)
+    if (enemyAirborne) {
+      if (dist < 130) {
+        if (canUse('COMET_CRASH')) return 'COMET_CRASH';
+        if (canUse('DIVE_KICK')) return 'DIVE_KICK';
+        if (canUse('GROUND_POUND')) return 'GROUND_POUND';
+      }
+      if (canUse('AIR_RECOVERY') && rand < 0.4) return 'AIR_RECOVERY';
+      if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+      if (canUse('KI_BLAST')) return 'KI_BLAST';
+    }
+
+    // SITUATIONAL REACTION 2: PUNISH & HIT-CONFIRM (Player stunned or vulnerable)
     if (playerInHitstun || playerVulnerable) {
       if (dist < 95) {
-        if (canUse('VOID_CLEAVE', 40)) return 'VOID_CLEAVE';
-        if (canUse('JUDGMENT_CUT', 35)) return 'JUDGMENT_CUT';
-        if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
-        if (canUse('COMET_CRASH', 30)) return 'COMET_CRASH';
-        if (canUse('THUNDER_GALE', 25)) return 'THUNDER_GALE';
-        if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
-        if (canUse('LAUNCHER')) return 'LAUNCHER';
+        if (canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
+        if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
+        if (canUse('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
+        if (canUse('COMET_CRASH')) return 'COMET_CRASH';
+        if (canUse('THUNDER_GALE')) return 'THUNDER_GALE';
+        if (canUse('METEOR_STRIKE')) return 'METEOR_STRIKE';
         if (canUse('HEAVY_SLASH')) return 'HEAVY_SLASH';
+        if (canUse('LAUNCHER')) return 'LAUNCHER';
         if (canUse('LIGHTNING_PALM')) return 'LIGHTNING_PALM';
         return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
       } else {
-        if (canUse('PHANTOM_SLIDE', 20)) return 'PHANTOM_SLIDE';
+        if (canUse('PHANTOM_SLIDE')) return 'PHANTOM_SLIDE';
         if (canUse('SUPER_DASH')) return 'SUPER_DASH';
         if (canUse('GHOST_STEP')) return 'GHOST_STEP';
         if (canUse('DASH')) return 'DASH';
@@ -986,60 +1025,74 @@ class YomiEngine {
       }
     }
 
-    // SITUATIONAL REACTION 3: CORNER ESCAPE (Enemy trapped near arena edge)
+    // SITUATIONAL REACTION 3: ANTI-AIR (Player is airborne within reach)
+    if (playerAirborne && dist < 210) {
+      if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
+      if (canUse('LAUNCHER')) return 'LAUNCHER';
+      if (canUse('METEOR_STRIKE')) return 'METEOR_STRIKE';
+      if (canUse('KI_BLAST')) return 'KI_BLAST';
+      if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+      if (canUse('DASH')) return 'DASH';
+    }
+
+    // SITUATIONAL REACTION 4: GUARD BREAKER & CROSS-UP (Player is turtling)
+    const wasPlayerDefending = this.player.isBlocking || this.player.isParrying || 
+      (this.player.moveKey && ['BLOCK', 'PARRY', 'AEGIS_REFLECT'].includes(this.player.moveKey));
+    if (wasPlayerDefending && dist < 170) {
+      if (canUse('PHANTOM_SLIDE')) return 'PHANTOM_SLIDE'; // Crosses up behind guard
+      if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+      if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
+      if (canUse('SWEEP')) return 'SWEEP'; // Hits low through high guard
+      if (canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
+      if (canUse('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
+    }
+
+    // SITUATIONAL REACTION 5: CORNER ESCAPE (Enemy trapped near edge)
     const isCornered = (this.enemy.x < 130 && this.enemy.facing === 1) || (this.enemy.x > 890 && this.enemy.facing === -1);
     if (isCornered) {
       if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
       if (canUse('GHOST_STEP')) return 'GHOST_STEP';
-      if (canUse('PHANTOM_SLIDE', 20)) return 'PHANTOM_SLIDE';
+      if (canUse('PHANTOM_SLIDE')) return 'PHANTOM_SLIDE';
       if (canUse('SUPER_DASH')) return 'SUPER_DASH';
       if (canUse('DOUBLE_JUMP')) return 'DOUBLE_JUMP';
       if (canUse('JUMP')) return 'JUMP';
     }
 
-    // SITUATIONAL REACTION 4: AERIAL COMBAT (Enemy is in mid-air)
-    if (this.enemy.isAirborne) {
-      if (canUse('COMET_CRASH', 30)) return 'COMET_CRASH';
-      if (canUse('DIVE_KICK')) return 'DIVE_KICK';
-      if (canUse('GROUND_POUND')) return 'GROUND_POUND';
-    }
-
-    // TIER AND ARCHETYPE BASED LOGIC
+    // TIER AND ARCHETYPE BASED TACTICS
 
     // 1. BOSS AI (Dynamic, aggressive, archetype-aware)
     if (aiTier === 'BOSS') {
-      // High-Super Apex / Fused Skills
-      if (canUse('VOID_CLEAVE', 50)) return 'VOID_CLEAVE';
-      if (canUse('COMET_CRASH', 50)) return 'COMET_CRASH';
-      if (canUse('DRAGON_UPPER', 60)) return 'DRAGON_UPPER';
-      if (canUse('THUNDER_GALE', 35)) return 'THUNDER_GALE';
-      if (canUse('JUDGMENT_CUT', 35)) return 'JUDGMENT_CUT';
+      // High-Super Finisher execution when opportune
+      if (dist < 120 && canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
+      if (dist < 110 && canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
+      if (dist < 140 && canUse('THUNDER_GALE')) return 'THUNDER_GALE';
+      if (dist < 130 && canUse('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
+      if (dist < 110 && canUse('COMET_CRASH')) return 'COMET_CRASH';
 
-      // Long range (> 210)
+      // Long range (> 210): Gap closing, zoning, or teleports
       if (dist > 210) {
         if (canUse('SHADOW_TELEPORT') && rand < 0.45) return 'SHADOW_TELEPORT';
-        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
-        if (canUse('GHOST_STEP') && rand < 0.6) return 'GHOST_STEP';
+        if (canUse('SUPER_DASH') && rand < 0.6) return 'SUPER_DASH';
+        if (canUse('GHOST_STEP') && rand < 0.5) return 'GHOST_STEP';
         if (canUse('FIRE_BURST') && rand < 0.4) return 'FIRE_BURST';
-        if (canUse('KI_BLAST', 20) && rand < 0.45) return 'KI_BLAST';
+        if (canUse('KI_BLAST') && rand < 0.45) return 'KI_BLAST';
         return canUse('DASH') ? 'DASH' : 'STEP_FWD';
       }
 
-      // Mid range (90 to 210): Active engagement and mobility attacks
-      if (dist >= 90) {
-        if (canUse('PHANTOM_SLIDE', 20) && rand < 0.45) return 'PHANTOM_SLIDE';
-        if (canUse('JUMP') && rand < 0.3) return 'JUMP';
-        if (canUse('DIVE_KICK') && rand < 0.35) return 'DIVE_KICK';
+      // Mid range (85 to 210): Footsies, slide mixups, bait steps
+      if (dist >= 85) {
+        if (canUse('PHANTOM_SLIDE') && rand < 0.45) return 'PHANTOM_SLIDE';
         if (canUse('SWEEP') && dist < 125 && rand < 0.4) return 'SWEEP';
-        if (canUse('THUNDER_GALE', 25) && dist < 140 && rand < 0.45) return 'THUNDER_GALE';
-        if (canUse('METEOR_STRIKE', 25) && rand < 0.4) return 'METEOR_STRIKE';
+        if (canUse('THUNDER_GALE') && dist < 140 && rand < 0.5) return 'THUNDER_GALE';
+        if (canUse('METEOR_STRIKE') && rand < 0.4) return 'METEOR_STRIKE';
+        if (canUse('DIVE_KICK') && rand < 0.35) return 'DIVE_KICK';
         if (canUse('GHOST_STEP') && rand < 0.4) return 'GHOST_STEP';
         if (canUse('DASH')) return rand < 0.65 ? 'DASH' : 'STEP_FWD';
-        return 'STEP_FWD';
+        return rand < 0.35 ? 'STEP_BACK' : 'STEP_FWD';
       }
 
-      // Close range (< 90): Capped defense (15% max), high offensive pressure
-      if (allowDefense && rand < 0.15) {
+      // Close range (< 85): High offensive pressure, frame traps, capped defense (12% max)
+      if (allowDefense && rand < 0.12) {
         if (canUse('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
         if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
         if (canUse('PARRY')) return 'PARRY';
@@ -1057,19 +1110,19 @@ class YomiEngine {
     // 2. VETERAN AI (High tier elite enemies)
     if (aiTier === 'VETERAN') {
       if (dist > 180) {
-        if (canUse('GHOST_STEP') && rand < 0.6) return 'GHOST_STEP';
         if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('GHOST_STEP') && rand < 0.5) return 'GHOST_STEP';
         if (canUse('DASH')) return 'DASH';
         return 'STEP_FWD';
       }
-      if (dist >= 90) {
-        if (canUse('PHANTOM_SLIDE', 20) && rand < 0.4) return 'PHANTOM_SLIDE';
+      if (dist >= 85) {
+        if (canUse('PHANTOM_SLIDE') && rand < 0.4) return 'PHANTOM_SLIDE';
         if (canUse('SWEEP') && dist < 120 && rand < 0.45) return 'SWEEP';
-        if (canUse('KI_BLAST', 20) && rand < 0.4) return 'KI_BLAST';
-        return canUse('DASH') ? 'DASH' : 'STEP_FWD';
+        if (canUse('KI_BLAST') && rand < 0.4) return 'KI_BLAST';
+        return canUse('DASH') ? 'DASH' : (rand < 0.4 ? 'STEP_BACK' : 'STEP_FWD');
       }
       // Close range
-      if (allowDefense && rand < 0.16) {
+      if (allowDefense && rand < 0.14) {
         if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
         if (canUse('PARRY')) return 'PARRY';
         if (canUse('BLOCK')) return 'BLOCK';
@@ -1082,7 +1135,7 @@ class YomiEngine {
     // 3. TACTICAL AI (Zoners and mid-range duelists)
     if (aiTier === 'TACTICAL') {
       if (dist > 160) {
-        if (canUse('KI_BLAST', 20) && rand < 0.55) return 'KI_BLAST';
+        if (canUse('KI_BLAST') && rand < 0.55) return 'KI_BLAST';
         if (canUse('FIRE_BURST') && rand < 0.45) return 'FIRE_BURST';
         return 'STEP_FWD';
       }
@@ -1091,8 +1144,7 @@ class YomiEngine {
         if (canUse('LIGHTNING_PALM') && rand < 0.35) return 'LIGHTNING_PALM';
         return rand < 0.5 ? 'STEP_FWD' : 'STEP_BACK';
       }
-      // Close range
-      if (allowDefense && rand < 0.18) {
+      if (allowDefense && rand < 0.15) {
         if (canUse('PARRY')) return 'PARRY';
         if (canUse('BLOCK')) return 'BLOCK';
       }
@@ -1113,18 +1165,17 @@ class YomiEngine {
         if (canUse('SWEEP') && rand < 0.4) return 'SWEEP';
         return canUse('DASH') ? 'DASH' : 'STEP_FWD';
       }
-      // Close range: strictly offense
-      if (canUse('METEOR_STRIKE', 25)) return 'METEOR_STRIKE';
+      if (canUse('METEOR_STRIKE')) return 'METEOR_STRIKE';
       if (canUse('GROUND_POUND') && rand < 0.4) return 'GROUND_POUND';
       if (canUse('LAUNCHER') && rand < 0.4) return 'LAUNCHER';
       if (canUse('HEAVY_SLASH') && rand < 0.5) return 'HEAVY_SLASH';
       return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
     }
 
-    // 5. NOVICE AI
+    // 5. NOVICE / BALANCED AI
     if (dist > 130) return rand < 0.65 ? 'STEP_FWD' : 'STEP_BACK';
     if (dist < 75) {
-      if (allowDefense && rand < 0.15 && canUse('BLOCK')) return 'BLOCK';
+      if (allowDefense && rand < 0.12 && canUse('BLOCK')) return 'BLOCK';
       if (canUse('SWEEP') && rand < 0.35) return 'SWEEP';
       return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'HEAVY_SLASH';
     }
@@ -1132,21 +1183,41 @@ class YomiEngine {
   }
 
   getAIAimAngle(moveKey) {
+    const dx = (this.player.x - this.enemy.x) * this.enemy.facing;
+    const dy = -(this.player.y - this.enemy.y);
+    const directAngle = Math.round(Math.atan2(dy, Math.max(1, dx)) * 180 / Math.PI);
+
+    if (moveKey === 'AIR_RECOVERY') {
+      const dist = Math.abs(this.enemy.x - this.player.x);
+      // If player is close and trying to anti-air juggle, tech back and up
+      if (dist < 160) {
+        return 135;
+      }
+      // If safe, tech downward toward the ground
+      return -60;
+    }
+
     if (['JUMP', 'DOUBLE_JUMP'].includes(moveKey)) {
-      return this.player.isAirborne ? 65 : 45;
+      return this.player.isAirborne ? Math.max(45, directAngle) : 45;
     }
+
     if (moveKey === 'DIVE_KICK' || moveKey === 'COMET_CRASH') {
-      return -50;
+      return Math.min(-30, Math.max(-80, directAngle));
     }
+
     if (moveKey === 'SWEEP' || moveKey === 'PHANTOM_SLIDE') {
       return -30;
     }
+
     if (moveKey === 'LAUNCHER' || moveKey === 'DRAGON_UPPER') {
       return 60;
     }
-    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE'].includes(moveKey)) {
-      return this.player.isAirborne ? 35 : 0;
+
+    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'DASH', 'SUPER_DASH'].includes(moveKey)) {
+      // Dynamic true elevation angle targeting!
+      return Math.min(75, Math.max(-45, directAngle));
     }
+
     return 0;
   }
 
@@ -1440,7 +1511,7 @@ class YomiEngine {
           if (attacker.isPlayer && this.hasPerk('lightning_strike') && attacker.hitsDealt === 1) {
             this.spawnSparks(defender.x, defender.y - 45, '#ffd166', 15);
             defender.hp = Math.max(0, defender.hp - 16);
-            this.addDamageText(defender.x + 20, defender.y - 50, '16 ⚡', '#ffd166');
+            this.addDamageText(defender.x + 20, defender.y - 50, '16 KINETIC', '#ffd166');
           }
 
           const txt = Math.round(realDmg).toString();
@@ -1507,7 +1578,7 @@ class YomiEngine {
     if (p1HpBar) p1HpBar.style.width = `${p1Hp}%`;
     if (p1HpTxt) p1HpTxt.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
     if (p1SpBar) p1SpBar.style.width = `${p1Sp}%`;
-    if (goldDisplay) goldDisplay.innerText = `🪙 ${this.gold} Gold`;
+    if (goldDisplay) goldDisplay.innerText = `${this.gold} Gold`;
 
     const hudDeckCount = document.getElementById('hud-deck-count');
     if (hudDeckCount) hudDeckCount.innerText = `${this.equippedMoves.size}/14`;
@@ -1663,7 +1734,7 @@ class YomiEngine {
   openShop() {
     this.hideAllOverlays();
     const goldTxt = document.getElementById('shop-gold-display');
-    if (goldTxt) goldTxt.innerText = `🪙 ${this.gold} Gold Available`;
+    if (goldTxt) goldTxt.innerText = `${this.gold} Gold Available`;
     this.activeShopTab = 'armory';
     this.renderShopTab();
     document.getElementById('screen-shop').classList.add('active');
@@ -1680,7 +1751,7 @@ class YomiEngine {
           wares.push({
             type: 'UPGRADE',
             moveKey: mKey,
-            name: `${moveData ? moveData.name : mKey} Breakthrough 🔮`,
+            name: `${moveData ? moveData.name : mKey} Breakthrough [UPGRADE]`,
             badge: 'BREAKTHROUGH',
             badgeClass: 'tier-fusion',
             cost: 85,
@@ -1692,7 +1763,7 @@ class YomiEngine {
             type: 'UPGRADE',
             moveKey: mKey,
             name: upg.name,
-            badge: 'UPGRADE ★',
+            badge: 'UPGRADE',
             badgeClass: 'tier-upgrade',
             cost: 60,
             desc: upg.desc
@@ -1749,7 +1820,7 @@ class YomiEngine {
           <div>
             <div class="shop-card-header">
               <span class="perk-badge ${item.badgeClass}">${item.badge}</span>
-              <span class="shop-price">🪙 ${item.cost} G</span>
+              <span class="shop-price">${item.cost} G</span>
             </div>
             <div class="perk-name">${item.name}</div>
             <div class="perk-desc">${item.desc}</div>
@@ -1763,7 +1834,7 @@ class YomiEngine {
           btn.addEventListener('click', () => {
             this.gold -= item.cost;
             SFX.playCoin();
-            document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
+            document.getElementById('shop-gold-display').innerText = `${this.gold} Gold Available`;
             this.updateHUD();
 
             if (item.type === 'UPGRADE') {
@@ -1792,8 +1863,8 @@ class YomiEngine {
         card.innerHTML = `
           <div>
             <div class="shop-card-header">
-              <span class="perk-badge tier-rare">${relic.icon} RELIC</span>
-              <span class="shop-price">${isBought ? 'OWNED' : `🪙 ${relic.cost} G`}</span>
+              <span class="perk-badge tier-rare">RELIC</span>
+              <span class="shop-price">${isBought ? 'OWNED' : `${relic.cost} G`}</span>
             </div>
             <div class="perk-name">${relic.name}</div>
             <div class="perk-desc">${relic.desc}</div>
@@ -1824,7 +1895,7 @@ class YomiEngine {
               }
             }
 
-            document.getElementById('shop-gold-display').innerText = `🪙 ${this.gold} Gold Available`;
+            document.getElementById('shop-gold-display').innerText = `${this.gold} Gold Available`;
             this.updateHUD();
             this.renderShopTab();
           });
@@ -1934,7 +2005,7 @@ class YomiEngine {
     const btnApex = document.getElementById('btn-opt-apex');
 
     const apexUpg = APEX_UPGRADES_CATALOG[moveKey] || {
-      name: `${moveData.name} [APEX ⚔️]`,
+      name: `${moveData.name} [APEX]`,
       desc: '1f startup, doubled damage, super armor, +15f frame advantage.'
     };
 
@@ -2031,9 +2102,9 @@ class YomiEngine {
           upgradeCandidates.push({
             kind: 'UPGRADE',
             moveKey: moveKey,
-            name: `${moveData ? moveData.name : moveKey} Breakthrough 🔮`,
+            name: `${moveData ? moveData.name : moveKey} Breakthrough [UPGRADE]`,
             rarity: 'legendary',
-            icon: '🔮',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffd166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
             badge: 'BREAKTHROUGH',
             desc: 'Ascend this upgraded technique into a Hybrid Fusion or Apex Mastery!'
           });
@@ -2044,8 +2115,8 @@ class YomiEngine {
             moveKey: moveKey,
             name: upg.name,
             rarity: 'rare',
-            icon: '⭐',
-            badge: 'MOVE UPGRADE ★',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+            badge: 'MOVE UPGRADE',
             desc: upg.desc
           });
         }
@@ -2061,7 +2132,7 @@ class YomiEngine {
           moveKey: mKey,
           name: mData.name,
           rarity: 'rare',
-          icon: mData.category === 'movement' ? '🚀' : '⚔️',
+          icon: this.getMoveIconSVG(mKey),
           badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
           desc: mData.desc
         });
@@ -2143,9 +2214,9 @@ class YomiEngine {
 
   openDojoScreen() {
     const shardsEl = document.getElementById('dojo-shards');
-    if (shardsEl) shardsEl.innerText = `Hustle Shards: ${this.meta.shards} 💎`;
+    if (shardsEl) shardsEl.innerText = `Hustle Shards: ${this.meta.shards}`;
     const titleShards = document.getElementById('title-shards');
-    if (titleShards) titleShards.innerText = `Hustle Shards: ${this.meta.shards} 💎`;
+    if (titleShards) titleShards.innerText = `Hustle Shards: ${this.meta.shards}`;
 
     const grid = document.getElementById('dojo-upgrades-grid');
     if (grid) {
@@ -2166,7 +2237,7 @@ class YomiEngine {
             <div class="dojo-tier">Rank ${u.rank} • ${u.desc}</div>
           </div>
           <button class="btn-primary" style="padding: 6px 14px; font-size: 11px;" ${this.meta.shards < u.cost ? 'disabled' : ''}>
-            ${u.cost} 💎
+            ${u.cost} Shards
           </button>
         `;
         const btn = card.querySelector('button');
@@ -2197,7 +2268,7 @@ class YomiEngine {
       playBtn.addEventListener('click', () => {
         this.isReplayPlaying = !this.isReplayPlaying;
         const playIcon = document.getElementById('replay-play-icon');
-        if (playIcon) playIcon.innerText = this.isReplayPlaying ? '⏸ PAUSE' : '▶ PLAY';
+        if (playIcon) playIcon.innerText = this.isReplayPlaying ? 'PAUSE' : 'PLAY';
       });
     }
 
@@ -2207,7 +2278,7 @@ class YomiEngine {
         this.replayIndex = 0;
         this.isReplayPlaying = true;
         const playIcon = document.getElementById('replay-play-icon');
-        if (playIcon) playIcon.innerText = '⏸ PAUSE';
+        if (playIcon) playIcon.innerText = 'PAUSE';
       });
     }
 
@@ -2270,7 +2341,7 @@ class YomiEngine {
     if (btnTopReplay) btnTopReplay.classList.add('hidden');
 
     const playIcon = document.getElementById('replay-play-icon');
-    if (playIcon) playIcon.innerText = '⏸ PAUSE';
+    if (playIcon) playIcon.innerText = 'PAUSE';
   }
 
   exitReplay() {
@@ -2327,7 +2398,7 @@ class YomiEngine {
         this.replayIndex = this.replayFrames.length - 1;
         this.isReplayPlaying = false;
         const playIcon = document.getElementById('replay-play-icon');
-        if (playIcon) playIcon.innerText = '▶ PLAY';
+        if (playIcon) playIcon.innerText = 'PLAY';
       }
     }
 

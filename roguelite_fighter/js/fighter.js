@@ -273,6 +273,22 @@ class TacticalFighter {
         window.engine.projectiles.push(new Projectile(this.x, this.y - 40, 0, 0, true, 20, '#ffd166'));
         window.engine.spawnSparks(this.x, this.y - 40, '#ffd166', 14);
       }
+    } else if (moveKey === 'AIR_RECOVERY') {
+      SFX.playDash();
+      this.spawnAfterimage();
+      this.hitstunFrames = 0;
+      this.isInvulnerable = true;
+      this.isAirborne = true;
+      const techSpeed = 13;
+      this.vx = Math.cos(rad) * techSpeed * this.facing;
+      this.vy = -Math.sin(rad) * 11;
+      if (window.engine) {
+        window.engine.addDamageText(this.x, this.y - 65, 'AIR TECH!', '#00f0ff', true);
+        window.engine.spawnSparks(this.x, this.y - 45, '#00f0ff', 16);
+      }
+      if (typeof PixelFX !== 'undefined') {
+        PixelFX.spawnHitSpark(this.x, this.y - 45, '#00f0ff', 18);
+      }
     } else if (moveKey === 'JUMP') {
       SFX.playDash();
       this.spawnAfterimage();
@@ -637,6 +653,9 @@ class TacticalFighter {
     if (moveKey === 'DASH') {
       targetX = this.x + Math.cos(rad) * (220 + (moveData.speedBoost || 0) * 8) * this.facing;
       targetY = Math.min(this.floorY, this.y - Math.sin(rad) * 160);
+    } else if (moveKey === 'AIR_RECOVERY') {
+      targetX = this.x + Math.cos(rad) * 140 * this.facing;
+      targetY = Math.min(this.floorY, this.y - Math.sin(rad) * 120);
     } else if (moveKey === 'JUMP') {
       targetX = this.x + Math.cos(rad) * 150 * this.facing;
       targetY = Math.min(this.floorY, this.y - (Math.sin(rad) > 0 ? Math.sin(rad) * 160 : 120));

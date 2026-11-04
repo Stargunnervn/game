@@ -52,6 +52,21 @@ const MOVES = {
     damage: 0,
     superCost: 0
   },
+  AIR_RECOVERY: {
+    name: 'Aerial Recovery',
+    shortName: 'Air Tech',
+    desc: 'Aerial ukemi recovery: flips mid-air, cancels juggle hitstun with invulnerability, and repositions along vector',
+    type: 'MOVEMENT',
+    category: 'movement',
+    duration: 12,
+    startup: 0,
+    damage: 0,
+    superCost: 0,
+    isOmni: true,
+    aimable: true,
+    isInvuln: true,
+    isAirTech: true
+  },
 
   // ── BASE DEFENSE ──
   BLOCK: {
@@ -303,6 +318,8 @@ const MOVES = {
     duration: 12,
     isTeleport: true,
     aimable: true,
+    startup: 0,
+    damage: 0,
     superCost: 20
   },
   SUPER_DASH: {
@@ -316,6 +333,8 @@ const MOVES = {
     aimable: true,
     isInvuln: true,
     speedBoost: 8,
+    startup: 0,
+    damage: 0,
     superCost: 0
   },
   DOUBLE_JUMP: {
@@ -341,13 +360,15 @@ const MOVES = {
     duration: 14,
     moveDist: 190,
     isInvuln: true,
+    startup: 0,
+    damage: 0,
     superCost: 15
   },
 
   // ── HYBRID FUSION MOVES (GENERATED VIA SKILL FUSION) ──
   THUNDER_GALE: {
     name: 'Thunder Gale Barrage',
-    shortName: 'Thunder Gale 🔮',
+    shortName: 'Thunder Gale',
     desc: 'Rapid 4-hit electric punch storm releasing piercing shockwaves across the screen.',
     type: 'SPECIAL',
     category: 'special',
@@ -365,7 +386,7 @@ const MOVES = {
   },
   VOID_CLEAVE: {
     name: 'Dimensional Void Cleave',
-    shortName: 'Void Cleave 🔮',
+    shortName: 'Void Cleave',
     desc: 'Space-rending colossal greatsword slash cutting 3 slicing dimensional rifts.',
     type: 'SPECIAL',
     category: 'special',
@@ -382,7 +403,7 @@ const MOVES = {
   },
   COMET_CRASH: {
     name: 'Comet Crater Impact',
-    shortName: 'Comet Crash 🔮',
+    shortName: 'Comet Crash',
     desc: 'Skyward launch followed immediately by a blazing meteor downward spike that craters the floor.',
     type: 'SPECIAL',
     category: 'special',
@@ -400,7 +421,7 @@ const MOVES = {
   },
   PHANTOM_SLIDE: {
     name: 'Phantom Ghost Slide',
-    shortName: 'Phantom Slide 🔮',
+    shortName: 'Phantom Slide',
     desc: 'Hyper-speed low slide passing through foe to sweep legs from behind (Guaranteed Weakpoint Hit).',
     type: 'SPECIAL',
     category: 'special',
@@ -415,7 +436,7 @@ const MOVES = {
   },
   AEGIS_REFLECT: {
     name: 'Aegis Divine Counter',
-    shortName: 'Aegis Reflect 🔮',
+    shortName: 'Aegis Reflect',
     desc: 'Indestructible shield blocking 100% of damage and reflecting full damage back to attacker.',
     type: 'DEFENSE',
     category: 'defense',

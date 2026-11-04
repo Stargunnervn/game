@@ -17,7 +17,7 @@
         <div class="fighter-header">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
-            <div class="gold-pill" id="gold-display">🪙 50 Gold</div>
+            <div class="gold-pill" id="gold-display">50 Gold</div>
           </div>
           <span id="p1-hp-text">100 / 100</span>
         </div>
@@ -34,8 +34,8 @@
         <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1 / 10</div>
         <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
         <div style="display: flex; gap: 6px; align-items: center;">
-          <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">🎬 REPLAY</button>
-          <button id="btn-top-deck" class="btn-top-replay btn-top-deck" title="Customize Equipped Deck [D]">🎴 DECK (<span id="hud-deck-count">10/14</span>)</button>
+          <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">REPLAY [R]</button>
+          <button id="btn-top-deck" class="btn-top-replay btn-top-deck" title="Customize Equipped Deck [D]">DECK (<span id="hud-deck-count">10/14</span>)</button>
         </div>
         <div class="combo-callout" id="combo-display">3 HITS!</div>
       </div>
@@ -67,20 +67,39 @@
             <span class="cat-label">Movement</span>
             <div class="btn-row" id="movement-btns">
               <button class="btn-move" data-move="STEP_FWD">
-                <span>➡️ Step Fwd</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                  <span class="move-name">Step Fwd</span>
+                </div>
                 <span class="move-frames">Adv: +1</span>
               </button>
               <button class="btn-move" data-move="STEP_BACK">
-                <span>⬅️ Step Back</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></span>
+                  <span class="move-name">Step Back</span>
+                </div>
                 <span class="move-frames">Adv: +1</span>
               </button>
               <button class="btn-move" data-move="JUMP">
-                <span>⬆️ Jump</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+                  <span class="move-name">Jump</span>
+                </div>
                 <span class="move-frames">360° Aim</span>
               </button>
               <button class="btn-move" data-move="DASH">
-                <span>💨 Omni Dash</span>
-                <span class="move-frames">360° Air/Gnd</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></span>
+                  <span class="move-name">Dash</span>
+                </div>
+                <span class="move-frames">Air / Gnd</span>
+              </button>
+              <button class="btn-move" data-move="AIR_RECOVERY">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></span>
+                  <span class="move-name">Air Tech</span>
+                </div>
+                <span class="move-frames">Ukemi Break</span>
               </button>
             </div>
           </div>
@@ -89,11 +108,17 @@
             <span class="cat-label">Defense</span>
             <div class="btn-row" id="defense-btns">
               <button class="btn-move" data-move="BLOCK">
-                <span>🛡️ Block</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                  <span class="move-name">Block</span>
+                </div>
                 <span class="move-frames">Guard 80%</span>
               </button>
               <button class="btn-move" data-move="PARRY">
-                <span>✨ Parry</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19l14-14"/></svg></span>
+                  <span class="move-name">Parry</span>
+                </div>
                 <span class="move-frames">Frame Trap</span>
               </button>
             </div>
@@ -106,19 +131,31 @@
             <span class="cat-label">Attacks</span>
             <div class="btn-row" id="attack-btns">
               <button class="btn-move selected" data-move="QUICK_JAB">
-                <span>⚔️ Jab</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
+                  <span class="move-name">Jab</span>
+                </div>
                 <span class="move-frames">3f • 8 Dmg</span>
               </button>
               <button class="btn-move" data-move="HEAVY_SLASH">
-                <span>🗡️ Slash</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l5.5 5.5-11 11H3.5v-5.5l11-11z"/></svg></span>
+                  <span class="move-name">Slash</span>
+                </div>
                 <span class="move-frames">7f • 22 Dmg</span>
               </button>
               <button class="btn-move" data-move="SWEEP">
-                <span>🦶 Sweep</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h12l6 4M6 13l4 4"/></svg></span>
+                  <span class="move-name">Sweep</span>
+                </div>
                 <span class="move-frames">5f • 14 Dmg</span>
               </button>
               <button class="btn-move" data-move="LAUNCHER">
-                <span>🔥 Launcher</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V3m0 0l-5 5m5-5l5 5"/></svg></span>
+                  <span class="move-name">Launcher</span>
+                </div>
                 <span class="move-frames">9f • Juggle</span>
               </button>
             </div>
@@ -128,11 +165,17 @@
             <span class="cat-label">Special</span>
             <div class="btn-row" id="special-btns">
               <button class="btn-move special-btn" data-move="KI_BLAST">
-                <span>⚡ Ki Blast</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+                  <span class="move-name">Ki Blast</span>
+                </div>
                 <span class="move-frames">30 SP</span>
               </button>
               <button class="btn-move special-btn" data-move="DRAGON_UPPER">
-                <span>🐉 Dragon</span>
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg></span>
+                  <span class="move-name">Dragon</span>
+                </div>
                 <span class="move-frames">60 SP</span>
               </button>
             </div>
@@ -161,7 +204,7 @@
     <div id="screen-title" class="overlay-screen active">
       <div class="main-title">YOMI ROGUE</div>
       <div class="sub-title">SIMULTANEOUS TURN-BASED FIGHTING ROGUELITE</div>
-      <div class="shards-pill" id="title-shards">Hustle Shards: 0 💎</div>
+      <div class="shards-pill" id="title-shards">Hustle Shards: 0</div>
       <div style="display: flex; gap: 14px;">
         <button id="btn-start-run" class="btn-primary">BEGIN EXPEDITION</button>
         <button id="btn-open-dojo" class="btn-secondary">THE DOJO</button>
@@ -175,14 +218,14 @@
       <div class="cards-row" id="buff-cards-container">
         <!-- Injected via JavaScript -->
       </div>
-      <button id="btn-draft-replay" class="btn-secondary" style="margin-top: 10px;">🎬 WATCH MATCH REPLAY</button>
+      <button id="btn-draft-replay" class="btn-secondary" style="margin-top: 10px;">WATCH MATCH REPLAY</button>
     </div>
 
     <!-- THE DOJO OVERLAY (META PROGRESSION) -->
     <div id="screen-dojo" class="overlay-screen">
       <div class="main-title" style="font-size: 32px;">THE ANCIENT DOJO</div>
       <div class="sub-title">Permanent conditioning via Hustle Shards:</div>
-      <div class="shards-pill" id="dojo-shards">Hustle Shards: 0 💎</div>
+      <div class="shards-pill" id="dojo-shards">Hustle Shards: 0</div>
       
       <div class="dojo-grid" id="dojo-upgrades-grid">
         <!-- Injected via JavaScript -->
@@ -195,13 +238,13 @@
     <div id="screen-shop" class="overlay-screen">
       <div class="main-title" style="color: var(--accent-gold); font-size: 30px;">SANCTUARY FORGE & MARKET</div>
       <div class="sub-title">Prepare your tactical loadout before entering the next floor:</div>
-      <div class="gold-pill" id="shop-gold-display" style="font-size: 14px; margin-bottom: 16px;">🪙 120 Gold Available</div>
+      <div class="gold-pill" id="shop-gold-display" style="font-size: 14px; margin-bottom: 16px;">120 Gold Available</div>
       
       <!-- SHOP TABS -->
       <div class="shop-tabs">
-        <button class="shop-tab-btn active" id="tab-shop-armory">⚔️ Skill Armory</button>
-        <button class="shop-tab-btn" id="tab-shop-supplies">🧪 Supplies & Relics</button>
-        <button class="shop-tab-btn" id="tab-shop-deck">🎴 Skill Deck Customizer</button>
+        <button class="shop-tab-btn active" id="tab-shop-armory">Skill Armory</button>
+        <button class="shop-tab-btn" id="tab-shop-supplies">Supplies & Relics</button>
+        <button class="shop-tab-btn" id="tab-shop-deck">Skill Deck Customizer</button>
       </div>
 
       <!-- TAB 1 & 2 CONTENT: SHOP WARES -->
@@ -221,7 +264,7 @@
       </div>
 
       <div style="display: flex; gap: 14px; justify-content: center; margin-top: 10px;">
-        <button id="btn-leave-shop" class="btn-primary">ENTER NEXT FLOOR ➔</button>
+        <button id="btn-leave-shop" class="btn-primary">ENTER NEXT FLOOR -></button>
       </div>
     </div>
 
@@ -234,7 +277,6 @@
         <div class="breakthrough-card fusion-opt" id="btn-opt-fusion">
           <div>
             <span class="perk-badge tier-fusion">SKILL FUSION</span>
-            <div class="perk-icon">🔮</div>
             <div class="perk-name" id="fusion-title">Hybrid Fusion</div>
             <div class="perk-desc" id="fusion-desc">Merge this move with another owned skill to create a devastating dual-element technique!</div>
           </div>
@@ -244,7 +286,6 @@
         <div class="breakthrough-card apex-opt" id="btn-opt-apex">
           <div>
             <span class="perk-badge tier-apex">APEX ASCENSION</span>
-            <div class="perk-icon">⚔️</div>
             <div class="perk-name" id="apex-title">Apex Mastery</div>
             <div class="perk-desc" id="apex-desc">Ascend this skill to its ultimate standalone purity: extreme damage, 1f startup, and super armor.</div>
           </div>
@@ -259,8 +300,8 @@
       <div class="sub-title" id="victory-sub">The floor guardian has fallen!</div>
       <div class="shards-pill" id="victory-shards">+50 Hustle Shards Acquired!</div>
       <div style="display: flex; gap: 14px; margin-top: 15px;">
-        <button id="btn-victory-replay" class="btn-secondary">🎬 WATCH MATCH REPLAY</button>
-        <button id="btn-next-floor" class="btn-primary">ENTER SANCTUARY SHOP ➔</button>
+        <button id="btn-victory-replay" class="btn-secondary">WATCH MATCH REPLAY</button>
+        <button id="btn-next-floor" class="btn-primary">ENTER SANCTUARY SHOP -></button>
       </div>
     </div>
 
@@ -271,7 +312,7 @@
       <div class="shards-pill" id="gameover-shards">+16 Hustle Shards acquired!</div>
       <div style="display: flex; gap: 14px;">
         <button id="btn-retry-run" class="btn-primary">NEW RUN</button>
-        <button id="btn-gameover-replay" class="btn-secondary">🎬 WATCH REPLAY</button>
+        <button id="btn-gameover-replay" class="btn-secondary">WATCH REPLAY</button>
         <button id="btn-gameover-dojo" class="btn-secondary">ENTER DOJO</button>
       </div>
     </div>
