@@ -15,7 +15,7 @@ const PIXEL_BAYER_4X4 = [
 class PixelFXManager {
   constructor() {
     this.effects = [];
-    this.pixelSize = 3; // 3x3 screen pixels per virtual pixel for crisp retro arcade look
+    this.pixelSize = 4; // 4x4 screen pixels per virtual pixel for bold, chunky retro arcade look
     this.floorY = 470;
   }
 
@@ -101,7 +101,7 @@ class PixelParryFX {
     this.x = x;
     this.y = y;
     this.floorY = floorY;
-    this.duration = 0.55;
+    this.duration = 0.58;
     this.t = 0;
     this.palette = [
       '#ffffff', // Core white
@@ -113,7 +113,7 @@ class PixelParryFX {
 
     // Sparks with gravity and bounce
     this.sparks = [];
-    const count = 22;
+    const count = 28;
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 1.5) + (Math.random() - 0.5) * 1.8;
       const speed = Math.random() * 260 + 120;
@@ -244,9 +244,9 @@ class PixelShieldBlockFX {
     this.x = x;
     this.y = y;
     this.color = color;
-    this.duration = 0.38;
+    this.duration = 0.48;
     this.t = 0;
-    this.radius = 36;
+    this.radius = 42;
   }
 
   update(dt) {
@@ -299,13 +299,13 @@ class PixelShieldBlockFX {
  * Adapted from patch-gg/pixelfx src/fx/melee/sword-slash.js & heavy-cleave.js
  */
 class PixelSlashFX {
-  constructor(x, y, facing = 1, angleDeg = 0, colorRamp = null, radius = 55) {
+  constructor(x, y, facing = 1, angleDeg = 0, colorRamp = null, radius = 62) {
     this.x = x;
     this.y = y;
     this.facing = facing;
     this.baseAngle = (angleDeg * Math.PI) / 180;
-    this.radius = radius;
-    this.duration = 0.28;
+    this.radius = radius || 62;
+    this.duration = 0.44;
     this.t = 0;
 
     // Default palette: White core -> Bright cyan -> Mid blue -> Dark navy
@@ -313,16 +313,16 @@ class PixelSlashFX {
 
     // Flying spark motes thrown from blade tip
     this.sparks = [];
-    for (let i = 0; i < 9; i++) {
-      const spd = Math.random() * 120 + 70;
-      const ang = this.baseAngle + (Math.random() - 0.5) * 0.7;
+    for (let i = 0; i < 15; i++) {
+      const spd = Math.random() * 140 + 75;
+      const ang = this.baseAngle + (Math.random() - 0.5) * 0.8;
       this.sparks.push({
         x: this.x + Math.cos(ang) * this.radius * 0.9 * this.facing,
         y: this.y + Math.sin(ang) * this.radius * 0.9,
         vx: Math.cos(ang) * spd * this.facing,
         vy: Math.sin(ang) * spd,
-        life: Math.random() * 0.2 + 0.12,
-        maxLife: 0.28,
+        life: Math.random() * 0.28 + 0.16,
+        maxLife: 0.44,
         color: this.palette[i % 2 === 0 ? 0 : 1]
       });
     }
@@ -352,7 +352,7 @@ class PixelSlashFX {
     if (this.facing === -1) ctx.scale(-1, 1);
 
     // Thick pixelated crescent slash arc
-    const arcCount = 4;
+    const arcCount = 5;
     for (let layer = 0; layer < arcCount; layer++) {
       const r = this.radius - layer * pSize;
       const colorIdx = Math.min(this.palette.length - 1, layer + Math.floor(u * 2.5));
@@ -396,25 +396,25 @@ class PixelSlashFX {
  * Adapted from patch-gg/pixelfx src/fx/impacts/hit-spark.js
  */
 class PixelHitSparkFX {
-  constructor(x, y, color = '#ffd166', count = 16, floorY = 470) {
+  constructor(x, y, color = '#ffd166', count = 22, floorY = 470) {
     this.x = x;
     this.y = y;
     this.color = color;
     this.floorY = floorY;
-    this.duration = 0.35;
+    this.duration = 0.42;
     this.t = 0;
 
     this.particles = [];
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-      const speed = Math.random() * 190 + 90;
+      const speed = Math.random() * 210 + 95;
       this.particles.push({
         x: this.x,
         y: this.y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: Math.random() * 0.28 + 0.12,
-        maxLife: 0.35,
+        life: Math.random() * 0.32 + 0.14,
+        maxLife: 0.42,
         color: i % 2 === 0 ? '#ffffff' : color
       });
     }
@@ -436,10 +436,10 @@ class PixelHitSparkFX {
 
   render(ctx, pSize) {
     // Core impact flash
-    if (this.t < 0.08) {
-      const flashR = (1 - this.t / 0.08) * 16;
+    if (this.t < 0.10) {
+      const flashR = (1 - this.t / 0.10) * 18;
       ctx.fillStyle = '#ffffff';
-      ctx.globalAlpha = 0.9;
+      ctx.globalAlpha = 0.95;
       ctx.fillRect(this.x - flashR, this.y - flashR, flashR * 2, flashR * 2);
     }
 
@@ -462,7 +462,7 @@ class PixelCritImpactFX {
     this.x = x;
     this.y = y;
     this.color = color;
-    this.duration = 0.45;
+    this.duration = 0.58;
     this.t = 0;
   }
 
@@ -531,20 +531,20 @@ class PixelFlamePillarFX {
     this.y = y;
     this.facing = facing;
     this.floorY = floorY;
-    this.duration = 0.55;
+    this.duration = 0.70;
     this.t = 0;
     this.palette = colorRamp || ['#ffffff', '#ffd166', '#ff8a2a', '#f2561d', '#990f30'];
 
     this.embers = [];
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 38; i++) {
       this.embers.push({
-        x: this.x + (Math.random() - 0.5) * 44,
+        x: this.x + (Math.random() - 0.5) * 54,
         y: this.y + Math.random() * 40,
-        vx: (Math.random() - 0.5) * 75 * this.facing,
-        vy: -Math.random() * 320 - 180, // High-speed upward rise
+        vx: (Math.random() - 0.5) * 85 * this.facing,
+        vy: -Math.random() * 360 - 200, // High-speed upward rise
         size: Math.random() > 0.4 ? 1 : 2,
-        life: Math.random() * 0.4 + 0.2,
-        maxLife: 0.55,
+        life: Math.random() * 0.5 + 0.2,
+        maxLife: 0.70,
         color: this.palette[Math.floor(Math.random() * this.palette.length)]
       });
     }
@@ -569,11 +569,11 @@ class PixelFlamePillarFX {
 
     // Billowing rising core pillar
     ctx.save();
-    const pillarH = 180 * (1 - u * 0.3);
-    const pillarW = 42 * (1 - u * 0.4);
+    const pillarH = 240 * (1 - u * 0.3);
+    const pillarW = 54 * (1 - u * 0.4);
     const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y - pillarH);
-    grad.addColorStop(0, 'rgba(255, 209, 102, 0.9)');
-    grad.addColorStop(0.4, 'rgba(242, 86, 29, 0.75)');
+    grad.addColorStop(0, 'rgba(255, 209, 102, 0.95)');
+    grad.addColorStop(0.35, 'rgba(242, 86, 29, 0.85)');
     grad.addColorStop(1, 'rgba(153, 15, 48, 0)');
 
     ctx.fillStyle = grad;
@@ -602,17 +602,17 @@ class PixelLightningFX {
     this.x1 = x1;
     this.y1 = y1;
     this.color = color;
-    this.duration = 0.22;
+    this.duration = 0.38;
     this.t = 0;
 
     // Generate jagged bolt points via midpoint displacement
     this.bolts = [this.generateBolt(x0, y0, x1, y1, 0.26, 4)];
-    // Add 2 branch forks
-    for (let b = 0; b < 2; b++) {
+    // Add 3 branch forks
+    for (let b = 0; b < 3; b++) {
       const idx = Math.floor(Math.random() * (this.bolts[0].length - 2)) + 1;
       const pt = this.bolts[0][idx];
       const branchAngle = Math.random() * Math.PI * 2;
-      const branchLen = Math.random() * 45 + 25;
+      const branchLen = Math.random() * 55 + 30;
       const tx = pt[0] + Math.cos(branchAngle) * branchLen;
       const ty = pt[1] + Math.sin(branchAngle) * branchLen;
       this.bolts.push(this.generateBolt(pt[0], pt[1], tx, ty, 0.3, 3));
@@ -648,7 +648,7 @@ class PixelLightningFX {
   render(ctx, pSize) {
     const alpha = Math.max(0, 1 - (this.t / this.duration));
     ctx.save();
-    ctx.lineWidth = pSize;
+    ctx.lineWidth = pSize * 1.6;
     ctx.globalAlpha = alpha;
 
     for (let b = 0; b < this.bolts.length; b++) {
@@ -671,26 +671,26 @@ class PixelLightningFX {
  * Adapted from patch-gg/pixelfx src/fx/shadow/dark-explosion.js & shadow-flames.js
  */
 class PixelVoidRiftFX {
-  constructor(x, y, facing = 1, radius = 60) {
+  constructor(x, y, facing = 1, radius = 68) {
     this.x = x;
     this.y = y;
     this.facing = facing;
-    this.radius = radius;
-    this.duration = 0.42;
+    this.radius = radius || 68;
+    this.duration = 0.65;
     this.t = 0;
     this.palette = ['#ffffff', '#c084fc', '#9333ea', '#581c87', '#0f051d'];
 
     this.voidEmbers = [];
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 26; i++) {
       const a = Math.random() * Math.PI * 2;
-      const spd = Math.random() * 110 + 40;
+      const spd = Math.random() * 120 + 45;
       this.voidEmbers.push({
         x: this.x,
         y: this.y,
         vx: Math.cos(a) * spd,
         vy: Math.sin(a) * spd,
-        life: Math.random() * 0.35 + 0.15,
-        maxLife: 0.42,
+        life: Math.random() * 0.45 + 0.20,
+        maxLife: 0.65,
         color: this.palette[i % this.palette.length]
       });
     }
@@ -757,22 +757,22 @@ class PixelGroundSlamFX {
     this.y = y;
     this.color = color;
     this.floorY = floorY;
-    this.duration = 0.45;
+    this.duration = 0.72;
     this.t = 0;
 
     // Flying rock debris
     this.debris = [];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 24; i++) {
       const a = (Math.PI * 1.5) + (Math.random() - 0.5) * 1.6;
-      const spd = Math.random() * 220 + 90;
+      const spd = Math.random() * 240 + 95;
       this.debris.push({
         x: this.x + (Math.random() - 0.5) * 20,
         y: this.floorY,
         vx: Math.cos(a) * spd,
         vy: Math.sin(a) * spd,
         size: Math.random() > 0.5 ? 2 : 1,
-        life: Math.random() * 0.35 + 0.15,
-        maxLife: 0.45,
+        life: Math.random() * 0.45 + 0.20,
+        maxLife: 0.72,
         color: i % 2 === 0 ? '#64748b' : '#334155'
       });
     }
@@ -802,8 +802,8 @@ class PixelGroundSlamFX {
     ctx.globalAlpha = alpha;
     ctx.lineWidth = pSize;
     ctx.beginPath();
-    const rX = 25 + 95 * Math.sqrt(u);
-    const rY = 6 + 18 * Math.sqrt(u);
+    const rX = 35 + 130 * Math.sqrt(u);
+    const rY = 8 + 24 * Math.sqrt(u);
     ctx.ellipse(this.x, this.floorY, rX, rY, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();

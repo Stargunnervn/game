@@ -363,16 +363,33 @@ class TacticalFighter {
 
     // Trigger PixelFX animations (from patch-gg/pixelfx)
     if (typeof PixelFX !== 'undefined') {
+      const mKey = (moveKey || (moveData ? moveData.name : '') || '').toUpperCase();
       const pColorRamp = this.isPlayer ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
-      if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER'].includes(moveKey)) {
-        PixelFX.spawnSlash(this.x + this.facing * 35, this.y - 45, this.facing, aimDeg, pColorRamp, moveKey === 'HEAVY_SLASH' ? 65 : 48);
-      } else if (moveKey === 'DRAGON_UPPER' || moveKey === 'LAUNCHER') {
+
+      const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK'].includes(mKey) ||
+        mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE');
+
+      const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST'].includes(mKey) ||
+        mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER');
+
+      const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM'].includes(mKey) ||
+        mKey.includes('THUNDER') || mKey.includes('LIGHTNING') || mKey.includes('GALE') || mKey.includes('PALM');
+
+      const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT'].includes(mKey) ||
+        mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL');
+
+      const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE'].includes(mKey) ||
+        mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP');
+
+      if (isSlash) {
+        PixelFX.spawnSlash(this.x + this.facing * 35, this.y - 45, this.facing, aimDeg, pColorRamp, (mKey === 'HEAVY_SLASH' || mKey.includes('SLASH')) ? 68 : 52);
+      } else if (isFlame) {
         PixelFX.spawnFlamePillar(this.x + this.facing * 20, this.y, this.facing);
-      } else if (moveKey === 'THUNDER_GALE') {
+      } else if (isLightning) {
         PixelFX.spawnLightning(this.x, this.y - 45, this.x + this.facing * 140, this.y - 45);
-      } else if (moveKey === 'VOID_CLEAVE' || moveKey === 'JUDGMENT_CUT') {
-        PixelFX.spawnVoidRift(this.x + this.facing * 60, this.y - 45, this.facing, 65);
-      } else if (moveKey === 'COMET_CRASH' || moveKey === 'GROUND_POUND') {
+      } else if (isVoid) {
+        PixelFX.spawnVoidRift(this.x + this.facing * 60, this.y - 45, this.facing, 68);
+      } else if (isSlam) {
         PixelFX.spawnGroundSlam(this.x, this.floorY, '#ffd166');
       }
     }

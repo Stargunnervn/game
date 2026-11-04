@@ -502,9 +502,23 @@ class YomiEngine {
 
       const descEl = document.getElementById('move-desc');
       if (descEl) {
-        descEl.innerText = `${mData.name} (${mData.desc})`;
+        const vfxTag = this.getMoveVFXTag(mKey);
+        descEl.innerText = `${mData.name} [VFX: ${vfxTag}] (${mData.desc})`;
       }
     });
+  }
+
+  getMoveVFXTag(moveKey) {
+    const k = (moveKey || '').toUpperCase();
+    if (k === 'BLOCK' || k === 'AEGIS_REFLECT') return 'Pixel Hex Shield';
+    if (k === 'PARRY') return 'Pixel Parry Flash';
+    if (k === 'KI_BLAST') return 'Pixel Energy Spark';
+    if (['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST'].includes(k) || k.includes('DRAGON') || k.includes('LAUNCHER') || k.includes('FIRE')) return 'Pixel Flame Pillar';
+    if (['THUNDER_GALE', 'LIGHTNING_PALM'].includes(k) || k.includes('THUNDER') || k.includes('LIGHTNING')) return 'Pixel Lightning Arc';
+    if (['VOID_CLEAVE', 'JUDGMENT_CUT'].includes(k) || k.includes('VOID') || k.includes('JUDGMENT')) return 'Pixel Void Rift';
+    if (['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE'].includes(k) || k.includes('COMET') || k.includes('GROUND') || k.includes('METEOR')) return 'Pixel Ground Slam';
+    if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK'].includes(k) || k.includes('SLASH') || k.includes('JAB') || k.includes('SWEEP')) return 'Pixel Blade Slash';
+    return 'Pixel Hit Spark';
   }
 
   rebuildMoveButtons() {
@@ -519,6 +533,17 @@ class YomiEngine {
     defCat.innerHTML = '';
     atkCat.innerHTML = '';
     spCat.innerHTML = '';
+
+    const iconMap = {
+      STEP_FWD: '➡️', STEP_BACK: '⬅️', JUMP: '⬆️', DASH: '💨',
+      BLOCK: '🛡️', PARRY: '✨',
+      QUICK_JAB: '⚔️', HEAVY_SLASH: '🗡️', SWEEP: '🦶', LAUNCHER: '🔥',
+      KI_BLAST: '⚡', DRAGON_UPPER: '🐉',
+      JUDGMENT_CUT: '🌀', DIVE_KICK: '🦅', WHIRLWIND: '🌪️', METEOR_STRIKE: '☄️',
+      LIGHTNING_PALM: '⚡', GROUND_POUND: '💥', BLADE_COUNTER: '⚔️', FIRE_BURST: '🔥',
+      SHADOW_TELEPORT: '🌌', SUPER_DASH: '🚀', DOUBLE_JUMP: '🦘', GHOST_STEP: '👻',
+      THUNDER_GALE: '⚡', VOID_CLEAVE: '🌌', COMET_CRASH: '🌠', PHANTOM_SLIDE: '👻', AEGIS_REFLECT: '🛡️'
+    };
 
     this.equippedMoves.forEach(moveKey => {
       const moveData = this.getMoveData(moveKey, true);
@@ -549,11 +574,12 @@ class YomiEngine {
       else if (moveKey === 'PARRY') frameText = 'Frame Trap';
       else if (moveKey === 'BLOCK') frameText = 'Guard 80%';
 
+      const icon = iconMap[moveKey] || (moveData.category === 'movement' ? '💨' : (moveData.type === 'SPECIAL' ? '⚡' : '⚔️'));
       const label = moveData.shortName || moveData.name.split(' ')[0] || moveKey;
       const badge = moveData.isApex ? '⚔️' : (moveData.isFusion ? '🔮' : (moveData.isUpgraded ? '★' : ''));
 
       btn.innerHTML = `
-        <span>${label} ${badge}</span>
+        <span>${icon} ${label} ${badge}</span>
         <span class="move-frames">${frameText}</span>
       `;
 
@@ -839,8 +865,6 @@ class YomiEngine {
     this.turnState = 'DECISION';
     const tacPanel = document.getElementById('tactical-panel');
     if (tacPanel) tacPanel.classList.remove('hidden');
-
-    if (window.PixelFX) window.PixelFX.clear();
 
     this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
     this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
@@ -1242,6 +1266,9 @@ class YomiEngine {
           rift.hasHit = true;
           const dmg = target.takeHit(rift.damage, rift.isPlayer ? this.player : this.enemy, true);
           this.spawnSparks(target.x, target.y - 45, '#00f0ff', 24);
+          if (typeof PixelFX !== 'undefined') {
+            PixelFX.spawnVoidRift(target.x, target.y - 45, 1, 68);
+          }
           this.addDamageText(target.x, target.y - 70, `${dmg} SPATIAL!`, '#00f0ff', true);
         }
       }
@@ -1354,23 +1381,38 @@ class YomiEngine {
 
         // ── MOVE HIT IMPACT PIXEL VFX (FROM PATCH-GG/PIXELFX) ──
         if (typeof PixelFX !== 'undefined') {
-          const moveKey = attacker.moveKey || (attacker.currentMove ? attacker.currentMove.name : null);
+          const mKey = (attacker.moveKey || (attacker.currentMove ? attacker.currentMove.shortName || attacker.currentMove.name : '') || '').toUpperCase();
           const pColorRamp = attacker.isPlayer 
             ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] 
             : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
 
-          if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER'].includes(moveKey)) {
-            PixelFX.spawnSlash(defender.x, defender.y - 45, attacker.facing, attacker.aimAngle || 0, pColorRamp, moveKey === 'HEAVY_SLASH' ? 65 : 48);
-          } else if (moveKey === 'DRAGON_UPPER' || moveKey === 'LAUNCHER' || moveKey === 'FIRE_BURST') {
+          const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK'].includes(mKey) ||
+            mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE');
+
+          const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST'].includes(mKey) ||
+            mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER');
+
+          const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM'].includes(mKey) ||
+            mKey.includes('THUNDER') || mKey.includes('LIGHTNING') || mKey.includes('GALE') || mKey.includes('PALM');
+
+          const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT'].includes(mKey) ||
+            mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL');
+
+          const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE'].includes(mKey) ||
+            mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP');
+
+          if (isSlash) {
+            PixelFX.spawnSlash(defender.x, defender.y - 45, attacker.facing, attacker.aimAngle || 0, pColorRamp, (mKey === 'HEAVY_SLASH' || mKey.includes('SLASH')) ? 68 : 52);
+          } else if (isFlame) {
             PixelFX.spawnFlamePillar(defender.x, defender.y, attacker.facing);
-          } else if (moveKey === 'THUNDER_GALE' || moveKey === 'LIGHTNING_PALM') {
+          } else if (isLightning) {
             PixelFX.spawnLightning(attacker.x, attacker.y - 45, defender.x, defender.y - 45);
-          } else if (moveKey === 'VOID_CLEAVE' || moveKey === 'JUDGMENT_CUT') {
-            PixelFX.spawnVoidRift(defender.x, defender.y - 45, attacker.facing, 65);
-          } else if (moveKey === 'COMET_CRASH' || moveKey === 'GROUND_POUND' || moveKey === 'METEOR_STRIKE') {
+          } else if (isVoid) {
+            PixelFX.spawnVoidRift(defender.x, defender.y - 45, attacker.facing, 68);
+          } else if (isSlam) {
             PixelFX.spawnGroundSlam(defender.x, defender.floorY, '#ffd166');
           } else {
-            PixelFX.spawnHitSpark(defender.x, defender.y - 45, attacker.isPlayer ? '#00f0ff' : '#ff3366', isHeavy ? 20 : 14);
+            PixelFX.spawnHitSpark(defender.x, defender.y - 45, attacker.isPlayer ? '#00f0ff' : '#ff3366', isHeavy ? 24 : 16);
           }
         }
 
@@ -1517,6 +1559,9 @@ class YomiEngine {
         if (d < p.radius + 30) {
           target.takeHit(p.damage, p.isPlayer ? this.player : this.enemy, false);
           this.spawnSparks(p.x, p.y, p.color, 14);
+          if (typeof PixelFX !== 'undefined') {
+            PixelFX.spawnHitSpark(p.x, p.y, p.color, 24);
+          }
           p.active = false;
         }
         if (!p.active) this.projectiles.splice(i, 1);
