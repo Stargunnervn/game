@@ -869,7 +869,8 @@ class YomiEngine {
 
     const p2Arch = document.getElementById('p2-archetype');
     if (p2Arch) {
-      p2Arch.innerText = enemyData.title ? enemyData.title.toUpperCase() : (enemyData.isBoss ? 'BOSS' : 'FIGHTER');
+      const archTag = enemyData.archetype ? ` • ${enemyData.archetype.toUpperCase()}` : '';
+      p2Arch.innerText = enemyData.title ? `${enemyData.title.toUpperCase()}${archTag}` : (enemyData.isBoss ? 'BOSS' : 'FIGHTER');
       p2Arch.className = enemyData.isBoss ? 'boss-archetype-pill is-boss' : 'boss-archetype-pill';
     }
 
@@ -955,6 +956,7 @@ class YomiEngine {
     const movePool = [...(opp.moves || ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK']), 'AIR_RECOVERY'];
     const aiTier = opp.aiTier || 'BALANCED';
     const bossKey = opp.catalogKey || '';
+    const archetype = opp.archetype || 'all_rounder';
     const dist = Math.abs(this.enemy.x - this.player.x);
     const rand = Math.random();
     const playerInHitstun = this.player.hitstunFrames > 0;
@@ -962,6 +964,27 @@ class YomiEngine {
     const playerVulnerable = !!this.player.isVulnerable;
     const enemyAirborne = this.enemy.isAirborne || this.enemy.y < this.enemy.floorY - 10;
     const enemyInHitstun = this.enemy.hitstunFrames > 0;
+
+    // Progression scaling: Reaction accuracy & Air Tech proficiency by Tier
+    const tierReactionRates = {
+      NOVICE: 0.38,
+      BALANCED: 0.62,
+      AGGRESSIVE: 0.78,
+      TACTICAL: 0.86,
+      VETERAN: 0.93,
+      BOSS: 0.99
+    };
+    const reactionRate = tierReactionRates[aiTier] || 0.70;
+
+    const airTechRates = {
+      NOVICE: 0.35,
+      BALANCED: 0.60,
+      AGGRESSIVE: 0.75,
+      TACTICAL: 0.85,
+      VETERAN: 0.92,
+      BOSS: 0.99
+    };
+    const airTechRate = airTechRates[aiTier] || 0.60;
 
     // Helper: Pick best available move matching conditions and having enough SP
     const canUse = (key, minSp = 0) => {
@@ -975,13 +998,13 @@ class YomiEngine {
 
     // 0. AERIAL UKEMI RECOVERY: Break out of juggle combos and aerial tumble
     if (enemyAirborne && enemyInHitstun) {
-      if (canUse('AIR_RECOVERY')) return 'AIR_RECOVERY';
+      if (Math.random() < airTechRate && canUse('AIR_RECOVERY')) return 'AIR_RECOVERY';
     }
 
     // Defensive moves definition & Anti-Turtling System
     const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER'];
     const wasDefending = defensiveMoves.includes(this.enemyLastMoveKey);
-    const isBerserker = bossKey === 'boss_crimson_oni' || opp.archetype === 'berserker';
+    const isBerserker = bossKey === 'boss_crimson_oni' || archetype === 'berserker';
     const allowDefense = !wasDefending && !playerInHitstun && !playerAirborne && !playerVulnerable && !isBerserker;
 
     // Grounded hitstun defense: can attempt block or step back
@@ -1003,8 +1026,8 @@ class YomiEngine {
       if (canUse('KI_BLAST')) return 'KI_BLAST';
     }
 
-    // SITUATIONAL REACTION 2: PUNISH & HIT-CONFIRM (Player stunned or vulnerable)
-    if (playerInHitstun || playerVulnerable) {
+    // SITUATIONAL REACTION 2: PUNISH & HIT-CONFIRM (Scaled by reaction accuracy)
+    if ((playerInHitstun || playerVulnerable) && Math.random() < reactionRate) {
       if (dist < 95) {
         if (canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
         if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
@@ -1025,8 +1048,8 @@ class YomiEngine {
       }
     }
 
-    // SITUATIONAL REACTION 3: ANTI-AIR (Player is airborne within reach)
-    if (playerAirborne && dist < 210) {
+    // SITUATIONAL REACTION 3: ANTI-AIR (Scaled by reaction accuracy)
+    if (playerAirborne && dist < 210 && Math.random() < reactionRate) {
       if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
       if (canUse('LAUNCHER')) return 'LAUNCHER';
       if (canUse('METEOR_STRIKE')) return 'METEOR_STRIKE';
@@ -1035,10 +1058,10 @@ class YomiEngine {
       if (canUse('DASH')) return 'DASH';
     }
 
-    // SITUATIONAL REACTION 4: GUARD BREAKER & CROSS-UP (Player is turtling)
+    // SITUATIONAL REACTION 4: GUARD BREAKER & CROSS-UP (Scaled by reaction accuracy)
     const wasPlayerDefending = this.player.isBlocking || this.player.isParrying || 
       (this.player.moveKey && ['BLOCK', 'PARRY', 'AEGIS_REFLECT'].includes(this.player.moveKey));
-    if (wasPlayerDefending && dist < 170) {
+    if (wasPlayerDefending && dist < 170 && Math.random() < reactionRate) {
       if (canUse('PHANTOM_SLIDE')) return 'PHANTOM_SLIDE'; // Crosses up behind guard
       if (canUse('GHOST_STEP')) return 'GHOST_STEP';
       if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
@@ -1060,51 +1083,139 @@ class YomiEngine {
 
     // TIER AND ARCHETYPE BASED TACTICS
 
-    // 1. BOSS AI (Dynamic, aggressive, archetype-aware)
+    // 1. BOSS AI (Dynamic, specialized per archetype)
     if (aiTier === 'BOSS') {
-      // High-Super Finisher execution when opportune
+      // 1.1 BERSERKER (Crimson Oni Goryo) - Relentless rushdown, zero defense, brute force
+      if (archetype === 'berserker') {
+        if (dist > 180) {
+          if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+          if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
+          return 'DASH';
+        }
+        if (dist >= 85) {
+          if (canUse('METEOR_STRIKE') && rand < 0.5) return 'METEOR_STRIKE';
+          if (canUse('SWEEP') && rand < 0.4) return 'SWEEP';
+          if (canUse('LIGHTNING_PALM') && rand < 0.4) return 'LIGHTNING_PALM';
+          return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
+        }
+        if (canUse('GROUND_POUND') && rand < 0.4) return 'GROUND_POUND';
+        if (canUse('METEOR_STRIKE') && rand < 0.45) return 'METEOR_STRIKE';
+        if (canUse('DRAGON_UPPER') && rand < 0.4) return 'DRAGON_UPPER';
+        if (canUse('SWEEP')) return 'SWEEP';
+        return 'QUICK_JAB';
+      }
+
+      // 1.2 SHINOBI (Shadow Lotus Ayame, Soul Harvester Thanatos) - Phase slides, cross-ups, counter frame traps
+      if (archetype === 'shinobi') {
+        if (dist > 190) {
+          if (canUse('SHADOW_TELEPORT') && rand < 0.6) return 'SHADOW_TELEPORT';
+          if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+          return 'STEP_FWD';
+        }
+        if (dist >= 85) {
+          if (canUse('PHANTOM_SLIDE') && rand < 0.55) return 'PHANTOM_SLIDE';
+          if (canUse('JUDGMENT_CUT') && rand < 0.4) return 'JUDGMENT_CUT';
+          if (canUse('DIVE_KICK') && rand < 0.45) return 'DIVE_KICK';
+          if (canUse('THUNDER_GALE') && rand < 0.4) return 'THUNDER_GALE';
+          if (canUse('GHOST_STEP') && rand < 0.5) return 'GHOST_STEP';
+          return rand < 0.4 ? 'STEP_BACK' : 'STEP_FWD';
+        }
+        if (allowDefense && rand < 0.32) {
+          if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
+          if (canUse('PARRY')) return 'PARRY';
+        }
+        if (canUse('THUNDER_GALE')) return 'THUNDER_GALE';
+        if (canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
+        if (canUse('QUICK_JAB')) return 'QUICK_JAB';
+        return 'STEP_BACK';
+      }
+
+      // 1.3 ZONER (Void Lord Malakor, Chronomancer Aeon) - Spacing control, spatial tears, projectile storms
+      if (archetype === 'zoner') {
+        if (dist < 100) {
+          if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
+          if (canUse('GHOST_STEP')) return 'GHOST_STEP';
+          if (canUse('WHIRLWIND')) return 'WHIRLWIND';
+          return 'STEP_BACK';
+        }
+        if (dist > 200) {
+          if (canUse('JUDGMENT_CUT') && rand < 0.5) return 'JUDGMENT_CUT';
+          if (canUse('VOID_CLEAVE') && rand < 0.45) return 'VOID_CLEAVE';
+          if (canUse('FIRE_BURST') && rand < 0.4) return 'FIRE_BURST';
+          if (canUse('KI_BLAST')) return 'KI_BLAST';
+        }
+        if (canUse('VOID_CLEAVE') && rand < 0.5) return 'VOID_CLEAVE';
+        if (canUse('JUDGMENT_CUT') && rand < 0.5) return 'JUDGMENT_CUT';
+        if (canUse('THUNDER_GALE') && rand < 0.4) return 'THUNDER_GALE';
+        return rand < 0.5 ? 'STEP_BACK' : 'STEP_FWD';
+      }
+
+      // 1.4 AERIAL DOMINATOR (Solar Seraph Uriel) - Sky leaps, starlight dives, comet crashes
+      if (archetype === 'aerial') {
+        if (!enemyAirborne && dist > 90) {
+          if (canUse('DOUBLE_JUMP')) return 'DOUBLE_JUMP';
+          if (canUse('JUMP')) return 'JUMP';
+        }
+        if (dist < 140) {
+          if (canUse('COMET_CRASH')) return 'COMET_CRASH';
+          if (canUse('DIVE_KICK')) return 'DIVE_KICK';
+          if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
+        }
+        if (canUse('FIRE_BURST')) return 'FIRE_BURST';
+        if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        return 'STEP_FWD';
+      }
+
+      // 1.5 JUGGERNAUT / TANK (Abyssal Sovereign Dagon) - Screen quakes, aegis reflection, heavy armor
+      if (archetype === 'juggernaut' || archetype === 'tank') {
+        if (dist > 180) {
+          if (canUse('SUPER_DASH') && rand < 0.6) return 'SUPER_DASH';
+          if (canUse('FIRE_BURST') && rand < 0.45) return 'FIRE_BURST';
+          return 'STEP_FWD';
+        }
+        if (allowDefense && rand < 0.28) {
+          if (canUse('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
+          if (canUse('BLOCK')) return 'BLOCK';
+        }
+        if (dist < 130) {
+          if (canUse('GROUND_POUND') && rand < 0.45) return 'GROUND_POUND';
+          if (canUse('METEOR_STRIKE') && rand < 0.4) return 'METEOR_STRIKE';
+          if (canUse('COMET_CRASH') && rand < 0.4) return 'COMET_CRASH';
+          if (canUse('HEAVY_SLASH')) return 'HEAVY_SLASH';
+        }
+        return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
+      }
+
+      // 1.6 COUNTER / SHOGUN (Iron Shogun Raiden) - Frame traps, parry baiting, punishing cleaves
+      if (archetype === 'counter') {
+        if (dist < 120 && allowDefense && rand < 0.32) {
+          if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
+          if (canUse('PARRY')) return 'PARRY';
+        }
+        if (dist < 110) {
+          if (canUse('HEAVY_SLASH') && rand < 0.45) return 'HEAVY_SLASH';
+          if (canUse('DRAGON_UPPER') && rand < 0.4) return 'DRAGON_UPPER';
+          if (canUse('GROUND_POUND')) return 'GROUND_POUND';
+        }
+        if (dist >= 110 && dist < 200) {
+          if (canUse('LAUNCHER') && rand < 0.45) return 'LAUNCHER';
+          if (canUse('DASH') && rand < 0.6) return 'DASH';
+        }
+        return 'STEP_FWD';
+      }
+
+      // 1.7 SUPREME / ALL-ROUNDER (Celestial Emperor Zenith) - Master of all martial arts
       if (dist < 120 && canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
       if (dist < 110 && canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
       if (dist < 140 && canUse('THUNDER_GALE')) return 'THUNDER_GALE';
-      if (dist < 130 && canUse('JUDGMENT_CUT')) return 'JUDGMENT_CUT';
-      if (dist < 110 && canUse('COMET_CRASH')) return 'COMET_CRASH';
-
-      // Long range (> 210): Gap closing, zoning, or teleports
-      if (dist > 210) {
-        if (canUse('SHADOW_TELEPORT') && rand < 0.45) return 'SHADOW_TELEPORT';
-        if (canUse('SUPER_DASH') && rand < 0.6) return 'SUPER_DASH';
-        if (canUse('GHOST_STEP') && rand < 0.5) return 'GHOST_STEP';
-        if (canUse('FIRE_BURST') && rand < 0.4) return 'FIRE_BURST';
-        if (canUse('KI_BLAST') && rand < 0.45) return 'KI_BLAST';
-        return canUse('DASH') ? 'DASH' : 'STEP_FWD';
-      }
-
-      // Mid range (85 to 210): Footsies, slide mixups, bait steps
-      if (dist >= 85) {
-        if (canUse('PHANTOM_SLIDE') && rand < 0.45) return 'PHANTOM_SLIDE';
-        if (canUse('SWEEP') && dist < 125 && rand < 0.4) return 'SWEEP';
-        if (canUse('THUNDER_GALE') && dist < 140 && rand < 0.5) return 'THUNDER_GALE';
-        if (canUse('METEOR_STRIKE') && rand < 0.4) return 'METEOR_STRIKE';
-        if (canUse('DIVE_KICK') && rand < 0.35) return 'DIVE_KICK';
-        if (canUse('GHOST_STEP') && rand < 0.4) return 'GHOST_STEP';
-        if (canUse('DASH')) return rand < 0.65 ? 'DASH' : 'STEP_FWD';
-        return rand < 0.35 ? 'STEP_BACK' : 'STEP_FWD';
-      }
-
-      // Close range (< 85): High offensive pressure, frame traps, capped defense (12% max)
-      if (allowDefense && rand < 0.12) {
+      if (dist < 120 && canUse('COMET_CRASH')) return 'COMET_CRASH';
+      if (dist > 180 && canUse('SUPER_DASH') && rand < 0.65) return 'SUPER_DASH';
+      if (dist > 160 && canUse('GHOST_STEP') && rand < 0.5) return 'GHOST_STEP';
+      if (dist < 100 && allowDefense && rand < 0.22) {
         if (canUse('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
-        if (canUse('BLADE_COUNTER')) return 'BLADE_COUNTER';
         if (canUse('PARRY')) return 'PARRY';
-        if (canUse('BLOCK')) return 'BLOCK';
       }
-
-      if (canUse('GROUND_POUND') && rand < 0.3) return 'GROUND_POUND';
-      if (canUse('LIGHTNING_PALM') && rand < 0.4) return 'LIGHTNING_PALM';
-      if (canUse('LAUNCHER') && rand < 0.35) return 'LAUNCHER';
-      if (canUse('SWEEP') && rand < 0.35) return 'SWEEP';
-      if (canUse('HEAVY_SLASH') && rand < 0.5) return 'HEAVY_SLASH';
-      return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
+      return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
     }
 
     // 2. VETERAN AI (High tier elite enemies)
