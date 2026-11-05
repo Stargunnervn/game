@@ -503,7 +503,8 @@ class YomiEngine {
       const descEl = document.getElementById('move-desc');
       if (descEl) {
         const vfxTag = this.getMoveVFXTag(mKey);
-        descEl.innerText = `${mData.name} [VFX: ${vfxTag}] (${mData.desc})`;
+        descEl.innerText = `${mData.name}: ${mData.desc}`;
+        descEl.title = `${mData.name} [VFX: ${vfxTag}] - ${mData.desc}`;
       }
     });
   }
@@ -649,7 +650,11 @@ class YomiEngine {
         const mData = this.getMoveData(this.selectedPlayerMove, true);
         if (mData) {
           const descEl = document.getElementById('move-desc');
-          if (descEl) descEl.innerText = `${mData.name} (${mData.desc})`;
+          if (descEl) {
+            const vfxTag = this.getMoveVFXTag(this.selectedPlayerMove);
+            descEl.innerText = `${mData.name}: ${mData.desc}`;
+            descEl.title = `${mData.name} [VFX: ${vfxTag}] - ${mData.desc}`;
+          }
         }
       }
     }

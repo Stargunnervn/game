@@ -61,7 +61,7 @@
     <!-- BOTTOM TACTICAL DECISION PANEL (YOMI HUSTLE STYLE) -->
     <div id="tactical-panel">
       <div class="move-categories">
-        <!-- ROW 1: MOVEMENT & DEFENSE -->
+        <!-- ROW 1: MOVEMENT & ATTACKS -->
         <div class="move-row">
           <div class="category-group">
             <span class="cat-label">Movement</span>
@@ -104,29 +104,6 @@
             </div>
           </div>
 
-          <div class="category-group" style="margin-left: 10px;">
-            <span class="cat-label">Defense</span>
-            <div class="btn-row" id="defense-btns">
-              <button class="btn-move" data-move="BLOCK">
-                <div class="move-header">
-                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
-                  <span class="move-name">Block</span>
-                </div>
-                <span class="move-frames">Guard 80%</span>
-              </button>
-              <button class="btn-move" data-move="PARRY">
-                <div class="move-header">
-                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19l14-14"/></svg></span>
-                  <span class="move-name">Parry</span>
-                </div>
-                <span class="move-frames">Frame Trap</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ROW 2: ATTACKS & SPECIALS -->
-        <div class="move-row">
           <div class="category-group">
             <span class="cat-label">Attacks</span>
             <div class="btn-row" id="attack-btns">
@@ -160,8 +137,31 @@
               </button>
             </div>
           </div>
+        </div>
 
-          <div class="category-group" style="margin-left: 10px;">
+        <!-- ROW 2: DEFENSE & SPECIALS -->
+        <div class="move-row">
+          <div class="category-group">
+            <span class="cat-label">Defense</span>
+            <div class="btn-row" id="defense-btns">
+              <button class="btn-move" data-move="BLOCK">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                  <span class="move-name">Block</span>
+                </div>
+                <span class="move-frames">Guard 80%</span>
+              </button>
+              <button class="btn-move" data-move="PARRY">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19l14-14"/></svg></span>
+                  <span class="move-name">Parry</span>
+                </div>
+                <span class="move-frames">Frame Trap</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="category-group">
             <span class="cat-label">Special</span>
             <div class="btn-row" id="special-btns">
               <button class="btn-move special-btn" data-move="KI_BLAST">
