@@ -1957,17 +1957,34 @@ class YomiEngine {
       }
     });
 
-    // Unowned moves from MOVES catalog (Including Fusion and Advanced moves)
+    // Ready Fusion Breakthrough wares: If player holds both ingredient skills, offer Fusion in Shop!
+    for (const [keyPair, recipe] of Object.entries(FUSION_RECIPES)) {
+      const [m1, m2] = keyPair.split('+');
+      if (this.ownedMoves.has(m1) && this.ownedMoves.has(m2) && !this.ownedMoves.has(recipe.targetKey)) {
+        const targetMove = MOVES[recipe.targetKey];
+        wares.push({
+          type: 'UPGRADE',
+          moveKey: m1,
+          name: `${recipe.name}`,
+          badge: 'FUSION BREAKTHROUGH',
+          badgeClass: 'tier-fusion',
+          cost: 95,
+          desc: `Combine ingredients [${MOVES[m1]?.name || m1}] + [${MOVES[m2]?.name || m2}] into Tier 3 ${targetMove?.name || recipe.targetKey}!`
+        });
+      }
+    }
+
+    // Unowned moves from MOVES catalog (Fusion moves must be forged via Breakthrough!)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG')) {
+      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG') && !MOVES[mKey].isFusion) {
         const mData = MOVES[mKey];
         wares.push({
           type: 'SKILL',
           moveKey: mKey,
           name: mData.name,
-          badge: mData.isFusion ? 'HYBRID FUSION' : (mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL'),
-          badgeClass: mData.isFusion ? 'tier-fusion' : 'tier-rare',
-          cost: mData.isFusion ? 110 : 70,
+          badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
+          badgeClass: 'tier-rare',
+          cost: 70,
           desc: mData.desc
         });
       }
@@ -2023,7 +2040,7 @@ class YomiEngine {
             this.updateHUD();
 
             if (item.type === 'UPGRADE') {
-              if (this.moveUpgrades.has(item.moveKey)) {
+              if (this.moveUpgrades.has(item.moveKey) || item.badge === 'FUSION BREAKTHROUGH') {
                 this.openBreakthrough(item.moveKey);
               } else {
                 this.upgradeMove(item.moveKey);
@@ -2308,17 +2325,34 @@ class YomiEngine {
       }
     });
 
-    // 2. Unowned skills from MOVES catalog (Including Fusion and Advanced moves)
+    // Ready Fusion Breakthrough candidates: If player holds both ingredient skills, offer Fusion Breakthrough directly!
+    for (const [keyPair, recipe] of Object.entries(FUSION_RECIPES)) {
+      const [m1, m2] = keyPair.split('+');
+      if (this.ownedMoves.has(m1) && this.ownedMoves.has(m2) && !this.ownedMoves.has(recipe.targetKey)) {
+        const targetMove = MOVES[recipe.targetKey];
+        upgradeCandidates.push({
+          kind: 'UPGRADE',
+          moveKey: m1,
+          name: `${recipe.name}`,
+          rarity: 'legendary',
+          icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+          badge: 'FUSION BREAKTHROUGH',
+          desc: `Combine ingredients [${MOVES[m1]?.name || m1}] + [${MOVES[m2]?.name || m2}] into Tier 3 ${targetMove?.name || recipe.targetKey}!`
+        });
+      }
+    }
+
+    // 2. Unowned skills from MOVES catalog (Excluding Fusion moves - Fusions must be forged via Breakthrough!)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey)) {
+      if (!this.ownedMoves.has(mKey) && !MOVES[mKey].isFusion) {
         const mData = MOVES[mKey];
         newMoveCandidates.push({
           kind: 'SKILL',
           moveKey: mKey,
           name: mData.name,
-          rarity: mData.isFusion ? 'legendary' : 'rare',
+          rarity: 'rare',
           icon: this.getMoveIconSVG(mKey),
-          badge: mData.isFusion ? 'HYBRID FUSION' : (mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL'),
+          badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
           desc: mData.desc
         });
       }
@@ -2365,9 +2399,7 @@ class YomiEngine {
 
       let tierClass = `tier-${reward.rarity}`;
       if (reward.kind === 'UPGRADE') {
-        tierClass = reward.badge === 'BREAKTHROUGH' ? 'tier-fusion' : 'tier-upgrade';
-      } else if (reward.badge === 'HYBRID FUSION') {
-        tierClass = 'tier-fusion';
+        tierClass = (reward.badge === 'BREAKTHROUGH' || reward.badge === 'FUSION BREAKTHROUGH') ? 'tier-fusion' : 'tier-upgrade';
       }
 
       card.innerHTML = `
@@ -2379,7 +2411,7 @@ class YomiEngine {
 
       card.addEventListener('click', () => {
         if (reward.kind === 'UPGRADE') {
-          if (this.moveUpgrades.has(reward.moveKey)) {
+          if (this.moveUpgrades.has(reward.moveKey) || reward.badge === 'FUSION BREAKTHROUGH') {
             this.openBreakthrough(reward.moveKey);
           } else {
             this.upgradeMove(reward.moveKey);

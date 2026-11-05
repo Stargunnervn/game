@@ -482,8 +482,18 @@ class TacticalFighter {
         window.engine.addDamageText(this.x, this.y - 55, reduced > 0 ? `GUARD -${reduced}` : 'GUARD BLOCKED 100%', '#7d8b99');
       }
 
-      // Fortress Guard Reflection
-      if (moveData.reflectDmg && attacker) {
+      // Fortress Guard & Aegis Divine Counter Reflection
+      if (this.moveKey === 'AEGIS_REFLECT' && attacker) {
+        const reflectAmount = Math.max(30, Math.round(dmg * (moveData.reflectPercent || 1.5)));
+        attacker.takeHit(reflectAmount, null, false);
+        this.hp = Math.min(this.maxHp, this.hp + 25);
+        this.superMeter = Math.min(this.maxSuper, this.superMeter + 30);
+        if (window.engine) {
+          window.engine.addDamageText(attacker.x, attacker.y - 65, `${reflectAmount} AEGIS REFLECT!`, '#00f0ff', true);
+          window.engine.addDamageText(this.x, this.y - 75, '+25 HP RECOVER!', '#06d6a0', true);
+          window.engine.updateHUD();
+        }
+      } else if (moveData.reflectDmg && attacker) {
         attacker.takeHit(moveData.reflectDmg, null, false);
         if (window.engine) window.engine.addDamageText(attacker.x, attacker.y - 60, `${moveData.reflectDmg} REFLECT!`, '#00f0ff', true);
       } else if (this.isPlayer && window.engine && window.engine.hasPerk('iron_parry') && attacker) {
