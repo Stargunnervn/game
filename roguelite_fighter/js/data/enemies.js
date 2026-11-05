@@ -124,7 +124,7 @@ const ENEMY_CATALOG = {
     baseHp: 275,
     aiTier: 'BOSS',
     archetype: 'berserker',
-    moves: ['SUPER_DASH', 'METEOR_STRIKE', 'LIGHTNING_PALM', 'SWEEP', 'DRAGON_UPPER', 'LAUNCHER', 'GROUND_POUND'],
+    moves: ['SUPER_DASH', 'METEOR_STRIKE', 'LIGHTNING_PALM', 'SWEEP', 'DRAGON_UPPER', 'LAUNCHER', 'GROUND_POUND', 'SOLAR_SUPERNOVA'],
     goldReward: 145,
     introQuote: 'My horns thirst for a worthy duel! Come, break against my iron fists!',
     defeatQuote: 'Gwahaha! What ferocious strength... You have earned my respect!'
@@ -141,7 +141,7 @@ const ENEMY_CATALOG = {
     baseHp: 245,
     aiTier: 'BOSS',
     archetype: 'shinobi',
-    moves: ['GHOST_STEP', 'PHANTOM_SLIDE', 'DIVE_KICK', 'QUICK_JAB', 'THUNDER_GALE', 'BLADE_COUNTER', 'PARRY'],
+    moves: ['GHOST_STEP', 'PHANTOM_SLIDE', 'DIVE_KICK', 'QUICK_JAB', 'THUNDER_GALE', 'BLADE_COUNTER', 'MIRAGE_RIPOSTE', 'PARRY'],
     goldReward: 150,
     introQuote: 'Do not blink. A shinobi strike comes from the blind spot of your soul.',
     defeatQuote: 'A flawless counter... My shadow fades...'
@@ -268,7 +268,7 @@ const ENEMY_CATALOG = {
     baseHp: 410,
     aiTier: 'BOSS',
     archetype: 'juggernaut',
-    moves: ['GROUND_POUND', 'COMET_CRASH', 'FIRE_BURST', 'METEOR_STRIKE', 'SUPER_DASH', 'HEAVY_SLASH', 'AEGIS_REFLECT'],
+    moves: ['GROUND_POUND', 'COMET_CRASH', 'FIRE_BURST', 'METEOR_STRIKE', 'TEMPEST_QUAKE', 'SUPER_DASH', 'HEAVY_SLASH', 'AEGIS_REFLECT'],
     goldReward: 230,
     introQuote: 'The black ocean rises to swallow your mortal spark! Drown in the deep!',
     defeatQuote: 'The ocean floor shatters... The leviathan sinks...'
@@ -285,7 +285,7 @@ const ENEMY_CATALOG = {
     baseHp: 370,
     aiTier: 'BOSS',
     archetype: 'shinobi',
-    moves: ['SHADOW_TELEPORT', 'PHANTOM_SLIDE', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'GHOST_STEP', 'BLADE_COUNTER', 'PARRY'],
+    moves: ['SHADOW_TELEPORT', 'PHANTOM_SLIDE', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'SOUL_REAP', 'RAIKIRI_WARP', 'GHOST_STEP', 'BLADE_COUNTER', 'PARRY'],
     goldReward: 240,
     introQuote: 'Every breath you draw belongs to the grave. I have come to collect.',
     defeatQuote: 'A mortal who defies death itself... Remarkable...'
@@ -381,7 +381,7 @@ const ENEMY_CATALOG = {
     baseHp: 520,
     aiTier: 'BOSS',
     archetype: 'supreme',
-    moves: ['SUPER_DASH', 'GHOST_STEP', 'THUNDER_GALE', 'VOID_CLEAVE', 'COMET_CRASH', 'AEGIS_REFLECT', 'DRAGON_UPPER', 'PARRY'],
+    moves: ['SUPER_DASH', 'GHOST_STEP', 'THUNDER_GALE', 'VOID_CLEAVE', 'SOLAR_SUPERNOVA', 'VALKYRIE_ASCENT', 'COMET_CRASH', 'AEGIS_REFLECT', 'DRAGON_UPPER', 'PARRY'],
     goldReward: 500,
     introQuote: 'You stand before the creator of the arena. Witness absolute martial perfection!',
     defeatQuote: 'You have done the impossible... You are the true God of Hustle!'
@@ -399,7 +399,7 @@ const ENEMY_CATALOG = {
     baseHp: 510,
     aiTier: 'BOSS',
     archetype: 'aerial',
-    moves: ['DOUBLE_JUMP', 'DIVE_KICK', 'COMET_CRASH', 'FIRE_BURST', 'DRAGON_UPPER', 'SUPER_DASH', 'THUNDER_GALE'],
+    moves: ['DOUBLE_JUMP', 'DIVE_KICK', 'COMET_CRASH', 'FIRE_BURST', 'PHOENIX_KICK', 'VALKYRIE_ASCENT', 'DRAGON_UPPER', 'SUPER_DASH', 'THUNDER_GALE'],
     goldReward: 500,
     introQuote: 'Bask in the unyielding radiance of ten thousand suns! Purify your soul!',
     defeatQuote: 'My sacred flames... extinguished by mortal hands...'
@@ -417,7 +417,7 @@ const ENEMY_CATALOG = {
     baseHp: 530,
     aiTier: 'BOSS',
     archetype: 'zoner',
-    moves: ['SHADOW_TELEPORT', 'GHOST_STEP', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'THUNDER_GALE', 'AEGIS_REFLECT', 'BLADE_COUNTER'],
+    moves: ['SHADOW_TELEPORT', 'GHOST_STEP', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'CHRONO_STASIS', 'SHADOW_PULL', 'THUNDER_GALE', 'AEGIS_REFLECT', 'BLADE_COUNTER'],
     goldReward: 500,
     introQuote: 'In ten million futures, you never defeat me. Let us see if you can break destiny.',
     defeatQuote: 'A rupture in the timeline... You have forged a new reality!'

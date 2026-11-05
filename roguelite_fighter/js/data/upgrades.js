@@ -114,6 +114,33 @@ const MOVE_UPGRADES_CATALOG = {
     name: 'Phantom Phase Step',
     desc: 'SP cost reduced to 5 SP and leaves the enemy stunned for +15f Frame Advantage.',
     buffs: { superCost: 5, hitstunBonus: 15 }
+  },
+  AIR_RECOVERY: {
+    name: 'Divine Sky Ukemi',
+    desc: 'Cancels hitstun with extended invulnerability, restores +15 HP and grants +20 SP on air tech.',
+    buffs: { isAirTech: true, isInvuln: true, healOnTech: 15, superMeterBonus: 20 }
+  },
+
+  // ── NEW ADVANCED SKILLS UPGRADES ──
+  SOUL_REAP: {
+    name: 'Grim Harbinger Reap',
+    desc: 'Scythe blade expands dealing 44 damage and siphoning 40% of damage directly as health.',
+    buffs: { damage: 44, siphonRatio: 0.40, range: 130 }
+  },
+  CHRONO_STASIS: {
+    name: 'Absolute Zero Stasis',
+    desc: 'Expanded stasis dome freezes opponent in absolute temporal zero for 50 frames.',
+    buffs: { damage: 28, riftRadius: 75, stasisFreeze: 50 }
+  },
+  PHOENIX_KICK: {
+    name: 'Blazing Phoenix Ascendant',
+    desc: 'Ignites blazing phoenix aura dealing 36 damage with extra ceiling launch height.',
+    buffs: { damage: 36, launchBoost: 6 }
+  },
+  SHADOW_PULL: {
+    name: 'Singularity Event Horizon',
+    desc: 'Collapsing gravity singularity deals 32 damage and violently yanks target across screen into 35f stun.',
+    buffs: { damage: 32, range: 350, hitstun: 35 }
   }
 };
 

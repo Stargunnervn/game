@@ -273,7 +273,7 @@ class TacticalFighter {
         window.engine.projectiles.push(new Projectile(this.x, this.y - 40, 0, 0, true, 20, '#ffd166'));
         window.engine.spawnSparks(this.x, this.y - 40, '#ffd166', 14);
       }
-    } else if (moveKey === 'AIR_RECOVERY') {
+    } else if (moveKey === 'AIR_RECOVERY' || moveKey === 'VALKYRIE_ASCENT' || moveData.isAirTech) {
       SFX.playDash();
       this.spawnAfterimage();
       this.hitstunFrames = 0;
@@ -281,9 +281,19 @@ class TacticalFighter {
       this.isAirborne = true;
       const techSpeed = 13;
       this.vx = Math.cos(rad) * techSpeed * this.facing;
-      this.vy = -Math.sin(rad) * 11;
+      this.vy = moveData.launchY ? moveData.launchY : -Math.sin(rad) * 11;
+
+      if (moveData.healOnTech && this.isPlayer && window.engine) {
+        this.hp = Math.min(this.maxHp, this.hp + moveData.healOnTech);
+        window.engine.addDamageText(this.x, this.y - 85, `+${moveData.healOnTech} HP`, '#06d6a0');
+      }
+      if (moveData.superMeterBonus && this.isPlayer) {
+        this.superMeter = Math.min(this.maxSuper, this.superMeter + moveData.superMeterBonus);
+      }
+
       if (window.engine) {
-        window.engine.addDamageText(this.x, this.y - 65, 'AIR TECH!', '#00f0ff', true);
+        const toast = moveKey === 'VALKYRIE_ASCENT' ? 'PHOENIX REBIRTH!' : 'AIR TECH!';
+        window.engine.addDamageText(this.x, this.y - 65, toast, '#00f0ff', true);
         window.engine.spawnSparks(this.x, this.y - 45, '#00f0ff', 16);
       }
       if (typeof PixelFX !== 'undefined') {
@@ -317,14 +327,14 @@ class TacticalFighter {
       this.isAirborne = this.y < this.floorY;
       if (window.engine) window.engine.spawnSparks(this.x, this.y - 45, '#ffd166', 12);
       this.isInvulnerable = true;
-    } else if (moveKey === 'SHADOW_TELEPORT') {
+    } else if (moveKey === 'SHADOW_TELEPORT' || moveKey === 'RAIKIRI_WARP') {
       SFX.playTeleport();
       if (window.engine) window.engine.spawnSparks(this.x, this.y - 45, '#00f0ff', 16);
       this.x += Math.cos(rad) * 160 * this.facing;
       this.y = Math.min(this.floorY, Math.max(160, this.y - Math.sin(rad) * 140));
       this.isAirborne = this.y < this.floorY;
       if (window.engine) window.engine.spawnSparks(this.x, this.y - 45, '#ffd166', 16);
-      if (moveData.postInvuln) this.isInvulnerable = true;
+      if (moveData.postInvuln || moveData.isInvuln) this.isInvulnerable = true;
     } else if (moveKey === 'DIVE_KICK') {
       SFX.playDash();
       this.spawnAfterimage();
@@ -347,12 +357,14 @@ class TacticalFighter {
     }
 
     // Projectile Spawning
-    if (moveData.projectile && window.engine) {
+    if ((moveData.projectile || moveKey === 'SHADOW_PULL') && window.engine) {
       const spd = 19;
       const pvx = Math.cos(rad) * spd * this.facing;
       const pvy = -Math.sin(rad) * spd;
-      const pColor = moveData.isFusion ? '#a78bfa' : '#00f0ff';
-      window.engine.projectiles.push(new Projectile(this.x + this.facing * 35, this.y - 45, pvx, pvy, this.isPlayer, moveData.damage, pColor));
+      const pColor = moveKey === 'SHADOW_PULL' ? '#9d4edd' : (moveData.isFusion ? '#a78bfa' : '#00f0ff');
+      const proj = new Projectile(this.x + this.facing * 35, this.y - 45, pvx, pvy, this.isPlayer, moveData.damage, pColor);
+      if (moveData.pullsFoe) proj.pullsFoe = true;
+      window.engine.projectiles.push(proj);
 
       // Upgraded Twin Blast
       if (moveData.dualProjectile) {
@@ -364,12 +376,14 @@ class TacticalFighter {
     }
 
     // Spatial Slash Spawning
-    if (moveData.isSpatial && window.engine) {
+    if ((moveData.isSpatial || moveKey === 'CHRONO_STASIS') && window.engine) {
       SFX.playSpatialSlash();
       const targetDist = 150;
       const tx = Math.min(960, Math.max(64, this.x + Math.cos(rad) * targetDist * this.facing));
       const ty = Math.min(this.floorY - 20, Math.max(160, (this.y - 45) - Math.sin(rad) * 120));
-      window.engine.spatialRifts.push(new SpatialRift(tx, ty, this.isPlayer, moveData.damage, moveData.riftRadius || 55));
+      const rift = new SpatialRift(tx, ty, this.isPlayer, moveData.damage, moveData.riftRadius || 55);
+      if (moveData.stasisFreeze) rift.stasisFreeze = moveData.stasisFreeze;
+      window.engine.spatialRifts.push(rift);
     }
 
     this.isInvulnerable = !!moveData.isInvuln;
