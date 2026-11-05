@@ -396,20 +396,20 @@ class TacticalFighter {
       const mKey = (moveKey || (moveData ? moveData.name : '') || '').toUpperCase();
       const pColorRamp = this.isPlayer ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
 
-      const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK'].includes(mKey) ||
-        mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE');
+      const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK', 'SOUL_REAP', 'MIRAGE_RIPOSTE', 'BLOOD_RUSH', 'CARMINE_HARVEST', 'SONIC_PALM'].includes(mKey) ||
+        mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE') || mKey.includes('BLOOD') || mKey.includes('HARVEST') || mKey.includes('SONIC');
 
-      const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST'].includes(mKey) ||
-        mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER');
+      const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST', 'PHOENIX_KICK', 'SOLAR_SUPERNOVA', 'VALKYRIE_ASCENT', 'FROSTFIRE_BURST'].includes(mKey) ||
+        mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER') || mKey.includes('PHOENIX') || mKey.includes('SUPERNOVA') || mKey.includes('VALKYRIE') || mKey.includes('FROSTFIRE');
 
-      const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM'].includes(mKey) ||
-        mKey.includes('THUNDER') || mKey.includes('LIGHTNING') || mKey.includes('GALE') || mKey.includes('PALM');
+      const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM', 'RAIKIRI_WARP', 'THUNDER_METEOR'].includes(mKey) ||
+        mKey.includes('THUNDER') || mKey.includes('LIGHTNING') || mKey.includes('GALE') || mKey.includes('PALM') || mKey.includes('RAIKIRI') || mKey.includes('WARP');
 
-      const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT'].includes(mKey) ||
-        mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL');
+      const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT', 'CHRONO_STASIS', 'SHADOW_PULL', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT'].includes(mKey) ||
+        mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL') || mKey.includes('STASIS') || mKey.includes('PULL') || mKey.includes('HORIZON') || mKey.includes('CHRONO');
 
-      const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE'].includes(mKey) ||
-        mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP');
+      const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE', 'TEMPEST_QUAKE', 'GRAVITY_CRUSH'].includes(mKey) ||
+        mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP') || mKey.includes('QUAKE') || mKey.includes('TEMPEST') || mKey.includes('GRAVITY') || mKey.includes('CRUSH');
 
       if (isSlash) {
         PixelFX.spawnSlash(this.x + this.facing * 35, this.y - 45, this.facing, aimDeg, pColorRamp, (mKey === 'HEAVY_SLASH' || mKey.includes('SLASH')) ? 68 : 52);

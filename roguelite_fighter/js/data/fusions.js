@@ -49,6 +49,31 @@ const FUSION_RECIPES = {
     targetKey: 'VALKYRIE_ASCENT',
     name: 'Phoenix Rebirth Skyward [FUSION]',
     desc: 'Merge Air Recovery + Rising Dragon into the ultimate comeback: cancel hitstun anywhere and erupt into a blazing dragon uppercut (Consumes both skills).'
+  },
+  'GLACIAL_SPIKE+FIRE_BURST': {
+    targetKey: 'FROSTFIRE_BURST',
+    name: 'Frostfire Thermonuclear Burst [FUSION]',
+    desc: 'Merge Frost Spike + Fire Burst into freezing crystal rifts followed by a 90 damage thermo-steam explosion (Consumes both skills).'
+  },
+  'SHADOW_PULL+VOID_CLEAVE': {
+    targetKey: 'EVENT_HORIZON_SLASH',
+    name: 'Singularity Event Horizon Slash [FUSION]',
+    desc: 'Merge Shadow Pull + Void Cleave into a black hole gravity pull followed by a 94 damage unblockable dimensional rift slash (Consumes both skills).'
+  },
+  'CHRONO_STASIS+JUDGMENT_CUT': {
+    targetKey: 'CHRONO_JUDGMENT',
+    name: 'Absolute Chrono Judgment [FUSION]',
+    desc: 'Merge Chrono Stasis + Judgment Cut into a 35f temporal time-freeze while carving 8 invisible slashes for 96 damage (Consumes both skills).'
+  },
+  'LIGHTNING_PALM+METEOR_STRIKE': {
+    targetKey: 'THUNDER_METEOR',
+    name: 'Thunder God Cataclysm Meteor [FUSION]',
+    desc: 'Merge Thunder Palm + Meteor Blow into an electrified hammer fist with Super Armor dealing 92 seismic lightning damage (Consumes both skills).'
+  },
+  'BLOOD_RUSH+SOUL_REAP': {
+    targetKey: 'CARMINE_HARVEST',
+    name: 'Carmine Blood Scythe Harvest [FUSION]',
+    desc: 'Merge Blood Rush + Soul Reap into an invulnerable 1f crimson scythe execution dealing 86 damage and siphoning 60% health (Consumes both skills).'
   }
 };
 
@@ -239,6 +264,55 @@ const APEX_UPGRADES_CATALOG = {
     name: 'Eternal Valkyrie Zenith [APEX]',
     desc: 'Instant zero-frame hitstun break with true invulnerability, erupting celestial fire for 96 damage.',
     buffs: { startup: 1, damage: 96, isAirTech: true, isInvuln: true, superMeterBonus: 35 }
+  },
+
+  // ── NEW BASE MOVES APEX MASTERY ──
+  GLACIAL_SPIKE: {
+    name: 'Absolute Zero Cocytus Glacier [APEX]',
+    desc: '1f startup, freezes whole arena in crystalline glacier spikes for 60 damage and 50f stasis.',
+    buffs: { startup: 1, damage: 60, range: 350, hitstun: 50 }
+  },
+  SONIC_PALM: {
+    name: 'Emperor Resonance Null-Palm [APEX]',
+    desc: '1f startup, 65 pure unblockable damage, acoustic shock shatters all armor and blocks.',
+    buffs: { startup: 1, damage: 65, range: 130, unblockable: true, hitstun: 42 }
+  },
+  GRAVITY_CRUSH: {
+    name: 'Hyper-Graviton Supercluster [APEX]',
+    desc: '80 damage crushing downspike, launches opponent into high ceiling bounce with lingering gravity well.',
+    buffs: { damage: 80, range: 240, spikesDown: true, hitstun: 45 }
+  },
+  BLOOD_RUSH: {
+    name: 'Asura Bloodfiend Onslaught [APEX]',
+    desc: '0f startup, 75 damage, complete invulnerability throughout dash with +40 SP refund.',
+    buffs: { startup: 0, damage: 75, isInvuln: true, superMeterBonus: 40, speedBoost: 12 }
+  },
+
+  // ── NEW HYBRID FUSION APEX MASTERY ──
+  FROSTFIRE_BURST: {
+    name: 'Ragnarok Frostfire Singularity [APEX]',
+    desc: '135 cataclysmic damage, dual elemental singularity freezes opponent then incinerates arena floor.',
+    buffs: { damage: 135, range: 320, hitstun: 50 }
+  },
+  EVENT_HORIZON_SLASH: {
+    name: 'Omega Event Horizon Sever [APEX]',
+    desc: '140 pure unblockable damage, screen-cleaving black hole slice bypassing all defenses.',
+    buffs: { damage: 140, range: 450, unblockable: true, isSpatial: true, hitstun: 55 }
+  },
+  CHRONO_JUDGMENT: {
+    name: 'Chronos Continuum Execution [APEX]',
+    desc: '145 damage across 60 frames of absolute temporal zero, completely paralyzing the opponent.',
+    buffs: { damage: 145, range: 320, hitstun: 60 }
+  },
+  THUNDER_METEOR: {
+    name: 'Divine Indra Thunderfall [APEX]',
+    desc: '138 colossal seismic lightning hammer strike with Super Armor and unblockable ground shockwaves.',
+    buffs: { damage: 138, range: 220, hasArmor: true, hitstun: 48 }
+  },
+  CARMINE_HARVEST: {
+    name: 'Blood Sovereign Thanatos Scythe [APEX]',
+    desc: '0f startup, 130 piercing damage, invulnerable crimson scythe siphoning 80% health directly.',
+    buffs: { startup: 0, damage: 130, isInvuln: true, siphonRatio: 0.80, range: 220 }
   }
 };
 

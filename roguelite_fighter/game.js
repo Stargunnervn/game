@@ -513,12 +513,13 @@ class YomiEngine {
     const k = (moveKey || '').toUpperCase();
     if (k === 'BLOCK' || k === 'AEGIS_REFLECT') return 'Pixel Hex Shield';
     if (k === 'PARRY') return 'Pixel Parry Flash';
-    if (k === 'KI_BLAST') return 'Pixel Energy Spark';
-    if (['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST'].includes(k) || k.includes('DRAGON') || k.includes('LAUNCHER') || k.includes('FIRE')) return 'Pixel Flame Pillar';
-    if (['THUNDER_GALE', 'LIGHTNING_PALM'].includes(k) || k.includes('THUNDER') || k.includes('LIGHTNING')) return 'Pixel Lightning Arc';
-    if (['VOID_CLEAVE', 'JUDGMENT_CUT'].includes(k) || k.includes('VOID') || k.includes('JUDGMENT')) return 'Pixel Void Rift';
-    if (['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE'].includes(k) || k.includes('COMET') || k.includes('GROUND') || k.includes('METEOR')) return 'Pixel Ground Slam';
-    if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK'].includes(k) || k.includes('SLASH') || k.includes('JAB') || k.includes('SWEEP')) return 'Pixel Blade Slash';
+    if (k === 'KI_BLAST' || k === 'SONIC_PALM') return 'Pixel Energy Spark';
+    if (['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST', 'FROSTFIRE_BURST'].includes(k) || k.includes('DRAGON') || k.includes('LAUNCHER') || k.includes('FIRE') || k.includes('BURST')) return 'Pixel Flame Pillar';
+    if (['THUNDER_GALE', 'LIGHTNING_PALM', 'THUNDER_METEOR'].includes(k) || k.includes('THUNDER') || k.includes('LIGHTNING')) return 'Pixel Lightning Arc';
+    if (['VOID_CLEAVE', 'JUDGMENT_CUT', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT'].includes(k) || k.includes('VOID') || k.includes('JUDGMENT') || k.includes('HORIZON')) return 'Pixel Void Rift';
+    if (['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE', 'GRAVITY_CRUSH', 'TEMPEST_QUAKE'].includes(k) || k.includes('COMET') || k.includes('GROUND') || k.includes('METEOR') || k.includes('GRAVITY')) return 'Pixel Ground Slam';
+    if (k === 'GLACIAL_SPIKE' || k.includes('GLACIAL') || k.includes('FROST')) return 'Pixel Energy Spark';
+    if (['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK', 'BLOOD_RUSH', 'CARMINE_HARVEST'].includes(k) || k.includes('SLASH') || k.includes('JAB') || k.includes('SWEEP') || k.includes('BLOOD') || k.includes('HARVEST')) return 'Pixel Blade Slash';
     return 'Pixel Hit Spark';
   }
 
@@ -562,7 +563,20 @@ class YomiEngine {
       TEMPEST_QUAKE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16M7 9h10M9 14h6M11 19h2M2 22h20"/></svg>',
       RAIKIRI_WARP: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8zM19 5l3 3-3 3"/></svg>',
       MIRAGE_RIPOSTE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l5.5 5.5-11 11H3.5v-5.5l11-11zM4 4l16 16"/></svg>',
-      VALKYRIE_ASCENT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6zM12 14v8M8 18h8"/></svg>'
+      VALKYRIE_ASCENT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6zM12 14v8M8 18h8"/></svg>',
+
+      // ── 4 NEW BASE & UNLOCKABLE MOVES ──
+      GLACIAL_SPIKE: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L8 14h8l-4-12zM5 14l-2 8h18l-2-8H5z"/></svg>',
+      SONIC_PALM: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+      GRAVITY_CRUSH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v14M6 10l6 6 6-6M3 21h18"/></svg>',
+      BLOOD_RUSH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+
+      // ── 5 NEW TIER 3 PINNACLE FUSIONS ──
+      FROSTFIRE_BURST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 4 5 7 9 7-3 3-5 7-5 12-2-4-5-7-9-7 3-3 5-7 5-12zM12 12v10M7 17h10"/></svg>',
+      EVENT_HORIZON_SLASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 12a9 9 0 0 1-15 6.7L3 16M4 20L20 4"/></svg>',
+      CHRONO_JUDGMENT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/><path d="M3 3l18 18M21 3L3 21"/></svg>',
+      THUNDER_METEOR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8zM19 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>',
+      CARMINE_HARVEST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3a7.5 7.5 0 0 0-7 10.3L3 21l2 2 7.7-5.5A7.5 7.5 0 1 0 15.5 3zM18 6l3 3"/></svg>'
     };
     return icons[moveKey] || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
   }
@@ -707,7 +721,7 @@ class YomiEngine {
           <span class="deck-tag tag-equipped">CLICK TO REPLACE</span>
           <div style="font-size: 13px; font-weight: 700; color: #fff;">${eqData.name}</div>
           <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
-            ${eqData.damage > 0 ? `${eqData.startup}f • ${eqData.damage} Dmg` : 'Mobility / Guard'}
+            ${eqData.damage > 0 ? `${(eqData.startup !== undefined && eqData.startup !== null) ? eqData.startup : 0}f • ${eqData.damage} Dmg` : 'Mobility / Guard'}
           </div>
           <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${eqData.desc}</div>
         `;
@@ -768,7 +782,7 @@ class YomiEngine {
         <span class="deck-tag ${tagClass}">${tagText}</span>
         <div style="font-size: 13px; font-weight: 700; color: #fff;">${moveData.name}</div>
         <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
-          ${moveData.damage > 0 ? `${moveData.startup}f • ${moveData.damage} Dmg` : 'Mobility / Guard'}
+          ${moveData.damage > 0 ? `${(moveData.startup !== undefined && moveData.startup !== null) ? moveData.startup : 0}f • ${moveData.damage} Dmg` : 'Mobility / Guard'}
         </div>
         <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${moveData.desc}</div>
       `;
@@ -1035,6 +1049,8 @@ class YomiEngine {
     // SITUATIONAL REACTION 1: FREE AIR COMBAT (Enemy is in mid-air, not stunned)
     if (enemyAirborne) {
       if (dist < 130) {
+        if (canUse('GRAVITY_CRUSH')) return 'GRAVITY_CRUSH';
+        if (canUse('THUNDER_METEOR')) return 'THUNDER_METEOR';
         if (canUse('COMET_CRASH')) return 'COMET_CRASH';
         if (canUse('TEMPEST_QUAKE')) return 'TEMPEST_QUAKE';
         if (canUse('DIVE_KICK')) return 'DIVE_KICK';
@@ -1050,9 +1066,16 @@ class YomiEngine {
     // SITUATIONAL REACTION 2: PUNISH & HIT-CONFIRM (Scaled by reaction accuracy)
     if ((playerInHitstun || playerVulnerable) && Math.random() < reactionRate) {
       if (dist < 95) {
+        if (canUse('CARMINE_HARVEST')) return 'CARMINE_HARVEST';
+        if (canUse('EVENT_HORIZON_SLASH')) return 'EVENT_HORIZON_SLASH';
+        if (canUse('CHRONO_JUDGMENT')) return 'CHRONO_JUDGMENT';
+        if (canUse('THUNDER_METEOR')) return 'THUNDER_METEOR';
+        if (canUse('FROSTFIRE_BURST')) return 'FROSTFIRE_BURST';
         if (canUse('SOLAR_SUPERNOVA')) return 'SOLAR_SUPERNOVA';
         if (canUse('RAIKIRI_WARP')) return 'RAIKIRI_WARP';
         if (canUse('VOID_CLEAVE')) return 'VOID_CLEAVE';
+        if (canUse('BLOOD_RUSH')) return 'BLOOD_RUSH';
+        if (canUse('SONIC_PALM')) return 'SONIC_PALM';
         if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
         if (canUse('PHOENIX_KICK')) return 'PHOENIX_KICK';
         if (canUse('SOUL_REAP')) return 'SOUL_REAP';
@@ -1066,11 +1089,15 @@ class YomiEngine {
         if (canUse('LIGHTNING_PALM')) return 'LIGHTNING_PALM';
         return canUse('QUICK_JAB') ? 'QUICK_JAB' : 'STEP_FWD';
       } else {
+        if (canUse('EVENT_HORIZON_SLASH')) return 'EVENT_HORIZON_SLASH';
+        if (canUse('FROSTFIRE_BURST')) return 'FROSTFIRE_BURST';
+        if (canUse('GLACIAL_SPIKE')) return 'GLACIAL_SPIKE';
         if (canUse('CHRONO_STASIS')) return 'CHRONO_STASIS';
         if (canUse('SHADOW_PULL')) return 'SHADOW_PULL';
         if (canUse('RAIKIRI_WARP')) return 'RAIKIRI_WARP';
         if (canUse('PHANTOM_SLIDE')) return 'PHANTOM_SLIDE';
         if (canUse('SUPER_DASH')) return 'SUPER_DASH';
+        if (canUse('BLOOD_RUSH')) return 'BLOOD_RUSH';
         if (canUse('GHOST_STEP')) return 'GHOST_STEP';
         if (canUse('DASH')) return 'DASH';
         return 'STEP_FWD';
@@ -1083,7 +1110,9 @@ class YomiEngine {
       if (canUse('PHOENIX_KICK')) return 'PHOENIX_KICK';
       if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
       if (canUse('LAUNCHER')) return 'LAUNCHER';
+      if (canUse('GRAVITY_CRUSH')) return 'GRAVITY_CRUSH';
       if (canUse('METEOR_STRIKE')) return 'METEOR_STRIKE';
+      if (canUse('THUNDER_METEOR')) return 'THUNDER_METEOR';
       if (canUse('SOLAR_SUPERNOVA')) return 'SOLAR_SUPERNOVA';
       if (canUse('KI_BLAST')) return 'KI_BLAST';
       if (canUse('GHOST_STEP')) return 'GHOST_STEP';
@@ -1094,6 +1123,8 @@ class YomiEngine {
     const wasPlayerDefending = this.player.isBlocking || this.player.isParrying || 
       (this.player.moveKey && ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER', 'MIRAGE_RIPOSTE'].includes(this.player.moveKey));
     if (wasPlayerDefending && dist < 170 && Math.random() < reactionRate) {
+      if (canUse('SONIC_PALM')) return 'SONIC_PALM'; // Unblockable acoustic shockwave!
+      if (canUse('EVENT_HORIZON_SLASH')) return 'EVENT_HORIZON_SLASH'; // Unblockable dimensional rift!
       if (canUse('MIRAGE_RIPOSTE')) return 'MIRAGE_RIPOSTE';
       if (canUse('SHADOW_PULL')) return 'SHADOW_PULL';
       if (canUse('RAIKIRI_WARP')) return 'RAIKIRI_WARP';
@@ -1120,15 +1151,20 @@ class YomiEngine {
 
     // 1. BOSS AI (Dynamic, specialized per archetype)
     if (aiTier === 'BOSS') {
-      // 1.1 BERSERKER (Crimson Oni Goryo) - Relentless rushdown, zero defense, brute force
-      if (archetype === 'berserker') {
+      // 1.1 BERSERKER (Crimson Oni Goryo, Blood Wraith Vane) - Relentless rushdown, zero defense, brute force
+      if (archetype === 'berserker' || archetype === 'blood_wraith' || bossKey === 'boss_blood_wraith') {
         if (dist > 180) {
+          if (canUse('CARMINE_HARVEST') && rand < 0.65) return 'CARMINE_HARVEST';
           if (canUse('SOLAR_SUPERNOVA') && rand < 0.6) return 'SOLAR_SUPERNOVA';
+          if (canUse('BLOOD_RUSH')) return 'BLOOD_RUSH';
           if (canUse('SUPER_DASH')) return 'SUPER_DASH';
           if (canUse('DRAGON_UPPER')) return 'DRAGON_UPPER';
           return 'DASH';
         }
         if (dist >= 85) {
+          if (canUse('CARMINE_HARVEST') && rand < 0.6) return 'CARMINE_HARVEST';
+          if (canUse('BLOOD_RUSH') && rand < 0.55) return 'BLOOD_RUSH';
+          if (canUse('SOUL_REAP') && rand < 0.5) return 'SOUL_REAP';
           if (canUse('SOLAR_SUPERNOVA') && rand < 0.45) return 'SOLAR_SUPERNOVA';
           if (canUse('PHOENIX_KICK') && rand < 0.45) return 'PHOENIX_KICK';
           if (canUse('METEOR_STRIKE') && rand < 0.5) return 'METEOR_STRIKE';
@@ -1136,6 +1172,9 @@ class YomiEngine {
           if (canUse('LIGHTNING_PALM') && rand < 0.4) return 'LIGHTNING_PALM';
           return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
         }
+        if (canUse('CARMINE_HARVEST') && rand < 0.55) return 'CARMINE_HARVEST';
+        if (canUse('BLOOD_RUSH') && rand < 0.5) return 'BLOOD_RUSH';
+        if (canUse('SOUL_REAP') && rand < 0.45) return 'SOUL_REAP';
         if (canUse('TEMPEST_QUAKE') && rand < 0.45) return 'TEMPEST_QUAKE';
         if (canUse('GROUND_POUND') && rand < 0.4) return 'GROUND_POUND';
         if (canUse('METEOR_STRIKE') && rand < 0.45) return 'METEOR_STRIKE';
@@ -1175,15 +1214,19 @@ class YomiEngine {
         return 'STEP_BACK';
       }
 
-      // 1.3 ZONER (Void Lord Malakor, Chronomancer Aeon) - Spacing control, spatial tears, projectile storms
-      if (archetype === 'zoner') {
+      // 1.3 ZONER & SINGULARITY (Void Lord Malakor, Chronomancer Aeon, Singularity Gorgon) - Spacing control, spatial tears
+      if (archetype === 'zoner' || archetype === 'singularity' || bossKey === 'boss_singularity_gorgon') {
         if (dist < 100) {
+          if (canUse('GRAVITY_CRUSH') && rand < 0.55) return 'GRAVITY_CRUSH';
           if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
           if (canUse('GHOST_STEP')) return 'GHOST_STEP';
           if (canUse('WHIRLWIND')) return 'WHIRLWIND';
           return 'STEP_BACK';
         }
         if (dist > 200) {
+          if (canUse('EVENT_HORIZON_SLASH') && rand < 0.6) return 'EVENT_HORIZON_SLASH';
+          if (canUse('CHRONO_JUDGMENT') && rand < 0.55) return 'CHRONO_JUDGMENT';
+          if (canUse('THUNDER_METEOR') && rand < 0.5) return 'THUNDER_METEOR';
           if (canUse('CHRONO_STASIS') && rand < 0.55) return 'CHRONO_STASIS';
           if (canUse('SHADOW_PULL') && rand < 0.5) return 'SHADOW_PULL';
           if (canUse('JUDGMENT_CUT') && rand < 0.5) return 'JUDGMENT_CUT';
@@ -1191,6 +1234,9 @@ class YomiEngine {
           if (canUse('FIRE_BURST') && rand < 0.4) return 'FIRE_BURST';
           if (canUse('KI_BLAST')) return 'KI_BLAST';
         }
+        if (canUse('EVENT_HORIZON_SLASH') && rand < 0.55) return 'EVENT_HORIZON_SLASH';
+        if (canUse('CHRONO_JUDGMENT') && rand < 0.5) return 'CHRONO_JUDGMENT';
+        if (canUse('GRAVITY_CRUSH') && rand < 0.45) return 'GRAVITY_CRUSH';
         if (canUse('CHRONO_STASIS') && rand < 0.5) return 'CHRONO_STASIS';
         if (canUse('SHADOW_PULL') && rand < 0.45) return 'SHADOW_PULL';
         if (canUse('VOID_CLEAVE') && rand < 0.5) return 'VOID_CLEAVE';
@@ -1218,25 +1264,31 @@ class YomiEngine {
         return 'STEP_FWD';
       }
 
-      // 1.5 JUGGERNAUT / TANK (Abyssal Sovereign Dagon) - Screen quakes, aegis reflection, heavy armor
-      if (archetype === 'juggernaut' || archetype === 'tank') {
+      // 1.5 JUGGERNAUT / TANK / COLOSSUS (Abyssal Sovereign Dagon, Frost Colossus Ymir) - Heavy armor
+      if (archetype === 'juggernaut' || archetype === 'tank' || archetype === 'colossus' || bossKey === 'boss_frost_colossus') {
         if (dist > 180) {
+          if (canUse('FROSTFIRE_BURST') && rand < 0.55) return 'FROSTFIRE_BURST';
+          if (canUse('GLACIAL_SPIKE') && rand < 0.55) return 'GLACIAL_SPIKE';
           if (canUse('TEMPEST_QUAKE') && rand < 0.5) return 'TEMPEST_QUAKE';
           if (canUse('SUPER_DASH') && rand < 0.6) return 'SUPER_DASH';
           if (canUse('FIRE_BURST') && rand < 0.45) return 'FIRE_BURST';
           return 'STEP_FWD';
         }
-        if (allowDefense && rand < 0.28) {
+        if (allowDefense && rand < 0.32) {
           if (canUse('AEGIS_REFLECT')) return 'AEGIS_REFLECT';
           if (canUse('BLOCK')) return 'BLOCK';
         }
         if (dist < 130) {
+          if (canUse('FROSTFIRE_BURST') && rand < 0.5) return 'FROSTFIRE_BURST';
+          if (canUse('GLACIAL_SPIKE') && rand < 0.45) return 'GLACIAL_SPIKE';
           if (canUse('TEMPEST_QUAKE') && rand < 0.5) return 'TEMPEST_QUAKE';
           if (canUse('GROUND_POUND') && rand < 0.45) return 'GROUND_POUND';
           if (canUse('METEOR_STRIKE') && rand < 0.4) return 'METEOR_STRIKE';
           if (canUse('COMET_CRASH') && rand < 0.4) return 'COMET_CRASH';
           if (canUse('HEAVY_SLASH')) return 'HEAVY_SLASH';
         }
+        return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
+      }
         return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
       }
 
@@ -1372,19 +1424,23 @@ class YomiEngine {
       return this.player.isAirborne ? Math.max(45, directAngle) : 45;
     }
 
-    if (moveKey === 'DIVE_KICK' || moveKey === 'COMET_CRASH') {
-      return Math.min(-30, Math.max(-80, directAngle));
+    if (moveKey === 'DIVE_KICK' || moveKey === 'COMET_CRASH' || moveKey === 'GRAVITY_CRUSH' || moveKey === 'THUNDER_METEOR') {
+      return Math.min(-30, Math.max(-85, directAngle));
     }
 
     if (moveKey === 'SWEEP' || moveKey === 'PHANTOM_SLIDE') {
       return -30;
     }
 
+    if (moveKey === 'GLACIAL_SPIKE' || moveKey === 'FROSTFIRE_BURST') {
+      return Math.min(25, Math.max(-30, directAngle));
+    }
+
     if (moveKey === 'LAUNCHER' || moveKey === 'DRAGON_UPPER' || moveKey === 'PHOENIX_KICK') {
       return 60;
     }
 
-    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'DASH', 'SUPER_DASH', 'SHADOW_PULL', 'CHRONO_STASIS', 'SOUL_REAP', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP'].includes(moveKey)) {
+    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'DASH', 'SUPER_DASH', 'SHADOW_PULL', 'CHRONO_STASIS', 'SOUL_REAP', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP', 'SONIC_PALM', 'BLOOD_RUSH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'CARMINE_HARVEST'].includes(moveKey)) {
       // Dynamic true elevation angle targeting!
       return Math.min(75, Math.max(-45, directAngle));
     }
@@ -1633,20 +1689,20 @@ class YomiEngine {
             ? ['#ffffff', '#00f0ff', '#0077b6', '#03045e'] 
             : ['#ffffff', '#ff3366', '#990f30', '#3b000f'];
 
-          const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK', 'SOUL_REAP', 'MIRAGE_RIPOSTE'].includes(mKey) ||
-            mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE') || mKey.includes('REAP') || mKey.includes('MIRAGE');
+          const isSlash = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'PHANTOM_SLIDE', 'BLADE_COUNTER', 'WHIRLWIND', 'DIVE_KICK', 'SOUL_REAP', 'MIRAGE_RIPOSTE', 'BLOOD_RUSH', 'CARMINE_HARVEST', 'SONIC_PALM'].includes(mKey) ||
+            mKey.includes('SLASH') || mKey.includes('JAB') || mKey.includes('SWEEP') || mKey.includes('SLIDE') || mKey.includes('WHIRLWIND') || mKey.includes('RIPOSTE') || mKey.includes('REAP') || mKey.includes('MIRAGE') || mKey.includes('BLOOD') || mKey.includes('HARVEST') || mKey.includes('SONIC');
 
-          const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST', 'PHOENIX_KICK', 'SOLAR_SUPERNOVA', 'VALKYRIE_ASCENT'].includes(mKey) ||
-            mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER') || mKey.includes('PHOENIX') || mKey.includes('SUPERNOVA') || mKey.includes('VALKYRIE');
+          const isFlame = ['DRAGON_UPPER', 'LAUNCHER', 'FIRE_BURST', 'PHOENIX_KICK', 'SOLAR_SUPERNOVA', 'VALKYRIE_ASCENT', 'FROSTFIRE_BURST'].includes(mKey) ||
+            mKey.includes('DRAGON') || mKey.includes('LAUNCHER') || mKey.includes('FIRE') || mKey.includes('BURST') || mKey.includes('UPPER') || mKey.includes('PHOENIX') || mKey.includes('SUPERNOVA') || mKey.includes('VALKYRIE') || mKey.includes('FROSTFIRE');
 
-          const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM', 'RAIKIRI_WARP'].includes(mKey) ||
+          const isLightning = ['THUNDER_GALE', 'LIGHTNING_PALM', 'RAIKIRI_WARP', 'THUNDER_METEOR'].includes(mKey) ||
             mKey.includes('THUNDER') || mKey.includes('LIGHTNING') || mKey.includes('GALE') || mKey.includes('PALM') || mKey.includes('RAIKIRI') || mKey.includes('WARP');
 
-          const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT', 'CHRONO_STASIS', 'SHADOW_PULL'].includes(mKey) ||
-            mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL') || mKey.includes('STASIS') || mKey.includes('PULL');
+          const isVoid = ['VOID_CLEAVE', 'JUDGMENT_CUT', 'CHRONO_STASIS', 'SHADOW_PULL', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT'].includes(mKey) ||
+            mKey.includes('VOID') || mKey.includes('JUDGMENT') || mKey.includes('CLEAVE') || mKey.includes('DIMENSIONAL') || mKey.includes('STASIS') || mKey.includes('PULL') || mKey.includes('HORIZON') || mKey.includes('CHRONO');
 
-          const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE', 'TEMPEST_QUAKE'].includes(mKey) ||
-            mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP') || mKey.includes('QUAKE') || mKey.includes('TEMPEST');
+          const isSlam = ['COMET_CRASH', 'GROUND_POUND', 'METEOR_STRIKE', 'TEMPEST_QUAKE', 'GRAVITY_CRUSH'].includes(mKey) ||
+            mKey.includes('COMET') || mKey.includes('GROUND') || mKey.includes('METEOR') || mKey.includes('POUND') || mKey.includes('STOMP') || mKey.includes('QUAKE') || mKey.includes('TEMPEST') || mKey.includes('GRAVITY') || mKey.includes('CRUSH');
 
           if (isSlash) {
             PixelFX.spawnSlash(defender.x, defender.y - 45, attacker.facing, attacker.aimAngle || 0, pColorRamp, (mKey === 'HEAVY_SLASH' || mKey.includes('SLASH')) ? 68 : 52);
@@ -2137,7 +2193,7 @@ class YomiEngine {
         <span class="deck-tag ${tagClass}">${tagText}</span>
         <div style="font-size: 13px; font-weight: 700; color: #fff;">${moveData.name}</div>
         <div style="font-size: 11px; color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">
-          ${moveData.damage > 0 ? `${moveData.startup}f • ${moveData.damage} Dmg` : 'Mobility / Guard'}
+          ${moveData.damage > 0 ? `${(moveData.startup !== undefined && moveData.startup !== null) ? moveData.startup : 0}f • ${moveData.damage} Dmg` : 'Mobility / Guard'}
         </div>
         <div style="font-size: 10px; color: #94a3b8; line-height: 1.3;">${moveData.desc}</div>
       `;

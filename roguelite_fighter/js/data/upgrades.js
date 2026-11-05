@@ -193,6 +193,55 @@ const MOVE_UPGRADES_CATALOG = {
     name: 'Phoenix Rebirth Skyward EX',
     desc: 'Breaks hitstun on ground or air, refunds +20 SP on trigger, deals 74 damage.',
     buffs: { damage: 74, isAirTech: true, superMeterBonus: 20, isInvuln: true }
+  },
+
+  // ── NEW ADVANCED BASE EX UPGRADES ──
+  GLACIAL_SPIKE: {
+    name: 'Permafrost Glacier Spike',
+    desc: 'Ice stalagmite reaches 280px, deals 42 damage, and traps enemy feet for 45 frames.',
+    buffs: { damage: 42, range: 280, hitstun: 45 }
+  },
+  SONIC_PALM: {
+    name: 'Resonant Shockwave Palm',
+    desc: 'Sonic acoustic wave pierces guard with 46 damage and inflicts +38f frame advantage.',
+    buffs: { damage: 46, range: 115, hitstun: 38, unblockable: true }
+  },
+  GRAVITY_CRUSH: {
+    name: 'Singularity Event Collapse',
+    desc: 'Gravity collapse deals 55 damage with violent downward ground slam and upward air bounce.',
+    buffs: { damage: 55, range: 180, hitstun: 40, spikesDown: true }
+  },
+  BLOOD_RUSH: {
+    name: 'Crimson Rampage Rush',
+    desc: 'Super Armor rush deals 52 damage, restores +30 SP, and grants +8 speed boost.',
+    buffs: { damage: 52, hasArmor: true, superMeterBonus: 30, speedBoost: 8 }
+  },
+
+  // ── NEW HYBRID FUSION EX UPGRADES ──
+  FROSTFIRE_BURST: {
+    name: 'Frostfire Thermonuclear Burst EX',
+    desc: 'Thermonuclear steam blast expands to 260px dealing 110 cataclysmic damage.',
+    buffs: { damage: 110, range: 260, hitstun: 45 }
+  },
+  EVENT_HORIZON_SLASH: {
+    name: 'Singularity Event Horizon Slash EX',
+    desc: 'Massive unblockable dimensional rift cleaves for 116 damage across 400px.',
+    buffs: { damage: 116, range: 400, hitstun: 50, unblockable: true }
+  },
+  CHRONO_JUDGMENT: {
+    name: 'Absolute Chrono Judgment EX',
+    desc: 'Time freeze extended to 45 frames, dealing 120 damage with 10 dimensional slashes.',
+    buffs: { damage: 120, hitstun: 50, range: 280 }
+  },
+  THUNDER_METEOR: {
+    name: 'Thunder God Cataclysm Meteor EX',
+    desc: 'Electrified hammer fist deals 114 damage with Super Armor and double arena shockwaves.',
+    buffs: { damage: 114, hasArmor: true, range: 180, hitstun: 45 }
+  },
+  CARMINE_HARVEST: {
+    name: 'Carmine Blood Scythe Harvest EX',
+    desc: 'Invulnerable crimson scythe deals 105 damage and siphons 70% of damage dealt into health.',
+    buffs: { damage: 105, isInvuln: true, siphonRatio: 0.70, range: 180 }
   }
 };
 

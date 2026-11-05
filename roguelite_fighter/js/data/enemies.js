@@ -146,6 +146,52 @@ const ENEMY_CATALOG = {
     introQuote: 'Do not blink. A shinobi strike comes from the blind spot of your soul.',
     defeatQuote: 'A flawless counter... My shadow fades...'
   },
+  frost_disciple: {
+    name: 'Frost Disciple',
+    title: 'Glacial Acolyte',
+    color: '#70d6ff',
+    bodyColor: '#1d3557',
+    headColor: '#a8dadc',
+    accentColor: '#457b9d',
+    baseHp: 110,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['STEP_FWD', 'GLACIAL_SPIKE', 'KI_BLAST', 'BLOCK', 'SWEEP'],
+    goldReward: 25,
+    introQuote: 'Feel the biting chill of the mountain winds.',
+    defeatQuote: 'My ice... shatters...'
+  },
+  thunder_monk: {
+    name: 'Thunder Monk',
+    title: 'Vibrating Fist',
+    color: '#ffb703',
+    bodyColor: '#2b2d42',
+    headColor: '#fb8500',
+    accentColor: '#ffd166',
+    baseHp: 130,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'rushdown',
+    moves: ['DASH', 'QUICK_JAB', 'LIGHTNING_PALM', 'SONIC_PALM', 'LAUNCHER'],
+    goldReward: 30,
+    introQuote: 'Can your guard withstand the resonance of thunder?',
+    defeatQuote: 'The vibrations... overcome me...'
+  },
+  boss_frost_colossus: {
+    name: 'Frost Monarch Ymir',
+    title: 'Colossus of the North',
+    isBoss: true,
+    color: '#38bdf8',
+    bodyColor: '#0c4a6e',
+    headColor: '#bae6fd',
+    accentColor: '#0284c7',
+    baseHp: 270,
+    aiTier: 'BOSS',
+    archetype: 'tank',
+    moves: ['GLACIAL_SPIKE', 'GROUND_POUND', 'METEOR_STRIKE', 'BLOCK', 'AEGIS_REFLECT', 'FROSTFIRE_BURST'],
+    goldReward: 160,
+    introQuote: 'Permafrost will encase this dojo. You are merely snow before an avalanche.',
+    defeatQuote: 'The glacier thaws... You possess the true eternal flame.'
+  },
 
   // ── FLOOR 2: THE SHADOW RIFT (Spectral, Dark & Spatial) ──
   spectral_stalker: {
@@ -290,6 +336,53 @@ const ENEMY_CATALOG = {
     introQuote: 'Every breath you draw belongs to the grave. I have come to collect.',
     defeatQuote: 'A mortal who defies death itself... Remarkable...'
   },
+  berserk_gladiator: {
+    name: 'Crimson Gladiator',
+    title: 'Arena Bloodhound',
+    color: '#ef233c',
+    bodyColor: '#2b2d42',
+    headColor: '#d90429',
+    accentColor: '#ff758f',
+    baseHp: 170,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'berserker',
+    moves: ['BLOOD_RUSH', 'HEAVY_SLASH', 'METEOR_STRIKE', 'SUPER_DASH', 'PARRY'],
+    goldReward: 55,
+    introQuote: 'Pain is fuel. Blood is victory!',
+    defeatQuote: 'A glorious... death in battle...'
+  },
+  gravity_sorcerer: {
+    name: 'Gravity Sorcerer',
+    title: 'Singularity Weaver',
+    color: '#7b2cbf',
+    bodyColor: '#240046',
+    headColor: '#9d4edd',
+    accentColor: '#c77dff',
+    baseHp: 185,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['GRAVITY_CRUSH', 'SHADOW_PULL', 'VOID_CLEAVE', 'STEP_BACK', 'GHOST_STEP'],
+    goldReward: 65,
+    introQuote: 'Kneel before the weight of a dying star.',
+    defeatQuote: 'My gravity well... has collapsed...'
+  },
+  // FLOOR 2 BOSS 4: CARMINE WARLORD MALEK
+  boss_blood_wraith: {
+    name: 'Carmine Warlord Malek',
+    title: 'Blood Sovereign',
+    isBoss: true,
+    color: '#e63946',
+    bodyColor: '#3d0814',
+    headColor: '#ff4d6d',
+    accentColor: '#a4161a',
+    baseHp: 380,
+    aiTier: 'BOSS',
+    archetype: 'berserker',
+    moves: ['BLOOD_RUSH', 'SOUL_REAP', 'CARMINE_HARVEST', 'SUPER_DASH', 'MIRAGE_RIPOSTE', 'HEAVY_SLASH', 'SWEEP'],
+    goldReward: 260,
+    introQuote: 'Every wound you inflict only deepens my thirst. Feed my blade!',
+    defeatQuote: 'Consumed by my own crimson hunger... Exquisite power...'
+  },
 
   // ── FLOOR 3: THE ASTRAL CITADEL (Celestial, Divine & Supreme) ──
   astral_templar: {
@@ -421,6 +514,54 @@ const ENEMY_CATALOG = {
     goldReward: 500,
     introQuote: 'In ten million futures, you never defeat me. Let us see if you can break destiny.',
     defeatQuote: 'A rupture in the timeline... You have forged a new reality!'
+  },
+  abyssal_dreadnought: {
+    name: 'Abyssal Dreadnought',
+    title: 'Armored Titan',
+    color: '#00f0ff',
+    bodyColor: '#051923',
+    headColor: '#00a6fb',
+    accentColor: '#0582ca',
+    baseHp: 320,
+    aiTier: 'VETERAN',
+    archetype: 'juggernaut',
+    moves: ['GROUND_POUND', 'TEMPEST_QUAKE', 'AEGIS_REFLECT', 'HEAVY_SLASH', 'SONIC_PALM'],
+    goldReward: 130,
+    introQuote: 'No blade can pierce ten thousand tons of celestial steel.',
+    defeatQuote: 'My plating... fractured...'
+  },
+  valkyrie_warmaster: {
+    name: 'Valkyrie Warmaster',
+    title: 'Sky Sovereign',
+    color: '#ffd166',
+    bodyColor: '#1a1423',
+    headColor: '#ffe49e',
+    accentColor: '#f72585',
+    baseHp: 340,
+    aiTier: 'VETERAN',
+    archetype: 'aerial',
+    moves: ['DOUBLE_JUMP', 'VALKYRIE_ASCENT', 'PHOENIX_KICK', 'COMET_CRASH', 'SUPER_DASH'],
+    goldReward: 140,
+    introQuote: 'The skies belong to the righteous. Fall to earth!',
+    defeatQuote: 'My wings... clipped by your resolve...'
+  },
+  // FLOOR 3 FINAL BOSS 4: PRIMORDIAL DRAGON TIAMAT
+  boss_singularity_gorgon: {
+    name: 'Primordial Dragon Tiamat',
+    title: 'Event Horizon Sovereign',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ff007f',
+    bodyColor: '#120024',
+    headColor: '#ff54b0',
+    accentColor: '#00f0ff',
+    baseHp: 560,
+    aiTier: 'BOSS',
+    archetype: 'zoner',
+    moves: ['SHADOW_PULL', 'GRAVITY_CRUSH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'VOID_CLEAVE', 'SHADOW_TELEPORT', 'AEGIS_REFLECT', 'THUNDER_METEOR'],
+    goldReward: 600,
+    introQuote: 'I was born in the heart of the first black hole. Return all things to nothingness.',
+    defeatQuote: 'The singularity breaks... A new universe is born from your fists!'
   }
 };
 
@@ -435,17 +576,17 @@ const FLOOR_DEFINITIONS = [
       // Stage 1 to 3: Novice sparring
       { stage: 1, pool: ['shaolin_novice'], hpMult: 1.0, goldBonus: 0 },
       { stage: 2, pool: ['shaolin_novice', 'dojo_sparring_partner'], hpMult: 1.05, goldBonus: 5 },
-      { stage: 3, pool: ['dojo_sparring_partner', 'street_brawler'], hpMult: 1.1, goldBonus: 10 },
+      { stage: 3, pool: ['dojo_sparring_partner', 'street_brawler', 'frost_disciple'], hpMult: 1.1, goldBonus: 10 },
       // Stage 4 to 6: Adept fighters
-      { stage: 4, pool: ['street_brawler', 'windblade_ronin'], hpMult: 1.15, goldBonus: 15 },
-      { stage: 5, pool: ['windblade_ronin'], hpMult: 1.2, goldBonus: 20 },
-      { stage: 6, pool: ['windblade_ronin', 'iron_temple_monk'], hpMult: 1.25, goldBonus: 25 },
+      { stage: 4, pool: ['street_brawler', 'windblade_ronin', 'thunder_monk'], hpMult: 1.15, goldBonus: 15 },
+      { stage: 5, pool: ['windblade_ronin', 'frost_disciple'], hpMult: 1.2, goldBonus: 20 },
+      { stage: 6, pool: ['windblade_ronin', 'iron_temple_monk', 'thunder_monk'], hpMult: 1.25, goldBonus: 25 },
       // Stage 7 to 9: Elite challengers
-      { stage: 7, pool: ['iron_temple_monk', 'street_brawler'], hpMult: 1.3, goldBonus: 30 },
-      { stage: 8, pool: ['iron_temple_monk', 'elite_dojo_master'], hpMult: 1.35, goldBonus: 35 },
+      { stage: 7, pool: ['iron_temple_monk', 'street_brawler', 'frost_disciple'], hpMult: 1.3, goldBonus: 30 },
+      { stage: 8, pool: ['iron_temple_monk', 'elite_dojo_master', 'thunder_monk'], hpMult: 1.35, goldBonus: 35 },
       { stage: 9, pool: ['elite_dojo_master'], hpMult: 1.45, goldBonus: 45 },
       // Stage 10: Floor Boss (Randomized from Floor 1 Boss Pool)
-      { stage: 10, pool: ['boss_iron_shogun', 'boss_crimson_oni', 'boss_shadow_kunoichi'], hpMult: 1.0, goldBonus: 50, isBossStage: true }
+      { stage: 10, pool: ['boss_iron_shogun', 'boss_crimson_oni', 'boss_shadow_kunoichi', 'boss_frost_colossus'], hpMult: 1.0, goldBonus: 50, isBossStage: true }
     ]
   },
   {
@@ -456,18 +597,18 @@ const FLOOR_DEFINITIONS = [
     stageRoster: [
       // Stage 1 to 3
       { stage: 1, pool: ['spectral_stalker'], hpMult: 1.0, goldBonus: 10 },
-      { stage: 2, pool: ['spectral_stalker', 'void_cultist'], hpMult: 1.05, goldBonus: 15 },
-      { stage: 3, pool: ['void_cultist', 'crimson_assassin'], hpMult: 1.1, goldBonus: 20 },
+      { stage: 2, pool: ['spectral_stalker', 'void_cultist', 'berserk_gladiator'], hpMult: 1.05, goldBonus: 15 },
+      { stage: 3, pool: ['void_cultist', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.1, goldBonus: 20 },
       // Stage 4 to 6
-      { stage: 4, pool: ['crimson_assassin', 'dusk_duelist'], hpMult: 1.15, goldBonus: 25 },
-      { stage: 5, pool: ['dusk_duelist'], hpMult: 1.2, goldBonus: 30 },
-      { stage: 6, pool: ['dusk_duelist', 'nether_abomination'], hpMult: 1.25, goldBonus: 35 },
+      { stage: 4, pool: ['crimson_assassin', 'dusk_duelist', 'berserk_gladiator'], hpMult: 1.15, goldBonus: 25 },
+      { stage: 5, pool: ['dusk_duelist', 'gravity_sorcerer'], hpMult: 1.2, goldBonus: 30 },
+      { stage: 6, pool: ['dusk_duelist', 'nether_abomination', 'berserk_gladiator'], hpMult: 1.25, goldBonus: 35 },
       // Stage 7 to 9
-      { stage: 7, pool: ['nether_abomination', 'crimson_assassin'], hpMult: 1.3, goldBonus: 40 },
-      { stage: 8, pool: ['nether_abomination', 'void_inquisitor'], hpMult: 1.35, goldBonus: 45 },
-      { stage: 9, pool: ['void_inquisitor'], hpMult: 1.45, goldBonus: 55 },
+      { stage: 7, pool: ['nether_abomination', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.3, goldBonus: 40 },
+      { stage: 8, pool: ['nether_abomination', 'void_inquisitor', 'berserk_gladiator'], hpMult: 1.35, goldBonus: 45 },
+      { stage: 9, pool: ['void_inquisitor', 'gravity_sorcerer'], hpMult: 1.45, goldBonus: 55 },
       // Stage 10: Floor Boss (Randomized from Floor 2 Boss Pool)
-      { stage: 10, pool: ['boss_void_phantom_lord', 'boss_abyssal_leviathan', 'boss_soul_reaper'], hpMult: 1.0, goldBonus: 80, isBossStage: true }
+      { stage: 10, pool: ['boss_void_phantom_lord', 'boss_abyssal_leviathan', 'boss_soul_reaper', 'boss_blood_wraith'], hpMult: 1.0, goldBonus: 80, isBossStage: true }
     ]
   },
   {
@@ -478,18 +619,18 @@ const FLOOR_DEFINITIONS = [
     stageRoster: [
       // Stage 1 to 3
       { stage: 1, pool: ['astral_templar'], hpMult: 1.0, goldBonus: 20 },
-      { stage: 2, pool: ['astral_templar', 'celestial_valkyrie'], hpMult: 1.05, goldBonus: 25 },
-      { stage: 3, pool: ['celestial_valkyrie', 'chrono_weaver'], hpMult: 1.1, goldBonus: 30 },
+      { stage: 2, pool: ['astral_templar', 'celestial_valkyrie', 'abyssal_dreadnought'], hpMult: 1.05, goldBonus: 25 },
+      { stage: 3, pool: ['celestial_valkyrie', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.1, goldBonus: 30 },
       // Stage 4 to 6
-      { stage: 4, pool: ['chrono_weaver', 'plasma_behemoth'], hpMult: 1.15, goldBonus: 35 },
-      { stage: 5, pool: ['plasma_behemoth'], hpMult: 1.2, goldBonus: 40 },
-      { stage: 6, pool: ['plasma_behemoth', 'divine_sword_saint'], hpMult: 1.25, goldBonus: 45 },
+      { stage: 4, pool: ['chrono_weaver', 'plasma_behemoth', 'abyssal_dreadnought'], hpMult: 1.15, goldBonus: 35 },
+      { stage: 5, pool: ['plasma_behemoth', 'valkyrie_warmaster'], hpMult: 1.2, goldBonus: 40 },
+      { stage: 6, pool: ['plasma_behemoth', 'divine_sword_saint', 'abyssal_dreadnought'], hpMult: 1.25, goldBonus: 45 },
       // Stage 7 to 9
-      { stage: 7, pool: ['divine_sword_saint', 'chrono_weaver'], hpMult: 1.3, goldBonus: 50 },
-      { stage: 8, pool: ['divine_sword_saint', 'celestial_valkyrie'], hpMult: 1.35, goldBonus: 60 },
-      { stage: 9, pool: ['divine_sword_saint'], hpMult: 1.45, goldBonus: 75 },
+      { stage: 7, pool: ['divine_sword_saint', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.3, goldBonus: 50 },
+      { stage: 8, pool: ['divine_sword_saint', 'celestial_valkyrie', 'abyssal_dreadnought'], hpMult: 1.35, goldBonus: 60 },
+      { stage: 9, pool: ['divine_sword_saint', 'valkyrie_warmaster'], hpMult: 1.45, goldBonus: 75 },
       // Stage 10: Final Boss (Randomized from Floor 3 Boss Pool)
-      { stage: 10, pool: ['boss_celestial_emperor', 'boss_seraph_archon', 'boss_chronos_titan'], hpMult: 1.0, goldBonus: 100, isBossStage: true, isFinalBoss: true }
+      { stage: 10, pool: ['boss_celestial_emperor', 'boss_seraph_archon', 'boss_chronos_titan', 'boss_singularity_gorgon'], hpMult: 1.0, goldBonus: 100, isBossStage: true, isFinalBoss: true }
     ]
   }
 ];
