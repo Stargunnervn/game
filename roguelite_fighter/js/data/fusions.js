@@ -187,6 +187,58 @@ const APEX_UPGRADES_CATALOG = {
     name: 'Black Hole Singularity [APEX]',
     desc: 'Spawns inescapable gravitational event horizon dealing 50 damage and pulling opponent into zero spacing.',
     buffs: { damage: 50, range: 450, hitstun: 45 }
+  },
+
+  // ── HYBRID FUSION APEX MASTERY ──
+  THUNDER_GALE: {
+    name: 'Mjolnir Gale Tempest [APEX]',
+    desc: '1f startup, continuous lightning maelstrom wraps the fighter dealing 98 damage and absolute stun.',
+    buffs: { startup: 1, damage: 98, hitstun: 42, range: 200 }
+  },
+  VOID_CLEAVE: {
+    name: 'Singularity Void Sever [APEX]',
+    desc: 'Screen-cleaving zero singularity slice cuts through all shields and guards for 120 damage.',
+    buffs: { startup: 1, damage: 120, range: 380, unblockable: true }
+  },
+  COMET_CRASH: {
+    name: 'Extinction Meteor Crash [APEX]',
+    desc: 'Invulnerable descent from stratosphere slams down dealing 115 damage with arena shockwave.',
+    buffs: { damage: 115, isInvuln: true, range: 220, hitstun: 45 }
+  },
+  PHANTOM_SLIDE: {
+    name: 'Nether Eclipse Drift [APEX]',
+    desc: 'Pass through all attacks and blocks in absolute void state, tripping foe for 80 damage.',
+    buffs: { damage: 80, isInvuln: true, hitstun: 40, speedBoost: 10 }
+  },
+  AEGIS_REFLECT: {
+    name: 'Omni-Sanctuary Bulwark [APEX]',
+    desc: 'Indestructible golden sanctuary lasts 24 frames, completely immune to damage and reflecting 250%.',
+    buffs: { duration: 24, reflectPercent: 2.5, isInvuln: true }
+  },
+  SOLAR_SUPERNOVA: {
+    name: 'Hypernova Starfall Fist [APEX]',
+    desc: 'Cosmic supernova meteor strike with permanent Super Armor, annihilating area for 130 damage.',
+    buffs: { damage: 130, hasSuperArmor: true, radius: 150, hitstun: 50 }
+  },
+  TEMPEST_QUAKE: {
+    name: 'Apocalypse Chasm Quake [APEX]',
+    desc: 'Apocalyptic vacuum eruption pulls all foes into twin magma geysers dealing 118 damage.',
+    buffs: { damage: 118, pullRadius: 320, hitstun: 45 }
+  },
+  RAIKIRI_WARP: {
+    name: 'Divine Raikiri Zero [APEX]',
+    desc: '0f startup godspeed warp execution, striking foe instantly from behind for 110 paralyzing damage.',
+    buffs: { startup: 0, damage: 110, hitstun: 45, isInvuln: true }
+  },
+  MIRAGE_RIPOSTE: {
+    name: 'Asura Mirage Riposte [APEX]',
+    desc: 'Invulnerable phantom posture reflects 300% incoming damage with a lethal 125 damage counter-slice.',
+    buffs: { damage: 125, counterWindow: 28, reflectPercent: 3.0, isInvuln: true }
+  },
+  VALKYRIE_ASCENT: {
+    name: 'Eternal Valkyrie Zenith [APEX]',
+    desc: 'Instant zero-frame hitstun break with true invulnerability, erupting celestial fire for 96 damage.',
+    buffs: { startup: 1, damage: 96, isAirTech: true, isInvuln: true, superMeterBonus: 35 }
   }
 };
 

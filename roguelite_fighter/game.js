@@ -1952,17 +1952,17 @@ class YomiEngine {
       }
     });
 
-    // Unowned moves from MOVES catalog
+    // Unowned moves from MOVES catalog (Including Fusion and Advanced moves)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG') && !MOVES[mKey].isFusion) {
+      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG')) {
         const mData = MOVES[mKey];
         wares.push({
           type: 'SKILL',
           moveKey: mKey,
           name: mData.name,
-          badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
-          badgeClass: 'tier-rare',
-          cost: 70,
+          badge: mData.isFusion ? 'HYBRID FUSION' : (mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL'),
+          badgeClass: mData.isFusion ? 'tier-fusion' : 'tier-rare',
+          cost: mData.isFusion ? 110 : 70,
           desc: mData.desc
         });
       }
@@ -2303,17 +2303,17 @@ class YomiEngine {
       }
     });
 
-    // 2. Unowned skills from MOVES catalog
+    // 2. Unowned skills from MOVES catalog (Including Fusion and Advanced moves)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey) && !MOVES[mKey].isFusion) {
+      if (!this.ownedMoves.has(mKey)) {
         const mData = MOVES[mKey];
         newMoveCandidates.push({
           kind: 'SKILL',
           moveKey: mKey,
           name: mData.name,
-          rarity: 'rare',
+          rarity: mData.isFusion ? 'legendary' : 'rare',
           icon: this.getMoveIconSVG(mKey),
-          badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
+          badge: mData.isFusion ? 'HYBRID FUSION' : (mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL'),
           desc: mData.desc
         });
       }
@@ -2361,6 +2361,8 @@ class YomiEngine {
       let tierClass = `tier-${reward.rarity}`;
       if (reward.kind === 'UPGRADE') {
         tierClass = reward.badge === 'BREAKTHROUGH' ? 'tier-fusion' : 'tier-upgrade';
+      } else if (reward.badge === 'HYBRID FUSION') {
+        tierClass = 'tier-fusion';
       }
 
       card.innerHTML = `
