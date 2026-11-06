@@ -21,6 +21,17 @@ Visit the live portal on GitHub Pages to play any game directly in your browser.
   - Roguelite drafting system offering both **Active Skill Unlocks** and **Passive Blessings**.
   - Persistent Dojo meta-progression across runs.
 
+### 2. [TU TIEN MUD: Nghich Thien Tu Tien](./tutien_mud/)
+- **Genre:** Text MUD / Cultivation Life Simulator Roguelite
+- **Inspiration:** Classic text-based MUD adventure and Xianxia rebirth novels
+- **Key Features:**
+  - 13 distinct cultivation realms from Pham Nhan to Do Kiep Phi Thang.
+  - Lifespan limitation and meditation cycles (+1 year per cycle).
+  - Heavenly tribulation damage checks upon major realm ascension.
+  - Deep branching text events with stat-checks and cost-checks.
+  - Automated turn-based text-log combat simulation with dodge, strike, and lifesteal.
+  - Permanent reincarnation meta-progression: accumulate Dao Ngan (Heritage Points) to unlock supreme talents for future lives.
+
 ---
 
 ## Adding New Games

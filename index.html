@@ -259,7 +259,7 @@
   <main>
     <div class="section-header">
       <div class="section-title">Playable Games</div>
-      <div class="catalog-count">Active: 1 Title</div>
+      <div class="catalog-count">Active: 2 Titles</div>
     </div>
 
     <div class="game-grid">
@@ -267,7 +267,16 @@
       <!-- GAME 1: YOMI ROGUE -->
       <div class="game-card">
         <div class="card-banner">
-          <div class="banner-graphic">⚔️</div>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.6));">
+            <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
+            <line x1="13" y1="19" x2="19" y2="13"></line>
+            <line x1="16" y1="16" x2="20" y2="20"></line>
+            <line x1="19" y1="21" x2="21" y2="19"></line>
+            <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline>
+            <line x1="5" y1="14" x2="9" y2="18"></line>
+            <line x1="7" y1="17" x2="4" y2="20"></line>
+            <line x1="3" y1="19" x2="5" y2="21"></line>
+          </svg>
           <span class="banner-badge">Turn-Based</span>
         </div>
         <div class="card-content">
@@ -285,10 +294,43 @@
         </div>
       </div>
 
+      <!-- GAME 2: TU TIEN MUD -->
+      <div class="game-card">
+        <div class="card-banner" style="background: linear-gradient(135deg, #1c150c, #2b1f12); border-bottom-color: #45341d;">
+          <svg width="68" height="68" viewBox="0 0 200 200" fill="none" stroke="var(--accent-gold)" stroke-width="3" style="filter: drop-shadow(0 0 12px rgba(255, 209, 102, 0.5));">
+            <circle cx="100" cy="100" r="88" stroke-dasharray="8,6"/>
+            <polygon points="100,18 170,140 30,140" stroke-width="2.5"/>
+            <polygon points="100,182 30,60 170,60" stroke-width="2.5"/>
+            <circle cx="100" cy="100" r="26" stroke-width="3"/>
+            <line x1="100" y1="10" x2="100" y2="190" stroke-width="2"/>
+            <line x1="10" y1="100" x2="190" y2="100" stroke-width="2"/>
+          </svg>
+          <span class="banner-badge" style="background: rgba(255, 209, 102, 0.15); border-color: var(--accent-gold); color: var(--accent-gold);">MUD Roguelite</span>
+        </div>
+        <div class="card-content">
+          <h2 class="game-name" style="color: var(--accent-gold);">TU TIEN MUD</h2>
+          <div class="game-tags">
+            <span class="tag">Text MUD</span>
+            <span class="tag">Tu Tien Giới</span>
+            <span class="tag">Life Simulator</span>
+            <span class="tag">Auto Combat Log</span>
+          </div>
+          <p class="game-desc">
+            Mô phỏng tu chân độ kiếp cổ điển. Tĩnh tọa thổ nạp tăng tu vi, độ kiếp lôi phạt phá cảnh giới, tao ngộ kỳ ngộ sinh tử và trảm sát cường địch. Tích lũy Đạo Ngân chuyển thế luân hồi muôn kiếp.
+          </p>
+          <a class="btn-play" style="background: linear-gradient(135deg, #f59e0b, #b45309); color: #0f172a;" href="./tutien_mud/index.html">PLAY TU TIEN MUD</a>
+        </div>
+      </div>
+
       <!-- FUTURE GAME SLOT (HONEST COMING SOON PLACEHOLDER) -->
       <div class="game-card disabled">
         <div class="card-banner" style="background: linear-gradient(135deg, #0e121a, #141a24);">
-          <div class="banner-graphic" style="opacity: 0.35;">🕹️</div>
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#4b5a6f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <path d="M6 12h4m-2-2v4"></path>
+            <line x1="15" y1="11" x2="15" y2="11.01"></line>
+            <line x1="18" y1="13" x2="18" y2="13.01"></line>
+          </svg>
           <span class="banner-badge" style="border-color: #4b5a6f; color: #76869b;">In Development</span>
         </div>
         <div class="card-content">

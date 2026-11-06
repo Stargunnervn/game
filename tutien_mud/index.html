@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tiên Hiệp MUD - Nghịch Thiên Tu Tiên</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- MUD VIEWPORT CONTAINER -->
+  <main class="mud-viewport" role="main">
+
+    <!-- CELESTIAL TALISMAN WATERMARK (SVG) -->
+    <svg class="mud-watermark" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="6,4"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="100,15 174,142 26,142" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="100,185 26,58 174,58" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+      <line x1="100" y1="5" x2="100" y2="195" stroke="currentColor" stroke-width="1"/>
+      <line x1="5" y1="100" x2="195" y2="100" stroke="currentColor" stroke-width="1"/>
+    </svg>
+
+    <!-- CONTENT WRAPPER -->
+    <div class="mud-content">
+
+      <!-- TOP APP HEADER -->
+      <header class="mud-top-bar">
+        <h1 class="mud-app-title">MUD Tu Tiên Giới</h1>
+        <div class="mud-header-actions">
+          <button id="themeToggleBtn" class="btn-icon-sm" type="button" title="Đổi Chế Độ Sáng/Tối">Giao Diện</button>
+          <button id="restartBtn" class="btn-icon-sm" type="button" title="Tái Sinh Mới">Trọng Sinh</button>
+        </div>
+      </header>
+
+      <!-- PROFILE HEADER (MATCHING SCREENSHOT) -->
+      <section class="profile-grid" aria-label="Thông Tin Tu Sĩ">
+        <div class="profile-cell">
+          <span class="profile-label">Họ Tên:</span>
+          <span id="charName" class="profile-value">Hàn Lập</span>
+        </div>
+        <div class="profile-cell">
+          <span class="profile-label">Cảnh Giới:</span>
+          <span id="charRealm" class="profile-value">Phàm Nhân</span>
+        </div>
+        <div class="profile-cell">
+          <span class="profile-label">Thọ Mệnh:</span>
+          <span id="charLifespan" class="profile-value">16 / 70 Tuổi</span>
+        </div>
+        <div class="profile-cell">
+          <span class="profile-label">Linh Căn:</span>
+          <span id="charSpiritRoot" class="profile-value">Ngũ Hành Tạp Căn</span>
+        </div>
+        <div class="profile-cell">
+          <span class="profile-label">Linh Thạch:</span>
+          <span id="charStones" class="profile-value">30 Viên</span>
+        </div>
+        <div class="profile-cell">
+          <span class="profile-label">Đạo Ngân:</span>
+          <span id="charHeritagePoints" class="profile-value">0 Điểm</span>
+        </div>
+        <div class="profile-lore">
+          <span class="profile-lore-label">Xuất Thân:</span>
+          <span id="charBackgroundLore">Thiếu niên xuất thân bần hàn, cơ duyên nhặt được bình ngọc tàn khuyết bên bờ suối. Một lòng cầu đạo trường sinh.</span>
+        </div>
+      </section>
+
+      <!-- GAUGES (HP & EXP) -->
+      <section class="gauges-container" aria-label="Khí Huyết và Tu Vi">
+        <div class="gauge-row">
+          <span class="gauge-label">Khí Huyết</span>
+          <div class="gauge-track">
+            <div id="hpGaugeFill" class="gauge-fill hp" style="width: 100%;"></div>
+          </div>
+          <span id="hpGaugeText" class="gauge-text">100 / 100</span>
+        </div>
+        <div class="gauge-row">
+          <span class="gauge-label">Tu Vi</span>
+          <div class="gauge-track">
+            <div id="expGaugeFill" class="gauge-fill exp" style="width: 0%;"></div>
+          </div>
+          <span id="expGaugeText" class="gauge-text">0 / 100</span>
+        </div>
+      </section>
+
+      <!-- HORIZONTAL STORY DIVIDER (MATCHING SCREENSHOT) -->
+      <hr class="story-divider" aria-hidden="true">
+
+      <!-- NARRATIVE PASSAGE AREA -->
+      <section class="passage-card" aria-label="Thiên Cơ Ký Sự">
+        <h2 id="eventTitle" class="passage-title">Thiên Duyên Khởi Điểm</h2>
+        <div id="eventPassage" class="passage-text">
+          Đang tải dữ liệu thiên địa...
+        </div>
+      </section>
+
+      <!-- DYNAMIC CHOICES (MATCHING SCREENSHOT 【 ... 】) -->
+      <section id="choicesContainer" class="choices-box" aria-label="Lựa Chọn Hành Động">
+        <!-- Rendered by main.js -->
+      </section>
+
+      <!-- DASHED SEPARATOR (MATCHING SCREENSHOT) -->
+      <hr class="dashed-divider" aria-hidden="true">
+
+      <!-- ATTRIBUTES MATRIX (MATCHING SCREENSHOT) -->
+      <section class="stats-matrix" aria-label="Ngũ Thân Thuộc Tính">
+        <div class="stat-item">
+          <span class="stat-name">Attack</span>
+          <span id="statAtk" class="stat-val">+ 0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Defense</span>
+          <span id="statDef" class="stat-val">+ 0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Strike</span>
+          <span id="statStrike" class="stat-val">+ 0 %</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Dodge</span>
+          <span id="statDodge" class="stat-val">+ 0 %</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-name">Skill</span>
+          <span id="statSkill" class="stat-val">+ 0</span>
+        </div>
+      </section>
+
+      <!-- EQUIPMENT STATUS BAR -->
+      <section class="equip-row" aria-label="Pháp Khí Đang Mang">
+        <div class="equip-slot">
+          <span class="equip-slot-title">Binh Khí:</span>
+          <span id="equipWeapon" class="equip-slot-name">Tay Không</span>
+        </div>
+        <div class="equip-slot">
+          <span class="equip-slot-title">Pháp Y:</span>
+          <span id="equipArmor" class="equip-slot-name">Bố Y</span>
+        </div>
+        <div class="equip-slot">
+          <span class="equip-slot-title">Công Pháp:</span>
+          <span id="equipManual" class="equip-slot-name">Thổ Nạp Cơ Bản</span>
+        </div>
+      </section>
+
+      <!-- QUICK ACTIONS -->
+      <section class="quick-action-bar" aria-label="Hành Động Cơ Bản">
+        <button id="btnCultivateYear" class="btn-ancient highlight" type="button">Tĩnh Tọa Khổ Tu (+1 Năm)</button>
+        <button id="btnExploreWorld" class="btn-ancient" type="button">Xuất Ngoại Lịch Luyện</button>
+        <button id="btnBreakthrough" class="btn-ancient breakthrough" type="button" style="display: none;">Đột Phá Cảnh Giới Mới!</button>
+      </section>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION (MATCHING SCREENSHOT: Home, Review, Archives, File reading) -->
+    <nav class="mud-bottom-nav" aria-label="Menu Chính">
+      <button id="navHomeBtn" class="mud-nav-link" type="button">Home</button>
+      <button id="navReviewBtn" class="mud-nav-link" type="button">Review</button>
+      <button id="navArchivesBtn" class="mud-nav-link" type="button">Archives</button>
+      <button id="navHeritageBtn" class="mud-nav-link" type="button">File reading</button>
+    </nav>
+
+  </main>
+
+  <!-- MODAL: TÚI CÀN KHÔN (ARCHIVES / INVENTORY) -->
+  <div id="inventoryModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="invModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="invModalTitle" class="modal-title">Túi Trữ Vật (Càn Khôn Đại)</h3>
+        <button class="modal-close-btn" data-close="inventoryModal" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="inventoryItemsList" class="inv-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ancient" data-close="inventoryModal" type="button">Đóng Lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KÝ SỰ TU CHÂN (REVIEW / CHRONICLE) -->
+  <div id="chronicleModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="chronicleModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="chronicleModalTitle" class="modal-title">Biên Niên Sử Tu Tiên (Review)</h3>
+        <button class="modal-close-btn" data-close="chronicleModal" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="chronicleHistoryList" style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-family: var(--font-serif);">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ancient" data-close="chronicleModal" type="button">Đóng Lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHIẾN ĐẤU TEXT-LOG (LIVE COMBAT) -->
+  <div id="combatModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="combatModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="combatModalTitle" class="modal-title">Trận Đồ Đấu Pháp Sinh Tử</h3>
+        <button id="combatCloseBtn" class="modal-close-btn" data-close="combatModal" type="button" style="display: none;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="combatStreamBox" class="combat-log-stream">
+          <!-- Combat lines streamed here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="combatFinishBtn" class="btn-ancient highlight" data-close="combatModal" type="button" style="display: none;">Tiếp Tục</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LUÂN HỒI ĐIỆN (FILE READING / HERITAGE PERKS) -->
+  <div id="heritageModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="heritageModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="heritageModalTitle" class="modal-title">Luân Hồi Điện (Di Sản Đạo Ngân)</h3>
+        <button class="modal-close-btn" data-close="heritageModal" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 14px; color: var(--text-muted);">
+          Mỗi kiếp sống trải qua sẽ quy đổi thọ mệnh, tu vi và kỳ ngộ thành <strong>Điểm Đạo Ngân</strong>. Bạn có thể kích hoạt các thiên phú di sản vĩnh viễn cho muôn kiếp sau!
+        </p>
+        <div style="font-size: 15px; font-weight: bold; color: var(--text-gold); margin-bottom: 6px;">
+          Điểm Đạo Ngân Hiện Có: <span id="heritageModalPoints">0</span> Điểm
+        </div>
+        <div id="heritagePerksList" class="perk-grid">
+          <!-- Perks rendered here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnStartNewRunFromHeritage" class="btn-ancient highlight" type="button">Chuyển Kiếp Mới</button>
+        <button class="btn-ancient" data-close="heritageModal" type="button">Đóng Lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TẠO NHÂN VẬT MỚI (NEW RUN CREATION) -->
+  <div id="newRunModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="newRunModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="newRunModalTitle" class="modal-title">Khởi Điểm Luân Hồi Mới</h3>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <label for="inputNewName" style="font-weight: 700; color: var(--text-blue);">Đạo Hiệu / Tên Tu Sĩ:</label>
+          <div style="display: flex; gap: 8px;">
+            <input id="inputNewName" type="text" value="Hàn Lập" maxlength="20" style="flex: 1; padding: 6px 10px; font-family: var(--font-serif); font-size: 15px; border: 1px solid var(--border-dark); background: var(--bg-card); color: var(--text-main);">
+            <button id="btnRandomName" class="btn-ancient" type="button">Ngẫu Nhiên</button>
+          </div>
+        </div>
+        <div style="margin-top: 8px;">
+          <div style="font-weight: 700; color: var(--text-blue); margin-bottom: 6px;">Chọn Thiên Phú Khởi Đầu (Tối Đa 3):</div>
+          <div id="startingTalentsSelection" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto;">
+            <!-- Talents rendered dynamically -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnConfirmNewRun" class="btn-ancient highlight" type="button">【 Khởi Động Tiên Lộ 】</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT GAME FILES -->
+  <script src="js/data/realms.js"></script>
+  <script src="js/data/talents.js"></script>
+  <script src="js/data/items.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/data/events.js"></script>
+  <script src="js/combat.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+
