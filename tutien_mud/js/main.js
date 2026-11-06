@@ -1,19 +1,19 @@
 // ============================================================================
-// ĐIỀU KHIỂN GIAO DIỆN VÀ TƯƠNG TÁC (UI & CONTROLLER MAIN)
-// Tuân thủ nghiêm ngặt: Zero emojis, Zero em dashes.
+// UI CONTROLLER & EVENT WIRING (MAIN)
+// Zero emojis, Zero em dashes.
 // ============================================================================
 
 (function () {
   'use strict';
 
-  // Khởi tạo Engine
+  // Initialize Engine
   const engine = new TuTienEngine();
 
-  // Danh sách tên tu sĩ ngẫu nhiên
+  // Random cultivator names
   const RANDOM_NAMES = [
-    'Hàn Lập', 'Bạch Tiểu Thuần', 'Cố Trường Sinh', 'Lăng Tiêu', 
-    'Mộ Dung Trần', 'Diệp Phàm', 'Sở Phong', 'Lâm Động', 
-    'Tiêu Viêm', 'Thạch Hạo', 'Kỷ Ninh', 'Đường Tam'
+    'Han Li', 'Bai Xiaochun', 'Gu Changsheng', 'Ling Xiao', 
+    'Murong Chen', 'Ye Fan', 'Satan', 'Lin Dong', 
+    'Xiao Yan', 'Shi Hao', 'Ji Ning', 'Sheng Chen'
   ];
 
   // DOM Elements References
@@ -130,7 +130,7 @@
     });
   }
 
-  // ── LOCAL STORAGE SAVE / LOAD RUN ──
+  // ── LOCAL STORAGE SAVE / RESTORE RUN ──
   function saveActiveRun() {
     if (!engine.player) return;
     try {
@@ -199,7 +199,7 @@
       }
 
       const textWrap = document.createElement('div');
-      textWrap.innerHTML = `<strong>${t.name}</strong>: ${t.desc} ${isHeritageUnlocked ? '<span style="color:var(--text-teal); font-weight:bold;">(Đã Mở Di Sản)</span>' : ''}`;
+      textWrap.innerHTML = `<strong>${t.name}</strong>: ${t.desc} ${isHeritageUnlocked ? '<span style="color:var(--text-teal); font-weight:bold;">(Unlocked Heritage)</span>' : ''}`;
 
       row.appendChild(checkbox);
       row.appendChild(textWrap);
@@ -210,11 +210,11 @@
   }
 
   function confirmNewRun() {
-    const customName = elements.inputNewName.value.trim() || 'Hàn Lập';
+    const customName = elements.inputNewName.value.trim() || 'Han Li';
     const checkedBoxes = Array.from(elements.startingTalentsSelection.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)'));
 
     if (checkedBoxes.length > 3) {
-      alert('Chỉ được chọn tối đa 3 thiên phú khởi đầu!');
+      alert('You may only select up to 3 starting talents!');
       return;
     }
 
@@ -235,7 +235,7 @@
     // Profile header
     elements.charName.textContent = p.name;
     elements.charRealm.textContent = curRealm.name;
-    elements.charLifespan.textContent = `${p.age} / ${p.lifespan} Tuổi`;
+    elements.charLifespan.textContent = `${p.age} / ${p.lifespan} Years`;
     if (p.age >= p.lifespan * 0.85) {
       elements.charLifespan.classList.add('alert-danger');
     } else {
@@ -243,8 +243,8 @@
     }
 
     elements.charSpiritRoot.textContent = p.spiritRoot.name;
-    elements.charStones.textContent = `${p.stones} Viên`;
-    elements.charHeritagePoints.textContent = `${engine.heritagePoints} Điểm`;
+    elements.charStones.textContent = `${p.stones}`;
+    elements.charHeritagePoints.textContent = `${engine.heritagePoints} Pts`;
     elements.charBackgroundLore.textContent = `[${p.background.name}] ${p.background.desc}`;
 
     // Gauges
@@ -255,7 +255,7 @@
     const expReq = curRealm.expRequired;
     const expPct = expReq > 0 ? Math.max(0, Math.min(100, (p.exp / expReq) * 100)) : 100;
     elements.expGaugeFill.style.width = `${expPct}%`;
-    elements.expGaugeText.textContent = expReq > 0 ? `${p.exp} / ${expReq}` : 'Viên Mãn';
+    elements.expGaugeText.textContent = expReq > 0 ? `${p.exp} / ${expReq}` : 'Culmination';
 
     // Stats Matrix
     elements.statAtk.textContent = `+ ${p.atk}`;
@@ -265,9 +265,9 @@
     elements.statSkill.textContent = `+ ${p.skill}`;
 
     // Equipment Readout
-    elements.equipWeapon.textContent = p.equipment.weapon ? p.equipment.weapon.name : 'Tay Không';
-    elements.equipArmor.textContent = p.equipment.armor ? p.equipment.armor.name : 'Bố Y';
-    elements.equipManual.textContent = p.equipment.manual ? p.equipment.manual.name : 'Thổ Nạp Cơ Bản';
+    elements.equipWeapon.textContent = p.equipment.weapon ? p.equipment.weapon.name : 'Unarmed';
+    elements.equipArmor.textContent = p.equipment.armor ? p.equipment.armor.name : 'Cloth Robe';
+    elements.equipManual.textContent = p.equipment.manual ? p.equipment.manual.name : 'Basic Breathing';
 
     // Breakthrough Button Visibility
     if (p.exp >= expReq && p.realmIndex < REALMS.length - 1) {
@@ -284,18 +284,18 @@
   function renderCurrentEvent() {
     const ev = engine.currentEvent;
     if (!ev) {
-      elements.eventTitle.textContent = 'Tu Luyện Tĩnh Lặng';
-      elements.eventPassage.textContent = 'Bạn đang tĩnh tọa trong động phủ, lắng nghe thanh âm gió ngàn...';
+      elements.eventTitle.textContent = 'Serene Meditation';
+      elements.eventPassage.textContent = 'You are meditating peacefully in your mountain cave, listening to the pine winds...';
       elements.choicesContainer.innerHTML = '';
       return;
     }
 
-    elements.eventTitle.textContent = ev.title || 'Thiên Cơ Ký Sự';
+    elements.eventTitle.textContent = ev.title || 'Cosmic Encounter';
 
     // Format text with subtle highlight tags
     let formattedText = ev.text || '';
     formattedText = formattedText.replace(/\[(.*?)\]/g, '<span class="hl-purple">[$1]</span>');
-    formattedText = formattedText.replace(/\+([0-9]+)\s(Tu Vi|Linh Thạch|Khí Huyết|HP)/g, '<span class="hl-teal">+$1 $2</span>');
+    formattedText = formattedText.replace(/\+([0-9]+)\s(Exp|Cultivation Exp|Spirit Stones|HP)/gi, '<span class="hl-teal">+$1 $2</span>');
 
     elements.eventPassage.innerHTML = formattedText;
 
@@ -308,7 +308,7 @@
         btn.className = 'mud-choice-btn';
 
         // Dark style for alternate/retreat choices
-        if (choice.text.includes('lui') || choice.text.includes('Rời') || choice.text.includes('không') || index > 1) {
+        if (choice.text.includes('retreat') || choice.text.includes('withdraw') || choice.text.includes('Depart') || index > 1) {
           btn.classList.add('choice-dark');
         }
 
@@ -317,13 +317,13 @@
         // Subtext clues
         let subtext = '';
         if (choice.type === 'STAT_CHECK') {
-          const statNames = { atk: 'Công Kích', def: 'Phòng Ngự', strike: 'Bạo Kích', dodge: 'Né Tránh', skill: 'Linh Lực' };
-          subtext = `(Yêu cầu: ${statNames[choice.stat] || choice.stat} >= ${choice.reqVal} • Hiện tại: ${engine.player[choice.stat] || 0})`;
+          const statNames = { atk: 'Attack', def: 'Defense', strike: 'Strike', dodge: 'Dodge', skill: 'Skill' };
+          subtext = `(Requirement: ${statNames[choice.stat] || choice.stat} >= ${choice.reqVal} • Current: ${engine.player[choice.stat] || 0})`;
         } else if (choice.type === 'COST_CHECK') {
-          subtext = `(Chi phí: ${choice.costVal} Linh Thạch • Hiện có: ${engine.player.stones} Viên)`;
+          subtext = `(Cost: ${choice.costVal} Spirit Stones • Current: ${engine.player.stones})`;
         } else if (choice.type === 'COMBAT') {
           const enemy = ENEMIES_CATALOG[choice.enemyId];
-          subtext = `(Chiến Đấu: Đối thủ ${enemy ? enemy.name : 'Cường Địch'} • Nguy Hiểm)`;
+          subtext = `(Combat: Target ${enemy ? enemy.name : 'Adversary'} • Perilous)`;
         }
 
         if (subtext) {
@@ -399,13 +399,13 @@
     };
   }
 
-  // ── INVENTORY MODAL (TÚI CÀN KHÔN) ──
+  // ── INVENTORY MODAL (ARCHIVES / STORAGE POUCH) ──
   function openInventory() {
     if (!engine.player) return;
     elements.inventoryItemsList.innerHTML = '';
 
     if (engine.player.inventory.length === 0) {
-      elements.inventoryItemsList.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px 0;">Túi trữ vật rỗng tuếch, chưa có pháp bảo nào.</div>';
+      elements.inventoryItemsList.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px 0;">Storage pouch is empty. No spiritual items found.</div>';
       openModal(elements.inventoryModal);
       return;
     }
@@ -420,12 +420,12 @@
       let statsTxt = '';
       if (item.stats) {
         const statParts = [];
-        if (item.stats.atk) statParts.push(`Công +${item.stats.atk}`);
-        if (item.stats.def) statParts.push(`Thủ +${item.stats.def}`);
-        if (item.stats.strike) statParts.push(`Bạo +${item.stats.strike}%`);
-        if (item.stats.dodge) statParts.push(`Né +${item.stats.dodge}%`);
-        if (item.stats.skill) statParts.push(`Linh +${item.stats.skill}`);
-        if (item.stats.hp) statParts.push(`Máu +${item.stats.hp}`);
+        if (item.stats.atk) statParts.push(`Atk +${item.stats.atk}`);
+        if (item.stats.def) statParts.push(`Def +${item.stats.def}`);
+        if (item.stats.strike) statParts.push(`Strike +${item.stats.strike}%`);
+        if (item.stats.dodge) statParts.push(`Dodge +${item.stats.dodge}%`);
+        if (item.stats.skill) statParts.push(`Skill +${item.stats.skill}`);
+        if (item.stats.hp) statParts.push(`HP +${item.stats.hp}`);
         statsTxt = statParts.join(' • ');
       }
 
@@ -436,7 +436,7 @@
           ${statsTxt ? `<div class="inv-item-stats">${statsTxt}</div>` : ''}
         </div>
         <div>
-          <button class="btn-ancient btn-use-item" type="button">${item.type === 'CONSUMABLE' ? 'Dùng Đan' : 'Trang Bị'}</button>
+          <button class="btn-ancient btn-use-item" type="button">${item.type === 'CONSUMABLE' ? 'Use' : 'Equip'}</button>
         </div>
       `;
 
@@ -453,12 +453,12 @@
     openModal(elements.inventoryModal);
   }
 
-  // ── CHRONICLE MODAL (BIÊN NIÊN SỬ) ──
+  // ── CHRONICLE MODAL (REVIEW) ──
   function openChronicle() {
     elements.chronicleHistoryList.innerHTML = '';
 
     if (engine.eventHistory.length === 0) {
-      elements.chronicleHistoryList.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:15px 0;">Chưa có ký sự nào được ghi lại.</div>';
+      elements.chronicleHistoryList.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:15px 0;">No chronicles recorded yet.</div>';
       openModal(elements.chronicleModal);
       return;
     }
@@ -474,7 +474,7 @@
     openModal(elements.chronicleModal);
   }
 
-  // ── HERITAGE HALL MODAL (LUÂN HỒI ĐIỆN) ──
+  // ── HERITAGE HALL MODAL (FILE READING) ──
   function openHeritageHall() {
     elements.heritageModalPoints.textContent = engine.heritagePoints;
     elements.heritagePerksList.innerHTML = '';
@@ -490,12 +490,12 @@
         <div>
           <div style="font-weight:700; color:var(--text-purple);">${t.name}</div>
           <div style="font-size:13px; color:var(--text-muted);">${t.desc}</div>
-          <div style="font-size:12px; font-weight:bold; color:var(--text-gold);">Chi Phí: ${t.cost} Điểm Đạo Ngân</div>
+          <div style="font-size:12px; font-weight:bold; color:var(--text-gold);">Cost: ${t.cost} Heritage Points</div>
         </div>
         <div>
           ${isUnlocked
-            ? '<span style="color:#15803d; font-weight:700; font-size:13px;">ĐÃ MỞ KHÓA</span>'
-            : `<button class="btn-ancient btn-unlock-perk" type="button" ${engine.heritagePoints < t.cost ? 'disabled' : ''}>Kích Hoạt</button>`
+            ? '<span style="color:#15803d; font-weight:700; font-size:13px;">UNLOCKED</span>'
+            : `<button class="btn-ancient btn-unlock-perk" type="button" ${engine.heritagePoints < t.cost ? 'disabled' : ''}>Unlock</button>`
           }
         </div>
       `;
@@ -524,8 +524,8 @@
     // Top bar
     elements.themeToggleBtn.addEventListener('click', toggleTheme);
     elements.restartBtn.addEventListener('click', () => {
-      if (confirm('Bạn có chắc chắn muốn bỏ dở kiếp tu này và bước vào Luân Hồi kiếp mới?')) {
-        engine.handleDeath('Chủ động táng đạo, chân linh quy về Luân Hồi Điện.');
+      if (confirm('Are you sure you want to end this cultivation life and enter the Reincarnation cycle?')) {
+        engine.handleDeath('Voluntarily ended cultivation, true soul returning to Reincarnation Hall.');
         saveActiveRun();
         renderAll();
         openHeritageHall();
@@ -553,7 +553,6 @@
 
     // Bottom Navigation (Home, Review, Archives, File reading)
     elements.navHomeBtn.addEventListener('click', () => {
-      // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -599,4 +598,3 @@
   }
 
 })();
-

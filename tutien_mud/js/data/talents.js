@@ -1,41 +1,42 @@
 // ============================================================================
-// HỆ THỐNG XUẤT THÂN, LINH CĂN & THIÊN PHÚ LUÂN HỒI
+// BACKGROUNDS, SPIRIT ROOTS & REINCARNATION HERITAGE TALENTS
+// Zero emojis, Zero em dashes.
 // ============================================================================
 
 const BACKGROUNDS = [
   {
     id: 'han_mon_tan_tu',
-    name: 'Hàn Môn Tán Tu',
+    name: 'Humble Rogue Cultivator',
     rarity: 'common',
-    desc: 'Sinh ra trong gia đình phàm nhân nghèo khó, vô tình nhặt được nửa cuốn thổ nạp tâm pháp rách nát.',
+    desc: 'Born into an impoverished mortal family, you accidentally stumbled upon half a tattered Qi gathering manual by a riverbank.',
     bonus: { exp: 50, stones: 20, atk: 2, def: 2 }
   },
   {
     id: 'son_thon_tho_san',
-    name: 'Thợ Săn Rừng Sâu',
+    name: 'Wilderness Hunter',
     rarity: 'common',
-    desc: 'Lớn lên trên vách núi hoang sơ, thường xuyên tranh đấu cùng dã thú, thân thể dẻo dai linh hoạt.',
+    desc: 'Raised on rugged crags hunting wild beasts, your physique is extraordinarily agile and resilient.',
     bonus: { hp: 40, dodge: 4, strike: 3, stones: 15 }
   },
   {
     id: 'gia_toc_chi_thu',
-    name: 'Con Thứ Tu Chân Gia Tộc',
+    name: 'Clan Secondary Offspring',
     rarity: 'rare',
-    desc: 'Là huyết mạch thứ xuất trong tiểu gia tộc, tuy không được sủng ái nhưng được tiếp xúc đan dược từ bé.',
+    desc: 'A secondary child in a minor cultivation clan. Though neglected, you had early access to basic pills and clan records.',
     bonus: { stones: 80, skill: 5, atk: 4 }
   },
   {
     id: 'ma_mon_co_nhi',
-    name: 'Ma Môn Dị Tộc Cô Nhi',
+    name: 'Demonic Sect Orphan',
     rarity: 'rare',
-    desc: 'Sống sót từ đống thi hài của một ma tông bị tiêu diệt, mang trong mình oán khí và sát phạt quyết đoán.',
+    desc: 'Sole survivor from the ruins of a purged demonic sect, harboring cold resolve, intense vengeance, and sharp instincts.',
     bonus: { atk: 8, strike: 6, hp: -20, stones: 40 }
   },
   {
     id: 'chuyen_the_chan_nhan',
-    name: 'Đại Năng Luân Hồi Tái Thế',
+    name: 'Reincarnated Ancient Venerable',
     rarity: 'legendary',
-    desc: 'Kiếp trước từng là chí tôn một phương vẫn lạc, chân linh bảo lưu một tia ký ức tàn khuyết huyền diệu.',
+    desc: 'A fallen supreme overlord of a bygone era. Your true soul retains an elusive, mystical fragment of ancient memories.',
     bonus: { skill: 15, strike: 10, dodge: 8, stones: 150, exp: 200 }
   }
 ];
@@ -43,112 +44,168 @@ const BACKGROUNDS = [
 const SPIRIT_ROOTS = [
   {
     id: 'ngu_hanh_tap_can',
-    name: 'Ngũ Hành Tạp Linh Căn',
-    rarity: 'Phế Phẩm',
+    name: 'Impure Five-Element Root',
+    rarity: 'Mundane',
     color: '#8b8b8b',
     cultivationRate: 0.8,
-    desc: 'Kim Mộc Thủy Hỏa Thổ hỗn tạp, hấp thụ linh khí chậm chạp, gian nan chồng chất.'
+    desc: 'Chaotic mixture of all five elements. Slow Qi absorption, full of insurmountable hurdles on the path to immortality.'
   },
   {
     id: 'tam_linh_can',
-    name: 'Tam Linh Căn',
-    rarity: 'Bình Phàm',
+    name: 'Three-Element Root',
+    rarity: 'Common',
     color: '#4ade80',
     cultivationRate: 1.0,
-    desc: 'Ba hệ linh căn tương sinh, tư chất phổ thông trong giới tu tiên, cần cù bù thông minh.'
+    desc: 'Three mutually generating elements. Standard talent in the cultivation realm, requiring diligence to excel.'
   },
   {
     id: 'song_linh_can',
-    name: 'Chân Linh Căn (Song Căn)',
-    rarity: 'Ưu Tú',
+    name: 'True Dual Root',
+    rarity: 'Superior',
     color: '#60a5fa',
     cultivationRate: 1.35,
-    desc: 'Hai dòng linh căn tinh thuần, hấp thụ thiên địa linh khí thần tốc, được môn phái xem trọng.'
+    desc: 'Two refined, unhindered spiritual elements. Rapid Qi absorption, highly favored by prominent cultivation sects.'
   },
   {
     id: 'thien_linh_can',
-    name: 'Thiên Linh Căn (Đơn Căn Tinh Thuần)',
-    rarity: 'Tuyệt Đỉnh',
+    name: 'Heavenly Single Root',
+    rarity: 'Peerless',
     color: '#c084fc',
     cultivationRate: 1.85,
-    desc: 'Độc nhất vô nhị một hệ linh căn thuần khiết, đột phá không có bình cảnh nhỏ, thiên kiêu chi tử.'
+    desc: 'A solitary, unblemished celestial root with zero minor cultivation bottlenecks. A chosen prodigy of the heavens.'
   },
   {
     id: 'bien_di_loi_can',
-    name: 'Biến Dị Lôi Linh Căn',
-    rarity: 'Huyền Thoại',
+    name: 'Mutated Lightning Root',
+    rarity: 'Mythic',
     color: '#facc15',
     cultivationRate: 2.2,
     bonusAtk: 18,
     bonusStrike: 12,
-    desc: 'Chưởng khống thiên kiếp lôi đình, lực công kích nghịch thiên, có khả năng giảm sát thương thiên kiếp.'
+    desc: 'Commands celestial lightning tribulations. Catastrophic offensive strikes and natural resistance to tribulation damage.'
   }
 ];
 
 const TALENTS = [
+  // Starting Pickable Talents
   {
     id: 'khi_van_chi_tu',
-    name: 'Khí Vận Chi Tử',
-    tier: 'Thần Phẩm',
+    name: 'Child of Destiny',
+    tier: 'Divine',
     cost: 50,
-    desc: 'Vận may cực lớn khi du ngoạn thiên hạ, tỷ lệ gặp kỳ ngộ bảo tàng tăng 40%, giảm nguy cơ tao ngộ tuyệt cảnh.',
+    permanentHeritage: false,
+    desc: 'Tremendous fortune when wandering the realm. Rare encounter chance increased by +40%, reducing deadly perils.',
     effect: { luckBonus: 40 }
   },
   {
     id: 'kiem_tam_thong_minh',
-    name: 'Kiếm Tâm Thông Minh',
-    tier: 'Tiên Phẩm',
+    name: 'Sword Heart Enlightenment',
+    tier: 'Celestial',
     cost: 35,
-    desc: 'Trời sinh hòa hợp với kiếm đạo. Tăng 25% sát thương tấn công và +15% tỷ lệ Bạo Kích chí mạng.',
+    permanentHeritage: false,
+    desc: 'Innate affinity with the sword. Grants +25% bonus attack damage and +15% critical Strike chance.',
     effect: { atkMult: 1.25, strike: 15 }
   },
   {
     id: 'bat_diet_kim_than',
-    name: 'Bất Diệt Kim Thân',
-    tier: 'Tiên Phẩm',
+    name: 'Indestructible Golden Body',
+    tier: 'Celestial',
     cost: 40,
-    desc: 'Thịt gân rèn như thép nguội, tăng +120 Khí Huyết cơ bản và +30% chỉ số Phòng Ngự toàn diện.',
+    permanentHeritage: false,
+    desc: 'Flesh and tendons tempered like steel. Increases base HP by +120 and boosts total Defense by +30%.',
     effect: { hp: 120, defMult: 1.30 }
   },
   {
     id: 'dan_dao_tong_su',
-    name: 'Đan Đạo Tông Sư',
-    tier: 'Cực Phẩm',
+    name: 'Alchemy Grandmaster',
+    tier: 'Apex',
     cost: 30,
-    desc: 'Hiểu rõ dược lý vạn vật, hiệu quả sử dụng mọi loại đan dược hồi phục và tăng tu vi tăng thêm 60%.',
+    permanentHeritage: false,
+    desc: 'Mastery over medicinal herbs and elixirs. All pill recovery and cultivation gains are enhanced by +60%.',
     effect: { potionEffect: 1.6 }
   },
   {
     id: 'thon_phe_ma_cong',
-    name: 'Thôn Phệ Bí Điển',
-    tier: 'Cực Phẩm',
+    name: 'Devouring Scripture',
+    tier: 'Apex',
     cost: 35,
-    desc: 'Mỗi khi tiêu diệt yêu thú hoặc tu sĩ đối địch, lập tức hấp thu 20% sinh mệnh và tích lũy thêm tu vi.',
+    permanentHeritage: false,
+    desc: 'Siphons life force from defeated spirit beasts and rivals, restoring 20% HP and granting bonus cultivation exp.',
     effect: { lifesteal: 0.20, killExpBonus: 25 }
   },
   {
     id: 'tien_nhan_ho_the',
-    name: 'Tiên Nhân Hộ Thể',
-    tier: 'Thần Phẩm',
+    name: 'Immortal Protective Ward',
+    tier: 'Divine',
     cost: 60,
-    desc: 'Tỷ lệ chống chịu thiên lôi khi độ kiếp tăng vọt, nhận một cơ hội miễn tử một lần mỗi kiếp sống.',
+    permanentHeritage: false,
+    desc: 'Ancestral protective talisman. Protects against 35% tribulation damage and grants one free resurrection per lifetime.',
     effect: { revive: 1, tribulationResist: 0.35 }
   },
   {
     id: 'dao_lu_dong_tam',
-    name: 'Thiên Duyên Đạo Lữ',
-    tier: 'Thượng Phẩm',
+    name: 'Destined Dao Companion',
+    tier: 'Superior',
     cost: 25,
-    desc: 'Dễ dàng kết duyên cùng thiên kiêu tiên tử/đạo hữu, tăng 20% tốc độ tu luyện qua hình thức song tu.',
+    permanentHeritage: false,
+    desc: 'Effortlessly bonds with gifted companions, boosting annual meditation cultivation speed by +20%.',
     effect: { cultRateBonus: 0.20 }
   },
   {
     id: 'ngo_tinh_tuyet_dinh',
-    name: 'Ngộ Tính Tuyệt Đỉnh',
-    tier: 'Thượng Phẩm',
+    name: 'Transcendent Perception',
+    tier: 'Superior',
     cost: 20,
-    desc: 'Lĩnh ngộ công pháp thần tốc, chỉ số Kỹ Năng / Ngộ Tính cơ bản tăng vĩnh viễn +35 điểm.',
+    permanentHeritage: false,
+    desc: 'Rapidly deciphers complex scriptures. Base Skill attribute permanently increased by +35 points.',
     effect: { skill: 35 }
+  },
+
+  // Permanent Heritage Perks (Unlocked in Reincarnation Hall)
+  {
+    id: 'talent_root_pure',
+    name: 'Heritage: Pure Spiritual Vein',
+    tier: 'Heritage',
+    cost: 60,
+    permanentHeritage: true,
+    desc: 'Permanently removes Impure Five-Element Root from future rebirths, guaranteeing at least a Three-Element Root or better.',
+    effect: { removeImpureRoot: true }
+  },
+  {
+    id: 'talent_immortal_frame',
+    name: 'Heritage: Primordial Frame',
+    tier: 'Heritage',
+    cost: 75,
+    permanentHeritage: true,
+    desc: 'Permanently increases starting base HP by +150 in all subsequent reincarnations.',
+    effect: { hp: 150 }
+  },
+  {
+    id: 'talent_sword_dao',
+    name: 'Heritage: Sword Dao Imprint',
+    tier: 'Heritage',
+    cost: 90,
+    permanentHeritage: true,
+    desc: 'Permanently enhances total attack damage by +20% and Strike by +10% in all subsequent lives.',
+    effect: { atkMult: 1.20, strike: 10 }
+  },
+  {
+    id: 'talent_pill_master',
+    name: 'Heritage: Grand Alchemist Mark',
+    tier: 'Heritage',
+    cost: 70,
+    permanentHeritage: true,
+    desc: 'Permanently boosts the effects of all ingested spirit pills and lifespan elixirs by +50%.',
+    effect: { potionEffect: 1.5 }
+  },
+  {
+    id: 'talent_heaven_luck',
+    name: 'Heritage: Destiny Aegis',
+    tier: 'Heritage',
+    cost: 110,
+    permanentHeritage: true,
+    desc: 'Permanently increases rare celestial encounters and treasure drop chances by +35%.',
+    effect: { luckBonus: 35 }
   }
 ];
 
@@ -160,4 +217,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined') {
   module.exports = { BACKGROUNDS, SPIRIT_ROOTS, TALENTS };
 }
-

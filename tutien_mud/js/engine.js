@@ -1,5 +1,6 @@
 // ============================================================================
-// BỘ NÃO QUẢN LÝ VÒNG LẶP TU TIÊN MUD (CULTIVATION MUD ENGINE)
+// CULTIVATION MUD ENGINE CORE LOOP
+// Zero emojis, Zero em dashes.
 // ============================================================================
 
 class TuTienEngine {
@@ -17,7 +18,7 @@ class TuTienEngine {
     this.loadGlobalHeritage();
   }
 
-  // ── LƯU TRỮ VĨNH VIỄN DI SẢN LUÂN HỒI (LOCALSTORAGE) ──
+  // ── LOAD GLOBAL REINCARNATION HERITAGE (LOCALSTORAGE) ──
   loadGlobalHeritage() {
     try {
       const saved = localStorage.getItem('tutien_mud_heritage_v1');
@@ -47,15 +48,15 @@ class TuTienEngine {
     }
   }
 
-  // ── KHỞI TẠO KIẾP SỐNG MỚI (NEW REINCARNATION) ──
+  // ── INITIALIZE NEW LIFE (NEW REINCARNATION) ──
   createNewLife(customName, selectedTalentIds = []) {
-    const defaultNames = ['Hàn Lập', 'Bạch Tiểu Thuần', 'Cố Trường Sinh', 'Lăng Tiêu', 'Mộ Dung Trần', 'Diệp Phàm', 'Sở Phong'];
+    const defaultNames = ['Han Li', 'Bai Xiaochun', 'Gu Changsheng', 'Ling Xiao', 'Ye Fan', 'Satan', 'Sheng Chen'];
     const finalName = (customName && customName.trim()) ? customName.trim() : defaultNames[Math.floor(Math.random() * defaultNames.length)];
 
     // Roll Background
     const bg = BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
 
-    // Roll Spirit Root (Weighted based on unlocked heritage)
+    // Roll Spirit Root (Heritage perk can filter out impure roots)
     let rootPool = [...SPIRIT_ROOTS];
     if (this.unlockedHeritage.includes('talent_root_pure')) {
       rootPool = rootPool.filter(r => r.id !== 'ngu_hanh_tap_can');
@@ -113,12 +114,12 @@ class TuTienEngine {
     this.eventHistory = [];
     this.recalculateTotalStats();
 
-    this.addHistory(`[Khởi Điểm Tiên Lộ] Năm 16 tuổi, ${this.player.name} mang xuất thân [${bg.name}], thức tỉnh [${spiritRoot.name}]. Rời khỏi cố hương, chính thức bước chân vào con đường nghịch thiên tu hành!`);
+    this.addHistory(`[Path of Ascension] At age 16, ${this.player.name} with [${bg.name}] heritage awakened [${spiritRoot.name}]. Leaving the mortal realm, officially stepping onto the defiant path of immortal cultivation!`);
 
     this.triggerInitialWelcomeEvent();
   }
 
-  // ── TÍNH TOÁN LẠI TỔNG CHỈ SỐ KHI THAY ĐỒ ──
+  // ── RECALCULATE TOTAL STATS ──
   recalculateTotalStats() {
     if (!this.player) return;
     const curRealm = REALMS[this.player.realmIndex] || REALMS[0];
@@ -159,30 +160,30 @@ class TuTienEngine {
     this.player.hp = Math.min(this.player.maxHp, this.player.hp);
   }
 
-  // ── SỰ KIỆN KHỞI ĐẦU ──
+  // ── GENESIS WELCOME EVENT ──
   triggerInitialWelcomeEvent() {
     this.currentEvent = {
       id: 'khoi_dau_tien_duyen',
-      title: 'Thiên Duyên Khởi Điểm',
-      text: `Gió lạnh thổi qua sườn núi Thanh Vân. Bạn đứng trước tấm bia đá phân ranh giới giữa cõi phàm và tiên môn. Trong tay áo bạn chỉ có vài hạt linh đan sơ cấp cùng một viên truyền tống ngọc giản tàn khuyết. Con đường tu chân vô tận phía trước đang rộng mở đón chờ!`,
+      title: 'Genesis of Immortal Affinity',
+      text: `Cold winds sweep across the slopes of Mount Azure Cloud. You stand before an ancient boundary stele between mortal realm and immortal sects. In your sleeve are basic elixirs and a cracked teleportation jade slip. An endless path of cultivation lies ahead!`,
       choices: [
         {
-          text: '【 Tìm một nơi thanh tịnh đả tọa thổ nạp tu luyện 】',
+          text: '【 Find a secluded grotto to meditate and gather Qi 】',
           type: 'AUTO',
-          successText: 'Bạn tìm thấy một thạch động hẻo lánh kín gió, xếp bằng thổ nạp linh khí thiên địa suốt một năm đầu đời. Chân khí lưu chuyển, tu vi khẽ tăng tiến!',
+          successText: 'You discover a secluded stone cave sheltered from the winds, sitting cross-legged to absorb spiritual Qi for a full year. Genuine Qi circulates steadily, cultivation slightly advancing!',
           successEffects: { exp: 60, lifespan: 0, stones: 10 }
         },
         {
-          text: '【 Xuống núi đi dạo phường thị tìm hiểu tin tức 】',
+          text: '【 Descend to the mountain market to seek rumors 】',
           type: 'AUTO',
-          successText: 'Hòa vào dòng người tu sĩ tấp nập tại phường thị chân núi, bạn nghe ngóng được vô số lời đồn về bảo tàng và bí cảnh viễn cổ, tầm mắt mở rộng.',
+          successText: 'Blending into the lively crowds of itinerant cultivators at the foothill bazaar, you hear countless legends of ancient ruins and lost realms, expanding your horizons.',
           successEffects: { skill: 4, stones: 20, exp: 30 }
         }
       ]
     };
   }
 
-  // ── HÀNH ĐỘNG: TĨNH TỌA TU LUYỆN 1 NĂM (PASS TIME / MEDITATE) ──
+  // ── ACTION: MEDITATE ONE YEAR (+1 YEAR) ──
   cultivateOneYear() {
     if (!this.player) return;
 
@@ -198,18 +199,18 @@ class TuTienEngine {
     const gainedExp = Math.round((45 + (this.player.realmIndex * 35)) * rate);
     this.player.exp += gainedExp;
 
-    // Natural small stone / resource gathering
+    // Natural resource gathering
     const earnedStones = Math.floor(Math.random() * 8) + 4;
     this.player.stones += earnedStones;
 
     // Heal 25% max HP naturally when meditating
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + Math.round(this.player.maxHp * 0.25));
 
-    this.addHistory(`[Năm ${this.player.age} Tuổi] Tĩnh tọa thổ nạp linh khí trọn một năm, tích lũy thêm +${gainedExp} Tu Vi và +${earnedStones} Linh Thạch.`);
+    this.addHistory(`[Age ${this.player.age}] Meditated in seclusion for one full year, gathering +${gainedExp} Exp and +${earnedStones} Spirit Stones.`);
 
-    // Check Lifespan exhaustion (Tọa hóa chết già)
+    // Check Lifespan exhaustion
     if (this.player.age >= this.player.lifespan) {
-      this.handleDeath('Thọ nguyên cạn kiệt, chưa kịp phá cảnh đã tọa hóa quy thiên.');
+      this.handleDeath('Lifespan exhausted before achieving realm breakthrough. Passed away peacefully in meditation.');
       return;
     }
 
@@ -219,21 +220,21 @@ class TuTienEngine {
       return;
     }
 
-    // 60% chance to trigger a random world event
+    // 65% chance to trigger a random world encounter
     if (Math.random() < 0.65) {
       this.triggerRandomEvent();
     } else {
       this.currentEvent = {
         id: 'tinh_toa_an_nhien',
-        title: 'Tu Luyện Tĩnh Lặng',
-        text: `Năm thứ ${this.player.age} trôi qua êm đềm như nước chảy. Bạn bế quan đả tọa, lắng nghe tiếng thông reo và cảm ngộ tuần hoàn thiên địa, tu vi ngày một thâm hậu.`,
+        title: 'Serene Meditation',
+        text: `Year ${this.player.age} passes like tranquil flowing water. Meditating in your mountain cave, listening to pine breezes and harmonizing with cosmic rhythms, your cultivation deepens.`,
         choices: [
           {
-            text: '【 Tiếp tục bế quan khổ tu thêm một năm 】',
+            text: '【 Continue secluded meditation for another year 】',
             type: 'ACTION_CULTIVATE'
           },
           {
-            text: '【 Rời động phủ xuất ngoại tầm bảo lịch luyện 】',
+            text: '【 Leave the grotto to explore and hunt treasures 】',
             type: 'ACTION_EXPLORE'
           }
         ]
@@ -241,7 +242,7 @@ class TuTienEngine {
     }
   }
 
-  // ── KÍCH HOẠT SỰ KIỆN KỲ NGỘ NGẪU NHIÊN ──
+  // ── TRIGGER RANDOM ENCOUNTER EVENT ──
   triggerRandomEvent() {
     const curLevel = this.player.realmIndex;
     const eligibleEvents = CULTIVATION_EVENTS.filter(ev => curLevel >= ev.minLevel && curLevel <= ev.maxLevel);
@@ -251,12 +252,11 @@ class TuTienEngine {
       return;
     }
 
-    // Luck perk bonus
     const chosen = eligibleEvents[Math.floor(Math.random() * eligibleEvents.length)];
     this.currentEvent = chosen;
   }
 
-  // ── XỬ LÝ LỰA CHỌN PHÂN NHÁNH CỦA NGƯỜI CHƠI ──
+  // ── EXECUTE CHOICE INTERACTION ──
   executeChoice(choiceIdx) {
     if (!this.currentEvent || !this.currentEvent.choices[choiceIdx]) return null;
     const choice = this.currentEvent.choices[choiceIdx];
@@ -273,44 +273,44 @@ class TuTienEngine {
 
     if (choice.type === 'AUTO') {
       this.applyEffects(choice.successEffects);
-      this.addHistory(`[Kỳ Ngộ] ${choice.successText}`);
+      this.addHistory(`[Encounter] ${choice.successText}`);
       this.currentEvent = {
         id: 'ket_qua_ky_ngo',
-        title: 'Kết Quả Hành Động',
+        title: 'Outcome of Action',
         text: choice.successText,
-        choices: [{ text: '【 Tiếp tục hành trình tu đạo 】', type: 'ACTION_EXPLORE' }]
+        choices: [{ text: '【 Continue along the Dao path 】', type: 'ACTION_EXPLORE' }]
       };
       return { type: 'AUTO', success: true };
     }
 
     if (choice.type === 'STAT_CHECK') {
       const playerVal = this.player[choice.stat] || 0;
-      const isSuccess = playerVal >= choice.reqVal || (Math.random() < 0.25); // small miracle chance
+      const isSuccess = playerVal >= choice.reqVal || (Math.random() < 0.25); // miracle chance
 
       if (isSuccess) {
         this.applyEffects(choice.successEffects);
-        this.addHistory(`[Thành Công] ${choice.successText}`);
+        this.addHistory(`[Success] ${choice.successText}`);
         this.currentEvent = {
           id: 'ket_qua_kiem_tra',
-          title: 'Vượt Qua Thử Thách!',
+          title: 'Trial Overcome!',
           text: choice.successText,
-          choices: [{ text: '【 Tiếp tục cất bước 】', type: 'ACTION_EXPLORE' }]
+          choices: [{ text: '【 Move forward 】', type: 'ACTION_EXPLORE' }]
         };
         return { type: 'STAT_CHECK', success: true };
       } else {
         this.applyEffects(choice.failEffects);
-        this.addHistory(`[Thất Bại] ${choice.failText}`);
+        this.addHistory(`[Failed] ${choice.failText}`);
 
         if (this.player.hp <= 0) {
-          this.handleDeath('Thương thế quá nặng, kinh mạch vỡ nát tử trận trong kỳ ngộ.');
+          this.handleDeath('Injuries were fatal. Meridians shattered in the encounter, perishing on the spot.');
           return { type: 'DEATH' };
         }
 
         this.currentEvent = {
           id: 'that_bai_thu_thach',
-          title: 'Thất Bại Trọng Thương',
+          title: 'Grievously Wounded',
           text: choice.failText,
-          choices: [{ text: '【 Trở về động phủ dưỡng thương 】', type: 'ACTION_CULTIVATE' }]
+          choices: [{ text: '【 Return to grotto to recuperate 】', type: 'ACTION_CULTIVATE' }]
         };
         return { type: 'STAT_CHECK', success: false };
       }
@@ -321,21 +321,21 @@ class TuTienEngine {
       if (curStones >= choice.costVal) {
         this.player.stones -= choice.costVal;
         this.applyEffects(choice.successEffects);
-        this.addHistory(`[Giao Dịch] ${choice.successText}`);
+        this.addHistory(`[Transaction] ${choice.successText}`);
         this.currentEvent = {
           id: 'ket_qua_giao_dich',
-          title: 'Giao Dịch Hoàn Tất',
+          title: 'Transaction Complete',
           text: choice.successText,
-          choices: [{ text: '【 Rời khỏi nơi này 】', type: 'ACTION_EXPLORE' }]
+          choices: [{ text: '【 Depart from here 】', type: 'ACTION_EXPLORE' }]
         };
         return { type: 'COST_CHECK', success: true };
       } else {
         this.applyEffects(choice.failEffects);
         this.currentEvent = {
           id: 'that_bai_giao_dich',
-          title: 'Không Đủ Tài Nguyên',
+          title: 'Insufficient Resources',
           text: choice.failText,
-          choices: [{ text: '【 Lặng lẽ lui ra 】', type: 'ACTION_EXPLORE' }]
+          choices: [{ text: '【 Withdraw quietly 】', type: 'ACTION_EXPLORE' }]
         };
         return { type: 'COST_CHECK', success: false };
       }
@@ -354,34 +354,34 @@ class TuTienEngine {
         if (battleResult.dropItem) {
           this.player.inventory.push(battleResult.dropItem);
         }
-        this.addHistory(`[Trảm Sát] Đánh bại [${enemy.name}], nhận +${battleResult.expReward} Tu Vi, +${battleResult.stonesReward} Linh Thạch${battleResult.dropItem ? `, thu hoạch [${ITEMS_CATALOG[battleResult.dropItem]?.name}]` : ''}!`);
+        this.addHistory(`[Vanquished] Defeated [${enemy.name}], earning +${battleResult.expReward} Exp, +${battleResult.stonesReward} Spirit Stones${battleResult.dropItem ? `, obtained [${ITEMS_CATALOG[battleResult.dropItem]?.name}]` : ''}!`);
 
         this.currentEvent = {
           id: 'chien_thang_chien_dau',
-          title: 'Đại Thắng Cường Địch!',
+          title: 'Glorious Victory!',
           text: choice.successText,
-          choices: [{ text: '【 Thu thập chiến lợi phẩm, rời đi 】', type: 'ACTION_EXPLORE' }]
+          choices: [{ text: '【 Collect spoils and depart 】', type: 'ACTION_EXPLORE' }]
         };
         return { type: 'COMBAT', winner: 'PLAYER', logs: battleResult.logs };
       } else if (battleResult.winner === 'REVIVED') {
         this.currentEvent = {
           id: 'hoi_sinh_ky_tich',
-          title: 'Trùng Sinh Huyền Kỳ!',
-          text: 'Nhờ bảo vật [Tiên Nhân Hộ Thể] che chở, bạn thoát chết trong gang tấc. Hãy cẩn trọng hơn trên con đường nghịch thiên!',
-          choices: [{ text: '【 Rút lui dưỡng thương 】', type: 'ACTION_CULTIVATE' }]
+          title: 'Miraculous Rebirth!',
+          text: 'Shielded by the [Immortal Protective Ward], you escaped death by a hair. Tread carefully on this defiant path!',
+          choices: [{ text: '【 Retreat to heal wounds 】', type: 'ACTION_CULTIVATE' }]
         };
         return { type: 'COMBAT', winner: 'REVIVED', logs: battleResult.logs };
       } else if (battleResult.winner === 'ENEMY') {
-        this.handleDeath(`Tử trận dưới tay [${enemy.name}] trong trận sinh tử đại chiến.`);
+        this.handleDeath(`Perished under the blades of [${enemy.name}] in a battle to the death.`);
         return { type: 'COMBAT', winner: 'ENEMY', logs: battleResult.logs };
       } else {
         // Draw
-        this.addHistory(`[Bất Phân Thắng Bại] Đấu pháp cầm hòa cùng [${enemy.name}], rút lui an toàn.`);
+        this.addHistory(`[Draw] Clashed evenly with [${enemy.name}], disengaging safely.`);
         this.currentEvent = {
           id: 'hoa_hoan_chien_dau',
-          title: 'Hòa Hoãn Bất Phân Thắng Bại',
-          text: 'Hai bên bất phân thắng bại, đồng thời thu kiếm rút lui an toàn.',
-          choices: [{ text: '【 Tiếp tục bế quan 】', type: 'ACTION_CULTIVATE' }]
+          title: 'Even Standoff',
+          text: 'Neither side could overcome the other, disengaging safely.',
+          choices: [{ text: '【 Return to seclusion 】', type: 'ACTION_CULTIVATE' }]
         };
         return { type: 'COMBAT', winner: 'DRAW', logs: battleResult.logs };
       }
@@ -390,7 +390,7 @@ class TuTienEngine {
     return null;
   }
 
-  // ── ÁP DỤNG HIỆU ỨNG TĂNG GIẢM CHỈ SỐ ──
+  // ── APPLY STAT EFFECTS ──
   applyEffects(eff) {
     if (!eff || !this.player) return;
     if (eff.exp) this.player.exp = Math.max(0, this.player.exp + eff.exp);
@@ -410,22 +410,22 @@ class TuTienEngine {
     this.recalculateTotalStats();
   }
 
-  // ── ĐỘT PHÁ CẢNH GIỚI (REALM ASCENSION) ──
+  // ── REALM ASCENSION & BREAKTHROUGH ──
   triggerBreakthroughPrompt() {
     const nextRealm = REALMS[this.player.realmIndex + 1];
     if (!nextRealm) return;
 
     this.currentEvent = {
       id: 'dot_pha_canh_gioi',
-      title: `Đột Phá Cảnh Giới: [${nextRealm.name}]`,
-      text: `Tu vi của bạn đã đạt đến cảnh giới viên mãn! Khí hải cuộn trào tựa sóng biển gầm rú. Thời khắc phá vỡ gông cùm phàm thể đã tới!${nextRealm.tribulation ? ` Cảnh giới này dẫn phát Thiên Kiếp Lôi Đình (sát thương dự kiến: ~${nextRealm.tribulationDamage} HP).` : ''}`,
+      title: `Realm Breakthrough: [${nextRealm.name}]`,
+      text: `Your cultivation has reached culmination! Vital Qi roars like ocean waves in your dantian. The moment to shatter mortal shackles has arrived!${nextRealm.tribulation ? ` This breakthrough triggers Heavenly Lightning Tribulation (Estimated damage: ~${nextRealm.tribulationDamage} HP).` : ''}`,
       choices: [
         {
-          text: `【 Vận toàn lực đả thông kinh mạch đột phá lên ${nextRealm.name} 】`,
+          text: `【 Channel all genuine Qi to break through to ${nextRealm.name} 】`,
           type: 'BREAKTHROUGH_ATTEMPT'
         },
         {
-          text: '【 Cố nén tu vi, tích lũy thêm đan dược trước khi phá cảnh 】',
+          text: '【 Temporarily hold back to gather more protective elixirs 】',
           type: 'ACTION_CULTIVATE'
         }
       ]
@@ -433,27 +433,24 @@ class TuTienEngine {
   }
 
   executeBreakthrough() {
-    const curRealm = REALMS[this.player.realmIndex];
     const nextRealm = REALMS[this.player.realmIndex + 1];
     if (!nextRealm) return false;
 
     // Tribulation Check
     if (nextRealm.tribulation) {
       let tribDmg = nextRealm.tribulationDamage || 200;
-      // Talent resistance
       if (this.player.hasTalent('tien_nhan_ho_the')) tribDmg = Math.round(tribDmg * 0.65);
-      // Defense absorption
       tribDmg = Math.max(30, tribDmg - Math.round(this.player.def * 0.45));
 
       this.player.hp -= tribDmg;
 
       if (this.player.hp <= 0) {
-        this.handleDeath(`Độ kiếp thất bại! Thiên lôi đánh nát đạo cơ, hồn phi phách tán khi cố gắng đột phá ${nextRealm.name}.`);
+        this.handleDeath(`Tribulation failed! Heavenly lightning shattered your Dao foundation while attempting to ascend to ${nextRealm.name}.`);
         return false;
       }
     }
 
-    // Success!
+    // Success
     this.player.realmIndex++;
     this.player.exp = 0;
     this.player.lifespan = Math.max(this.player.lifespan, nextRealm.lifespan);
@@ -465,19 +462,19 @@ class TuTienEngine {
     this.recalculateTotalStats();
     this.player.hp = this.player.maxHp; // Full restore upon breakthrough
 
-    this.addHistory(`[Đại Đột Phá] Đạo cơ viên mãn! Chính thức bước chân vào cảnh giới [${nextRealm.name}]. Thọ nguyên tăng lên ${this.player.lifespan} tuổi!`);
+    this.addHistory(`[Grand Breakthrough] Dao foundation perfected! Officially stepped into [${nextRealm.name}]. Lifespan extended to ${this.player.lifespan} years!`);
 
     this.currentEvent = {
       id: 'dot_pha_thanh_cong',
-      title: 'Đột Phá Thành Công!',
-      text: `Tiên quang tắm rửa toàn thân! Thể phách lột xác thoát thai hoán cốt, linh thức khuếch tán ra ngoài mười dặm. Bạn đã chính thức bước lên tầng thứ [${nextRealm.name}]!`,
-      choices: [{ text: '【 Củng cố cảnh giới mới 】', type: 'ACTION_CULTIVATE' }]
+      title: 'Breakthrough Achieved!',
+      text: `Bathed in celestial radiance! Your physique undergoes rebirth and divine sense expands outward for miles. You have ascended to [${nextRealm.name}]!`,
+      choices: [{ text: '【 Consolidate the new realm 】', type: 'ACTION_CULTIVATE' }]
     };
 
     return true;
   }
 
-  // ── SỬ DỤNG VẬT PHẨM (USE INVENTORY ITEM) ──
+  // ── USE INVENTORY ITEM ──
   useItem(itemId, itemIdx) {
     if (!this.player || !ITEMS_CATALOG[itemId]) return;
     const item = ITEMS_CATALOG[itemId];
@@ -485,19 +482,19 @@ class TuTienEngine {
     if (item.type === 'CONSUMABLE') {
       if (item.effect.healHp) {
         this.player.hp = Math.min(this.player.maxHp, this.player.hp + item.effect.healHp);
-        this.addHistory(`[Sử Dụng] Uống ${item.name}, hồi phục +${item.effect.healHp} Khí Huyết.`);
+        this.addHistory(`[Used] Ingested ${item.name}, recovering +${item.effect.healHp} HP.`);
       }
       if (item.effect.healHpPercent) {
         this.player.hp = this.player.maxHp;
-        this.addHistory(`[Sử Dụng] Uống ${item.name}, toàn bộ Khí Huyết hoàn toàn hồi phục!`);
+        this.addHistory(`[Used] Ingested ${item.name}, fully restoring all HP!`);
       }
       if (item.effect.addExp) {
         this.player.exp += item.effect.addExp;
-        this.addHistory(`[Sử Dụng] Luyện hóa ${item.name}, nhận thêm +${item.effect.addExp} Tu Vi.`);
+        this.addHistory(`[Refined] Refined ${item.name}, gaining +${item.effect.addExp} Cultivation Exp.`);
       }
       if (item.effect.addLifespan) {
         this.player.lifespan += item.effect.addLifespan;
-        this.addHistory(`[Sử Dụng] Uống ${item.name}, thọ mệnh kéo dài thêm +${item.effect.addLifespan} năm!`);
+        this.addHistory(`[Ingested] Ingested ${item.name}, extending lifespan by +${item.effect.addLifespan} years!`);
       }
 
       this.player.inventory.splice(itemIdx, 1);
@@ -507,31 +504,31 @@ class TuTienEngine {
       this.player.equipment.weapon = item;
       this.player.inventory.splice(itemIdx, 1);
       if (old) this.player.inventory.push(old.id);
-      this.addHistory(`[Trang Bị] Tay cầm [${item.name}], sát khí bừng bừng!`);
+      this.addHistory(`[Equipped] Wielding [${item.name}], battle aura surges!`);
       this.recalculateTotalStats();
     } else if (item.type === 'ARMOR') {
       const old = this.player.equipment.armor;
       this.player.equipment.armor = item;
       this.player.inventory.splice(itemIdx, 1);
       if (old) this.player.inventory.push(old.id);
-      this.addHistory(`[Trang Bị] Mặc lên [${item.name}], phòng ngự gia cố vững chắc!`);
+      this.addHistory(`[Equipped] Donning [${item.name}], defense solidified!`);
       this.recalculateTotalStats();
     } else if (item.type === 'MANUAL') {
       const old = this.player.equipment.manual;
       this.player.equipment.manual = item;
       this.player.inventory.splice(itemIdx, 1);
       if (old) this.player.inventory.push(old.id);
-      this.addHistory(`[Lĩnh Ngộ] Đặt [${item.name}] làm công pháp bản mệnh, pháp tắc nhập thể!`);
+      this.addHistory(`[Attuned] Set [${item.name}] as destiny manual, Dao laws resonate!`);
       this.recalculateTotalStats();
     }
   }
 
-  // ── TỌA HÓA / TỬ TRẬN & TỔNG KẾT LUÂN HỒI (DEATH & REINCARNATION) ──
+  // ── DEATH & REINCARNATION CYCLE ──
   handleDeath(reason) {
     this.totalReincarnations++;
     const curRealm = REALMS[this.player.realmIndex];
 
-    // Calculate Heritage Points (Đạo Ngân)
+    // Calculate Heritage Points
     const earnedPoints = Math.round(
       (this.player.age * 0.8) +
       (this.player.realmIndex * 30) +
@@ -544,17 +541,17 @@ class TuTienEngine {
 
     this.currentEvent = {
       id: 'toa_hoa_luan_hoi',
-      title: 'Tọa Hóa Luân Hồi - Kết Thúc Kiếp Này',
-      text: `[Đạo Lộ Vẫn Lạc] ${this.player.name} tại năm ${this.player.age} tuổi đã dừng lại bước chân trên con đường tu tiên. Nguyên nhân: ${reason}\n\nTổng kết kiếp này:\n- Tuổi thọ đạt được: ${this.player.age} năm\n- Cảnh giới đạt tới: ${curRealm.name}\n- Điểm Đạo Ngân quy đổi: +${earnedPoints} Điểm Di Sản Luân Hồi`,
+      title: 'Reincarnation Cycle: Life Concluded',
+      text: `[Dao Trail Fallen] ${this.player.name} ended the mortal journey at age ${this.player.age}. Cause: ${reason}\n\nLife Summary:\n- Age achieved: ${this.player.age} years\n- Realm attained: ${curRealm.name}\n- Heritage conversion: +${earnedPoints} Heritage Points`,
       choices: [
         {
-          text: '【 Bước vào Luân Hồi Điện chuẩn bị chuyển thế kiếp sau 】',
+          text: '【 Enter Reincarnation Hall to prepare next rebirth 】',
           type: 'OPEN_REINCARNATION_HALL'
         }
       ]
     };
 
-    this.addHistory(`[Vẫn Lạc] ${reason} Hưởng thọ ${this.player.age} tuổi. Chân linh quy về luân hồi.`);
+    this.addHistory(`[Fallen] ${reason} Reached age ${this.player.age}. True soul returns to the reincarnation cycle.`);
   }
 
   addHistory(entry) {
@@ -569,4 +566,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined') {
   module.exports = { TuTienEngine };
 }
-

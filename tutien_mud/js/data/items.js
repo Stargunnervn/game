@@ -1,161 +1,162 @@
 // ============================================================================
-// HỆ THỐNG TRANG BỊ, ĐAN DƯỢC & CÔNG PHÁP (ITEMS & MANUALS)
+// EQUIPMENT, ELIXIRS & CULTIVATION MANUALS CATALOG
+// Zero emojis, Zero em dashes.
 // ============================================================================
 
 const ITEMS_CATALOG = {
-  // ── PHÁP KHÍ & VŨ KHÍ ──
+  // ── WEAPONS & ARTIFACTS ──
   thiet_kiem: {
     id: 'thiet_kiem',
-    name: 'Thiết Kiếm Phàm Phẩm',
+    name: 'Common Iron Sword',
     type: 'WEAPON',
-    tier: 'Phàm Phẩm',
+    tier: 'Mundane',
     stats: { atk: 6, strike: 2 },
     price: 15,
-    desc: 'Thanh kiếm sắt của thợ rèn nhân gian, lưỡi kiếm sáng loáng nhưng chưa dung nhập linh khí.'
+    desc: 'An iron blade forged by mortal smiths. Sharp and balanced, yet devoid of spiritual Qi.'
   },
   thanh_phong_kiem: {
     id: 'thanh_phong_kiem',
-    name: 'Thanh Phong Kiếm',
+    name: 'Azure Breeze Sword',
     type: 'WEAPON',
-    tier: 'Hạ Phẩm Pháp Khí',
+    tier: 'Low-Grade Artifact',
     stats: { atk: 18, strike: 6, dodge: 4 },
     price: 65,
-    desc: 'Kiếm khắc phong linh trận, vung lên tựa gió mát lướt qua, tăng độ linh hoạt khi xuất chiêu.'
+    desc: 'Inscribed with subtle wind runes. Each swing moves like a gale, granting swift combat precision.'
   },
   xich_viem_dao: {
     id: 'xich_viem_dao',
-    name: 'Xích Viêm Liệt Hỏa Đao',
+    name: 'Scarlet Flame Saber',
     type: 'WEAPON',
-    tier: 'Trung Phẩm Pháp Khí',
+    tier: 'Mid-Grade Artifact',
     stats: { atk: 38, strike: 12 },
     price: 160,
-    desc: 'Được rèn từ quặng xích thiết dưới đáy núi lửa, đao phong mang theo liệt diễm thiêu đốt kẻ địch.'
+    desc: 'Forged from red iron ore deep beneath volcanic calderas. Strikes burn foes with searing spiritual flames.'
   },
   tu_dien_loi_kiem: {
     id: 'tu_dien_loi_kiem',
-    name: 'Tử Điện Lôi Đình Kiếm',
+    name: 'Violet Lightning Blade',
     type: 'WEAPON',
-    tier: 'Thượng Phẩm Pháp Bảo',
+    tier: 'High-Grade Treasure',
     stats: { atk: 85, strike: 22, skill: 15 },
     price: 450,
-    desc: 'Dẫn dụ lôi đình cửu thiên tôi luyện ngàn năm, mỗi nhát chém bộc phát sét tím làm tê liệt đối thủ.'
+    desc: 'Tempered in celestial thunder for a millennium, discharging crackling violet lightning to paralyze adversaries.'
   },
   hu_khong_tram_linh: {
     id: 'hu_khong_tram_linh',
-    name: 'Hư Không Trảm Linh Kiếm',
+    name: 'Void Severing Celestial Sword',
     type: 'WEAPON',
-    tier: 'Cực Phẩm Tiên Khí',
+    tier: 'Apex Immortal Relic',
     stats: { atk: 220, strike: 45, skill: 35, dodge: 20 },
     price: 1500,
-    desc: 'Kiếm phong xé rách không gian phàm trần, vô thị 40% hộ giáp đối phương, trảm đoạn thần hồn.'
+    desc: 'Blade aura sunders mortal spatial fabric, piercing through 40% target armor and cleaving spiritual souls.'
   },
 
-  // ── HỘ GIÁP ──
+  // ── ARMOR & ROBES ──
   dao_bao_to_y: {
     id: 'dao_bao_to_y',
-    name: 'Đạo Bào Thanh Vân',
+    name: 'Azure Cloud Dao Robe',
     type: 'ARMOR',
-    tier: 'Hạ Phẩm Pháp Khí',
+    tier: 'Low-Grade Artifact',
     stats: { hp: 80, def: 12, dodge: 3 },
     price: 50,
-    desc: 'Áo đạo bào dệt từ linh tơ mỏng nhẹ, có tác dụng giảm nhẹ ngoại lực chấn động.'
+    desc: 'Woven from fine gossamer spiritual silk, shielding the wearer from kinetic impact and blunt trauma.'
   },
   huyen_thiet_giap: {
     id: 'huyen_thiet_giap',
-    name: 'Huyền Thiết Tỏa Tử Giáp',
+    name: 'Deep Iron Chainmail',
     type: 'ARMOR',
-    tier: 'Trung Phẩm Pháp Khí',
+    tier: 'Mid-Grade Artifact',
     stats: { hp: 180, def: 28 },
     price: 140,
-    desc: 'Khảm từ vảy huyền thiết đáy biển sâu, cứng rắn khôn cùng, bảo vệ lồng ngực khỏi đòn trí mạng.'
+    desc: 'Interlinked scales of deep-sea iron, impervious to mundane arrows and blade punctures.'
   },
   long_lan_chien_y: {
     id: 'long_lan_chien_y',
-    name: 'Xích Long Lân Giáp',
+    name: 'Scarlet Dragon Scale Armor',
     type: 'ARMOR',
-    tier: 'Thượng Phẩm Pháp Bảo',
+    tier: 'High-Grade Treasure',
     stats: { hp: 550, def: 75, dodge: 10 },
     price: 520,
-    desc: 'Dệt từ vảy giao long ngàn năm, tỏa ra long uy áp chế yêu thú sơ cấp, phòng thủ kiên cố.'
+    desc: 'Tailored from millennium flood dragon scales, radiating an intimidating draconic presence.'
   },
 
-  // ── ĐAN DƯỢC & BẢO VẬT ──
+  // ── ELIXIRS & MEDICINES ──
   kim_sang_duoc: {
     id: 'kim_sang_duoc',
-    name: 'Kim Sang Dược',
+    name: 'Golden Sore Powder',
     type: 'CONSUMABLE',
-    tier: 'Phổ Thông',
+    tier: 'Common Remedy',
     effect: { healHp: 150 },
     price: 20,
-    desc: 'Dược phấn cầm máu trị thương của phàm trần, lập tức hồi phục 150 điểm Khí Huyết.'
+    desc: 'Traditional blood-staunching medicinal powder, instantly restoring 150 HP.'
   },
   tu_khi_dan: {
     id: 'tu_khi_dan',
-    name: 'Tụ Khí Đan',
+    name: 'Qi Gathering Pill',
     type: 'CONSUMABLE',
-    tier: 'Hạ Phẩm Đan',
+    tier: 'Low-Grade Pill',
     effect: { addExp: 120 },
     price: 45,
-    desc: 'Đan dược cơ bản của Luyện Khí tu sĩ, hấp thụ nhanh chóng chuyển hóa thành 120 điểm Tu Vi.'
+    desc: 'Essential elixir for Qi Condensation disciples, directly converting medicinal essence into 120 Cultivation Exp.'
   },
   truc_co_dan: {
     id: 'truc_co_dan',
-    name: 'Trúc Cơ Cực Phẩm Đan',
+    name: 'Supreme Foundation Pill',
     type: 'CONSUMABLE',
-    tier: 'Cực Phẩm Đan',
+    tier: 'Apex Pill',
     effect: { addExp: 600, guaranteeBreakthrough: true },
     price: 320,
-    desc: 'Bảo đan bảo hộ tâm mạch khi đúc thành Đạo Cơ, xóa bỏ nguy cơ tẩu hỏa nhập ma khi đột phá Trúc Cơ.'
+    desc: 'Precious elixir that safeguards meridians during Dao Foundation casting, granting 600 Exp.'
   },
   tho_nguyen_dan: {
     id: 'tho_nguyen_dan',
-    name: 'Trường Thọ Đan',
+    name: 'Longevity Elixir',
     type: 'CONSUMABLE',
-    tier: 'Bảo Đan',
+    tier: 'Rare Elixir',
     effect: { addLifespan: 25 },
     price: 220,
-    desc: 'Luyện chế từ Bách Niên Linh Chi, kéo dài thêm 25 năm thọ mệnh quý giá cho tu sĩ.'
+    desc: 'Distilled from century-old spiritual mushrooms, prolonging mortal lifespan by 25 invaluable years.'
   },
   cuu_chuyen_hoan_hon: {
     id: 'cuu_chuyen_hoan_hon',
-    name: 'Cửu Chuyển Hoàn Hồn Đan',
+    name: 'Nine-Turn Soul Rebirth Pill',
     type: 'CONSUMABLE',
-    tier: 'Thần Đan',
+    tier: 'Divine Pill',
     effect: { healHpPercent: 1.0, addExp: 1500 },
     price: 850,
-    desc: 'Khởi tử hồi sinh bảo đan, lập tức hồi phục 100% Khí Huyết và tăng mạnh 1500 điểm Tu Vi.'
+    desc: 'Miraculous resurrection pill that fully restores 100% HP and rewards 1500 Cultivation Exp.'
   },
 
-  // ── CÔNG PHÁP & BÍ TỊCH ──
+  // ── CULTIVATION MANUALS ──
   truong_sinh_quyet: {
     id: 'truong_sinh_quyet',
-    name: 'Trường Sinh Thổ Nạp Quyết',
+    name: 'Longevity Breathing Scripture',
     type: 'MANUAL',
-    tier: 'Hoàng Giai Thượng Phẩm',
+    tier: 'Earth Grade Manual',
     stats: { hp: 100, def: 15 },
-    passiveText: 'Khí tức kéo dài, mỗi năm tu luyện nhận thêm 15% tu vi tĩnh tọa.',
+    passiveText: 'Steady breath: Grants +15% bonus Cultivation Exp per year of meditation.',
     price: 180,
-    desc: 'Công pháp đạo môn chính tông chú trọng dưỡng khí bồi bổ căn bản, tăng thọ nguyên vững chắc.'
+    desc: 'Authentic Daoist scripture focusing on harmonizing vital energies and preserving vitality.'
   },
   thai_at_kiem_quyet: {
     id: 'thai_at_kiem_quyet',
-    name: 'Thái Ất Kiếm Kinh Tàn Thiên',
+    name: 'Taiyi Sword Canon Fragment',
     type: 'MANUAL',
-    tier: 'Huyền Giai Trung Phẩm',
+    tier: 'Heaven Grade Manual',
     stats: { atk: 45, strike: 18 },
-    passiveText: 'Kiếm khí tung hoành: Trong chiến đấu có 25% tỷ lệ tung thêm một đạo kiếm khí kích hoạt kép.',
+    passiveText: 'Surging Sword Qi: Grants 25% chance to unleash an extra dual strike in battle.',
     price: 380,
-    desc: 'Tàn chương kiếm phổ của Thái Ất Kiếm Tông cổ xưa, chú trọng tốc độ và sát thương tuyệt đối.'
+    desc: 'Remnant sword scripture from the ancient Taiyi Sect, emphasizing supreme attack velocity.'
   },
   bat_hoang_du_long: {
     id: 'bat_hoang_du_long',
-    name: 'Bát Hoang Du Long Thân Pháp',
+    name: 'Eight Desolations Dragon Footwork',
     type: 'MANUAL',
-    tier: 'Địa Giai Hạ Phẩm',
+    tier: 'Immortal Grade Manual',
     stats: { dodge: 30, skill: 20 },
-    passiveText: 'Thân tựa du long, né tránh thành công sẽ lập tức phản kích gây 50% sát thương đòn đánh.',
+    passiveText: 'Dragon Glide: Successful dodges immediately trigger a 50% damage counter-strike.',
     price: 650,
-    desc: 'Bộ pháp huyền diệu mô phỏng giao long uốn lượn chín tầng mây, quỷ dị khó lường.'
+    desc: 'Ethereal footwork technique mimicking heavenly dragons navigating the clouds, elusive and unpredictable.'
   }
 };
 
@@ -165,4 +166,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined') {
   module.exports = { ITEMS_CATALOG };
 }
-

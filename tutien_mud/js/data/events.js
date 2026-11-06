@@ -1,215 +1,216 @@
 // ============================================================================
-// HỆ THỐNG KỲ NGỘ & SỰ KIỆN PHÂN NHÁNH (CULTIVATION ENCOUNTERS & EVENTS)
+// CULTIVATION ENCOUNTERS & BRANCHING EVENTS
+// Zero emojis, Zero em dashes.
 // ============================================================================
 
 const CULTIVATION_EVENTS = [
   {
     id: 'dong_phu_tien_nhan',
-    title: 'Khám Phá Cổ Động Phủ',
+    title: 'Ancient Immortal Abode',
     minLevel: 0,
     maxLevel: 4,
-    text: 'Dưới chân thác nước hùng vĩ, linh khí dâng trào dị thường. Bạn vô tình phát hiện một khe nứt ẩn sau làn nước bụi mờ, lộ ra phiến đá khắc ba chữ cổ triện [Huyền U Động], dường như là nơi tọa hóa của một vị tiền bối Luyện Khí viên mãn thuở trước.',
+    text: 'Beneath a roaring waterfall, spiritual Qi surges abnormally. You discover a hidden fissure behind mist and boulders, revealing an ancient stone tablet engraved with seal script: [Nether Seclusion Cave], seemingly the resting place of a deceased Qi Condensation elder.',
     choices: [
       {
-        text: '【 Phá giải cấm chế tiến vào khám phá 】',
+        text: '【 Dispel the formation seal and enter 】',
         type: 'STAT_CHECK',
         stat: 'skill',
         reqVal: 10,
-        successText: 'Dựa vào ngộ tính nhạy bén, bạn tìm ra mắt trận cấm chế suy yếu và khẽ điểm một chỉ. Thạch môn ầm ầm mở ra! Bên trong động phủ có một bình đan dược cùng một thanh phi kiếm hạ phẩm phủ bụi.',
+        successText: 'Relying on sharp comprehension, you locate the formation weak node and tap it. The stone gate rumbles open! Inside lies a bottle of pills and a pristine flying sword.',
         successEffects: { exp: 120, stones: 45, addItem: 'thanh_phong_kiem' },
-        failText: 'Cấm chế đột ngột phản phệ phóng ra một đạo lôi quang! Bạn né tránh không kịp, khí huyết chấn động thổ huyết lảo đảo thoái lui.',
+        failText: 'The formation abruptly backfires with lightning! You fail to evade in time, coughing blood as you stagger backward.',
         failEffects: { hp: -35, exp: 20 }
       },
       {
-        text: '【 Cẩn thận tĩnh tọa cảm ngộ trận pháp 】',
+        text: '【 Sit calmly and meditate on the formation lines 】',
         type: 'AUTO',
-        successText: 'Bạn không mạo hiểm xông vào mà chọn ngồi xếp bằng quan sát đường vân cấm chế lưu chuyển suốt ba ngày ba đêm. Tâm thần thông suốt, ngộ tính tăng tiến rõ rệt.',
+        successText: 'Instead of rushing inside, you sit cross-legged studying the formation runes for three days and nights. Your mind clears and comprehension deepens.',
         successEffects: { skill: 6, exp: 80, lifespan: 1 }
       },
       {
-        text: '【 Cẩn thận lùi lại không tham lam mạo hiểm 】',
+        text: '【 Carefully withdraw without taking unnecessary risks 】',
         type: 'AUTO',
-        successText: 'Bạn biết rõ tiên lộ hung hiểm, thấy bảo vật mà tâm không loạn, kiềm chế dục vọng quay về động phủ tiếp tục tu luyện, đạo tâm càng thêm kiên cố.',
+        successText: 'Understanding the perilous nature of the Dao, you restrain worldly desire and return to your abode, fortifying your Dao heart.',
         successEffects: { def: 3, hp: 30, exp: 40 }
       }
     ]
   },
   {
     id: 'linh_duoc_xich_ho',
-    title: 'Kỳ Thảo & Hung Thú',
+    title: 'Mystic Herb & Guardian Beast',
     minLevel: 1,
     maxLevel: 5,
-    text: 'Trên vách đá dựng đứng của Xích Hỏa Cốc, một đóa Hỏa Diễm Chu Quả trăm năm đang tỏa ra hương thơm ngào ngạt, hồng quang lấp lánh. Tuy nhiên dưới gốc cây, một con Xích Diễm Liệt Hổ thân dài trượng rưỡi đang nằm phủ phục canh giữ, hung nhãn rực lửa nhìn chằm chằm về phía bạn.',
+    text: 'On a sheer cliff inside Scarlet Flame Valley, a century-old Flame Vermilion Fruit glows with ruby radiance, emitting an intoxicating aroma. Beneath the fruit tree, a Blazing Flame Tiger lies coiled in wait, glaring at you with burning eyes.',
     choices: [
       {
-        text: '【 Rút kiếm huyết chiến trảm thú đoạt quả 】',
+        text: '【 Draw your sword to slay the beast and claim the fruit 】',
         type: 'COMBAT',
         enemyId: 'xich_diem_ho',
-        successText: 'Sau trận kịch chiến ác liệt, Liệt Hổ gục xuống vũng máu. Bạn thu hoạch nguyên vẹn Hỏa Diễm Chu Quả nuốt vào bụng, đan điền bốc cháy linh hỏa, tu vi tăng vọt!',
+        successText: 'After a ferocious clash, the flame tiger falls in a pool of blood. You harvest the intact Vermilion Fruit and swallow it, spiritual fire igniting your dantian!',
         successEffects: { exp: 250, atk: 5, strike: 3, addItem: 'tu_khi_dan' },
-        failText: 'Bị mãnh hổ áp chế đả thương nặng nề, bạn phải chật vật thiêu đốt huyết khí đào tẩu, lãng phí mấy năm tĩnh dưỡng.'
+        failText: 'Overwhelmed by the tiger brutal strength, you barely escape with severe burns, wasting years convalescing.'
       },
       {
-        text: '【 Dùng thân pháp lướt qua dụ hổ cướp quả 】',
+        text: '【 Use evasive footwork to bait the tiger and snatch the fruit 】',
         type: 'STAT_CHECK',
         stat: 'dodge',
         reqVal: 14,
-        successText: 'Thân hình bạn hóa thành một đạo tàn ảnh lướt sát mặt đất! Con cọp vồ hụt gầm lên giận dữ, khi nó quay đầu lại thì linh quả đã nằm gọn trong tay áo bạn, bỏ chạy mất hút.',
+        successText: 'Your figure blurs into an afterimage skimming the ground! The tiger misses with an enraged roar. By the time it turns around, the fruit is in your robe as you vanish.',
         successEffects: { exp: 160, dodge: 4, stones: 20 },
-        failText: 'Tốc độ né tránh chưa đủ nhanh, đuôi hổ quất ngang sườn đánh bay bạn vào vách đá gãy xương, đành ôm vết thương chạy tháo mạng.',
+        failText: 'Your footwork is half a step too slow! The tiger tail whips across your ribs like an iron staff, sending you crashing into rocks.',
         failEffects: { hp: -55, exp: 30 }
       },
       {
-        text: '【 Tránh mũi nhọn lặng lẽ thoái lui 】',
+        text: '【 Avoid the threat and quietly retreat 】',
         type: 'AUTO',
-        successText: 'Nhận thấy thực lực đôi bên chênh lệch, bạn âm thầm nín thở lùi về sau rặng đá, bình an trở về tông môn.',
+        successText: 'Recognizing the dangerous odds, you hold your breath and slip behind the ridgeline, returning safely to your sect.',
         successEffects: { exp: 25, def: 2 }
       }
     ]
   },
   {
     id: 'phuong_thi_dau_gia',
-    title: 'Hắc Thị Đấu Giá Hội',
+    title: 'Black Market Auction',
     minLevel: 2,
     maxLevel: 7,
-    text: 'Tại ngầm phường thị dưới lòng đất Vạn Tiên Thành, một cuộc đấu giá bí mật đang diễn ra. Khói thơm mờ ảo che phủ dung mạo tu sĩ. Trên đài, một lão giả đeo mặt nạ quỷ đang gõ búa rao bán một bảo đan quý hiếm và một quyển kiếm phổ cổ xưa.',
+    text: 'Deep underground beneath Myriad Immortals City, a clandestine auction is underway. Incense mist conceals the faces of cloaked cultivators. An auctioneer wearing a ghost mask strikes his mallet, showcasing rare elixirs and ancient scriptures.',
     choices: [
       {
-        text: '【 Bỏ 60 Linh Thạch mua Tụ Khí Đan & Dược Thảo 】',
+        text: '【 Spend 60 Spirit Stones for Qi Gathering Pills & Herbs 】',
         type: 'COST_CHECK',
         costItem: 'stones',
         costVal: 60,
-        successText: 'Bạn thành công đấu giá được hộp linh đan tinh khiết. Uống vào đan điền ấm áp, tu vi và sinh mệnh hồi phục dồi dào.',
+        successText: 'You successfully bid on a batch of pure spirit elixirs. Swallowing them warms your dantian, replenishing cultivation and vital energy.',
         successEffects: { exp: 220, hp: 80, addItem: 'tu_khi_dan' },
-        failText: 'Trong túi không đủ 60 Linh Thạch, quản sự hắc thị lạnh lùng liếc nhìn bạn xua đuổi.',
+        failText: 'You lack 60 Spirit Stones in your pouch. The market guards cast a cold, mocking glare and shoo you away.',
         failEffects: {}
       },
       {
-        text: '【 Đấu giá Trúc Cơ Cực Phẩm Đan (180 Linh Thạch) 】',
+        text: '【 Bid for Supreme Foundation Pill (180 Spirit Stones) 】',
         type: 'COST_CHECK',
         costItem: 'stones',
         costVal: 180,
-        successText: 'Chi ra số tiền lớn gom góp bấy lâu, bạn đoạt được hạt Trúc Cơ Đan cực phẩm tỏa hào quang ngũ sắc. Đạo cơ từ nay có bảo chứng vững vàng!',
+        successText: 'Spending a fortune accumulated over years, you acquire the radiant Five-Color Foundation Pill. Your Dao foundation is now securely guaranteed!',
         successEffects: { exp: 500, addItem: 'truc_co_dan' },
-        failText: 'Túi càn khôn lép xẹp không đủ 180 Linh Thạch, đành trơ mắt nhìn tán tu khác mua mất bảo đan.',
+        failText: 'Your pouch is empty. You can only watch helplessly as a rival rogue cultivator snatches the prize.',
         failEffects: {}
       },
       {
-        text: '【 Rình rập sát phạt đoạt bảo kẻ thắng cuộc 】',
+        text: '【 Ambush the winning bidder in the dark alleys 】',
         type: 'COMBAT',
         enemyId: 'hac_y_cuop_tu',
-        successText: 'Chờ đợi gã hắc y tu sĩ rời khỏi hắc thị, bạn quyết đoán xuất kích nhất kiếm xuyên tim! Đoạt lấy túi trữ vật thu hoạch linh thạch cùng chiến lợi phẩm phong phú.',
+        successText: 'Waiting for the cloaked bidder to enter a shadowed alley, you execute a decisive strike! You seize his storage pouch, reaping hefty spirit stones and loot.',
         successEffects: { stones: 140, exp: 280, atk: 6, strike: 4 },
-        failText: 'Đối phương có mai phục sẵn đồng bọn! Bạn bị phản công đả thương nặng nề, suýt nữa mất mạng trong hẻm tối.'
+        failText: 'The opponent had hidden accomplices! Ambushed in return, you barely escape with your life into the sewers.'
       }
     ]
   },
   {
     id: 'cuu_my_tien_tu',
-    title: 'Gặp Gỡ Băng Tuyết Đạo Lữ',
+    title: 'Encounter with Frost Maiden',
     minLevel: 2,
     maxLevel: 8,
-    text: 'Dưới chân núi tuyết Phong Băng Lĩnh, bạn phát hiện một thiếu nữ dung mạo thanh lệ như tiên giáng trần mặc áo lam vân đệ tử Thanh Vân Tông. Nàng bị tà khí xâm nhập kinh mạch, sắc mặt tái nhợt ngất lịm bên gốc cổ tùng.',
+    text: 'At the foot of the glacial Windfrost Range, you discover a maiden of ethereal grace lying unconscious beneath an ancient pine tree, wearing Azure Cloud Sect robes. Toxic miasma has invaded her meridians.',
     choices: [
       {
-        text: '【 Tiêu hao chân nguyên thi triển diệt độc cứu người 】',
+        text: '【 Expend genuine Qi to purge the venom and rescue her 】',
         type: 'AUTO',
-        successText: 'Bạn không tiếc chân nguyên, vận chuyển tâm pháp suốt một đêm khu trục ma khí giúp nàng. Tiên tử tỉnh lại cảm kích rơi lệ, tặng bạn một chiếc nhẫn hộ mệnh và hứa hẹn cùng bạn kết thành đạo lữ luận đạo!',
+        successText: 'Channeling your genuine Qi through the night, you successfully expel the demonic toxin. Awakening in tears of gratitude, the maiden gifts you an heirloom longevity elixir and vows to discuss the Dao with you!',
         successEffects: { hp: -20, exp: 180, skill: 12, stones: 90, lifespan: 10, addItem: 'tho_nguyen_dan' }
       },
       {
-        text: '【 Lợi dụng lúc nàng yếu ớt lột sạch túi càn khôn 】',
+        text: '【 Take advantage of her weakness to loot her storage pouch 】',
         type: 'AUTO',
-        successText: 'Đạo tâm ma hóa, bạn lạnh lùng cướp sạch đan dược và linh thạch của nàng rồi biến mất trong gió tuyết. Thực lực tăng mạnh nhưng trong lòng gieo xuống một tia tâm ma nghiệp chướng.',
+        successText: 'Giving in to temptation, you strip her storage pouch of pills and spirit stones before disappearing into the blizzard. Power gained, but a subtle karmic demon is planted in your soul.',
         successEffects: { stones: 200, exp: 250, atk: 8, def: -4 }
       },
       {
-        text: '【 Bỏ mặc thị phi nhanh chóng đi ngang qua 】',
+        text: '【 Ignore worldly entanglements and walk away 】',
         type: 'AUTO',
-        successText: 'Hồng nhan họa thủy, bạn quyết định không dính dáng ân oán tông môn, tiếp tục cất bước lên đường tu hành tịch mịch.',
+        successText: 'Knowing that beauty brings calamity, you choose not to involve yourself in sect vendettas and continue along your solitary path.',
         successEffects: { def: 2, exp: 30 }
       }
     ]
   },
   {
     id: 'loi_kiep_dot_pha',
-    title: 'Thiên Kiếp Đột Phá Lôi Đình',
+    title: 'Celestial Lightning Tribulation',
     minLevel: 4,
     maxLevel: 12,
-    text: 'Tu vi đạt tới điểm cực hạn, thiên địa dị biến! Mây đen vạn dặm cuồn cuộn kéo đến đỉnh đầu, tử điện lôi đình như cự long gầm thét trong mây mù. Cửu Trọng Lôi Kiếp chuẩn bị giáng xuống thử thách đạo tâm và thân thể bạn!',
+    text: 'Your cultivation hits a bottleneck, triggering celestial phenomena! Dark clouds stretch for thousands of leagues overhead as purple lightning dragons roar in the tempest. The Ninefold Lightning Tribulation descends to test your Dao foundation!',
     choices: [
       {
-        text: '【 Đứng ngạo nghễ rút bảo kiếm nghênh lôi kiếp 】',
+        text: '【 Unsheathe your sword to face the heavenly thunder head-on 】',
         type: 'STAT_CHECK',
         stat: 'atk',
         reqVal: 70,
-        successText: 'Kiếm khí ngút trời xé toạc tầng mây thứ nhất! Bạn ngạnh kháng lôi kiếp thành công, thân thể được lôi đình tôi luyện hóa thành kim cương bất hoại, chính thức phá cảnh!',
+        successText: 'Surging sword Qi tears open the first layer of clouds! You withstand the lightning brunt, your physique tempered into diamond-like resilience as you break through!',
         successEffects: { exp: 800, hp: 150, atk: 25, strike: 10, lifespan: 50 },
-        failText: 'Lực công kích chưa đủ để chém tan kiếp lôi! Một đạo thiên lôi đánh thẳng vào thiên linh cái khiến kinh mạch vỡ nát, tu vi tổn hao nặng nề.',
+        failText: 'Your attack cannot dispel the tribulation thunder! A lightning bolt strikes your crown, fracturing meridians and heavily depleting cultivation.',
         failEffects: { hp: -160, exp: -200 }
       },
       {
-        text: '【 Vận chuyển hộ giáp & trận pháp phòng ngự 】',
+        text: '【 Channel defensive armor and protective array talismans 】',
         type: 'STAT_CHECK',
         stat: 'def',
         reqVal: 45,
-        successText: 'Hộ thân linh quang rực rỡ chặn đứng cửu đạo lôi đình giáng xuống. Hạt lôi kiếp tản ra hóa thành linh vũ gột rửa đan điền, đúc thành tiên cơ vững chắc!',
+        successText: 'Resplendent defensive halos deflect the nine falling bolts. Dispersed lightning essence transforms into spirit rain, washing your dantian with immortal grace!',
         successEffects: { exp: 650, hp: 200, def: 20, lifespan: 40 },
-        failText: 'Phòng ngự bị lôi đình đánh thủng một lỗ hổng lớn! Chấn động làm vỡ nát hộ giáp, khí huyết nghịch lưu trọng thương.',
+        failText: 'Your defenses are punctured by the tribulation! The shockwave shatters your armor, leaving internal injuries.',
         failEffects: { hp: -120, def: -5 }
       }
     ]
   },
   {
     id: 'gap_go_ma_tu',
-    title: 'Huyết Hải Ma Tu Đột Kích',
+    title: 'Blood Demon Ambush',
     minLevel: 4,
     maxLevel: 9,
-    text: 'Một đạo huyết quang nồng nặc mùi tanh tưởi từ chân trời lao vụt tới chặn đứng lối đi của bạn. Huyết Sát Tông Chấp Sự tay cầm huyết nhận cười gằn: "Lại gặp một tiểu bối huyết nhục tươi ngon, ngoan ngoãn dâng nộp hồn phách cho Ma tôn ta!"',
+    text: 'A pungent crimson light streaks from the horizon, blocking your mountain path. A Blood Shadow Sect Deacon sneers with a curved blood blade: "Another morsel of fresh flesh and soul. Surrender your spiritual roots to my cauldron!"',
     choices: [
       {
-        text: '【 Trảm yêu trừ ma, quyết chiến tà tu 】',
+        text: '【 Slay the fiend and eradicate evil 】',
         type: 'COMBAT',
         enemyId: 'huyet_sat_chap_su',
-        successText: 'Một kiếm sắc bén trảm đứt huyết đao của ma đầu! Tà khí tan biến, bạn thu được huyết linh đan dược cùng vô số linh thạch của tông môn ma đạo.',
+        successText: 'A razor-sharp thrust cleaves the demon blood blade in two! Demonic miasma disperses, leaving behind elixirs and a pouch of spirit stones.',
         successEffects: { exp: 900, stones: 260, strike: 6, addItem: 'xich_viem_dao' },
-        failText: 'Huyết sát khí quá mức quỷ quyệt, bạn bị đao phong chém trúng lồng ngực trọng thương, đành đốt linh phù độn thổ chạy trốn.'
+        failText: 'The demonic blood aura is insidiously fierce. Slashed across the chest, you ignite an escape talisman to burrow into the earth.'
       },
       {
-        text: '【 Nộp 80 Linh Thạch cầu xin bình an 】',
+        text: '【 Offer 80 Spirit Stones to plead for safe passage 】',
         type: 'COST_CHECK',
         costItem: 'stones',
         costVal: 80,
-        successText: 'Ma tu cười lớn cướp lấy túi linh thạch rồi biến mất vào bóng đêm, bạn giữ được mạng sống nhưng đạo tâm mang theo nhục nhã khó phai.',
+        successText: 'The demon laughs maliciously, snatching the stones before melting into shadows. You survived, though your Dao pride suffers a bitter stain.',
         successEffects: { exp: 30, def: 1 },
-        failText: 'Trong túi không đủ 80 linh thạch để mua mạng! Ma tu nổi giận vung đao chém tới!',
+        failText: 'You do not even have 80 stones to spare! Infuriated, the demon slashes wildly at you!',
         failEffects: { hp: -70 }
       }
     ]
   },
   {
     id: 'bi_canh_vien_co',
-    title: 'Viễn Cổ Bí Cảnh Tranh Phong',
+    title: 'Primordial Immortal Realm Expedition',
     minLevel: 6,
     maxLevel: 12,
-    text: 'Trăm năm một lần, Thượng Cổ Chân Tiên Bí Cảnh hé mở cánh cổng thời không. Bên trong tiên khí phiêu dạt, cổ thụ chọc trời, nhưng cũng ẩn chứa vô số cơ quan diệt sát và hung thú thời thái cổ canh giữ chí bảo khai thiên.',
+    text: 'Once every century, the Primordial Immortal Realm cracks open its temporal gate. Immense celestial Qi flows through towering ancient trees, yet treacherous killing traps and primordial beasts guard the ascension treasures.',
     choices: [
       {
-        text: '【 Tiễu sát U Uyên Giao Long đoạt Long Lân Giáp 】',
+        text: '【 Slay the Abyssal Drake to forge Dragon Scale Armor 】',
         type: 'COMBAT',
         enemyId: 'doc_nhan_giao_long',
-        successText: 'Sau trận đại chiến kinh thiên động địa long trời lở đất, đầu Giao Long khổng lồ rớt xuống đáy vực! Bạn lột lấy vảy rồng dệt giáp, hấp thụ long châu phá vỡ gông cùm tu vi!',
+        successText: 'After an earth-shattering battle, the colossal drake head plunges into the abyss! You harvest its scales to weave armor and absorb its dragon pearl, breaking cultivation limits!',
         successEffects: { exp: 6000, stones: 1600, hp: 600, def: 50, addItem: 'long_lan_chien_y' },
-        failText: 'Uy áp cự long quá khủng khiếp, một đuôi quất nát hộ thân pháp bảo, bạn phải dùng bí thuật chạy trốn khỏi bí cảnh trong gang tấc.'
+        failText: 'The draconic aura is overwhelming. A tail swipe shatters your talismans, forcing you to execute an emergency escape art.'
       },
       {
-        text: '【 Lẻn vào Tàng Kinh Các tìm kiếm Tiên Pháp 】',
+        text: '【 Infiltrate the Scripture Pavilion to seek Immortal Arts 】',
         type: 'STAT_CHECK',
         stat: 'skill',
         reqVal: 65,
-        successText: 'Bạn vượt qua mê cung phù trận viễn cổ, mở ra chiếc rương ngọc phong ấn vạn năm, thu được bảo điển công pháp Thái Ất Kiếm Kinh tàn thiên vô giá!',
+        successText: 'Navigating through ancient maze formations, you unlock a jade chest sealed for ten millennia, claiming the priceless Taiyi Sword Canon Fragment!',
         successEffects: { exp: 3500, skill: 30, strike: 18, addItem: 'thai_at_kiem_quyet' },
-        failText: 'Kích hoạt bẫy cấm chế thời thượng cổ! Luồng hỏa diễm thiêu đốt hộ giáp, bạn bỏng nặng tháo chạy.',
+        failText: 'You trigger an ancient fire trap! Scorching flames singe your garments and skin, driving you out in retreat.',
         failEffects: { hp: -220, exp: 100 }
       }
     ]
@@ -222,4 +223,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined') {
   module.exports = { CULTIVATION_EVENTS };
 }
-
