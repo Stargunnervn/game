@@ -998,7 +998,7 @@ class YomiEngine {
   }
 
   upgradeMove(moveKey) {
-    if (MOVES[moveKey]?.isFusion) return;
+    if (MOVES[moveKey]?.isFusion || MOVES[moveKey]?.isTier4) return;
     if (MOVE_UPGRADES_CATALOG[moveKey]) {
       this.moveUpgrades.set(moveKey, MOVE_UPGRADES_CATALOG[moveKey]);
       this.rebuildMoveButtons();
@@ -2557,9 +2557,9 @@ class YomiEngine {
   generateShopWares() {
     const wares = [];
 
-    // Upgrades & Breakthroughs for owned moves (Fusions are Tier 3 pinnacle, cannot be upgraded or breached)
+    // Upgrades & Breakthroughs for owned moves (Fusions & Tier 4 are pinnacle, cannot be upgraded or breached)
     this.ownedMoves.forEach(mKey => {
-      if (!this.apexMoves.has(mKey) && !MOVES[mKey]?.isFusion) {
+      if (!this.apexMoves.has(mKey) && !MOVES[mKey]?.isFusion && !MOVES[mKey]?.isTier4) {
         if (this.moveUpgrades.has(mKey)) {
           const moveData = this.getMoveData(mKey, true);
           wares.push({
@@ -2603,9 +2603,9 @@ class YomiEngine {
       }
     }
 
-    // Unowned moves from MOVES catalog (Fusion moves must be forged via Breakthrough!)
+    // Unowned moves from MOVES catalog (Fusion & Tier 4 moves must be forged via Breakthrough / Zenith Forge!)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG') && !MOVES[mKey].isFusion) {
+      if (!this.ownedMoves.has(mKey) && !mKey.includes('_UPG') && !MOVES[mKey]?.isFusion && !MOVES[mKey]?.isTier4) {
         const mData = MOVES[mKey];
         wares.push({
           type: 'SKILL',
@@ -2739,7 +2739,7 @@ class YomiEngine {
             } else if (relic.id === 'ki_reactor_core' && this.player) {
               this.player.superMeter = Math.min(this.player.maxSuper, this.player.superMeter + 40);
             } else if (relic.id === 'apex_catalyst_stone') {
-              const eligible = Array.from(this.ownedMoves).filter(k => !this.apexMoves.has(k) && !MOVES[k]?.isFusion);
+              const eligible = Array.from(this.ownedMoves).filter(k => !this.apexMoves.has(k) && !MOVES[k]?.isFusion && !MOVES[k]?.isTier4);
               if (eligible.length > 0) {
                 const upgraded = eligible.filter(k => this.moveUpgrades.has(k));
                 const targetKey = upgraded.length > 0 ? upgraded[0] : eligible[0];
@@ -2912,7 +2912,7 @@ class YomiEngine {
 
   // ── SKILL BREAKTHROUGH: FUSION OR APEX ──────────────────────────────────────
   openBreakthrough(moveKey) {
-    if (MOVES[moveKey]?.isFusion) return;
+    if (MOVES[moveKey]?.isFusion || MOVES[moveKey]?.isTier4) return;
     const moveData = this.getMoveData(moveKey, true);
     if (!moveData) return;
 
@@ -3032,9 +3032,9 @@ class YomiEngine {
     const newMoveCandidates = [];
     const perkCandidates = [];
 
-    // 1. Upgrades for owned moves (Fusions are Tier 3 pinnacle, cannot be upgraded or breached)
+    // 1. Upgrades for owned moves (Fusions & Tier 4 are pinnacle, cannot be upgraded or breached)
     this.ownedMoves.forEach(moveKey => {
-      if (!this.apexMoves.has(moveKey) && !MOVES[moveKey]?.isFusion) {
+      if (!this.apexMoves.has(moveKey) && !MOVES[moveKey]?.isFusion && !MOVES[moveKey]?.isTier4) {
         const moveData = this.getMoveData(moveKey, true);
         if (this.moveUpgrades.has(moveKey)) {
           upgradeCandidates.push({
@@ -3078,9 +3078,9 @@ class YomiEngine {
       }
     }
 
-    // 2. Unowned skills from MOVES catalog (Excluding Fusion moves - Fusions must be forged via Breakthrough!)
+    // 2. Unowned skills from MOVES catalog (Excluding Fusion & Tier 4 moves - Fusions must be forged via Breakthrough, Tier 4 via Zenith Forge!)
     Object.keys(MOVES).forEach(mKey => {
-      if (!this.ownedMoves.has(mKey) && !MOVES[mKey].isFusion) {
+      if (!this.ownedMoves.has(mKey) && !MOVES[mKey]?.isFusion && !MOVES[mKey]?.isTier4) {
         const mData = MOVES[mKey];
         newMoveCandidates.push({
           kind: 'SKILL',

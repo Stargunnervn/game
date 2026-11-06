@@ -237,6 +237,7 @@ canvas#game-canvas {
   gap: 6px;
   min-width: 0;
   flex-shrink: 1;
+  overflow: hidden;
 }
 
 .cat-label {
@@ -258,6 +259,7 @@ canvas#game-canvas {
   scrollbar-width: thin;
   scrollbar-color: #23334a transparent;
   min-width: 0;
+  flex: 1;
   padding: 1px 0;
 }
 .btn-row::-webkit-scrollbar {
