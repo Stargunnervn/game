@@ -119,6 +119,42 @@ const ENEMIES_CATALOG = {
     specialSkill: { name: 'Nether Bone Corrosive Palm', chance: 0.42, dmgMult: 2.35 },
     desc: 'An ancient fiend dwelling within toxic mires for over a millennium. Poison palms dissolve stone and metal.'
   },
+  xich_xa_ma_nu: {
+    id: 'xich_xa_ma_nu',
+    name: 'Crimson Serpent Sorceress',
+    title: 'Poison Valley Enchantress',
+    realm: 'Foundation Establishment (Early)',
+    hp: 920, maxHp: 920,
+    atk: 115, def: 68, strike: 28, dodge: 26, skill: 40,
+    dropExp: 720, dropStones: 180,
+    dropItem: 'tu_khi_dan',
+    specialSkill: { name: 'Serpent Blood Curse', chance: 0.30, dmgMult: 1.55 },
+    desc: 'An enchantress who wields venomous spirit vipers, bewitching travelers and draining their lifeforce.'
+  },
+  cu_nham_ho_phap: {
+    id: 'cu_nham_ho_phap',
+    name: 'Ancient Stone Golem Guardian',
+    title: 'Mountain Tomb Sentinel',
+    realm: 'Golden Core (Early)',
+    hp: 4400, maxHp: 4400,
+    atk: 290, def: 340, strike: 35, dodge: 10, skill: 70,
+    dropExp: 2900, dropStones: 600,
+    dropItem: 'tinh_thach_ngoc_tuy',
+    specialSkill: { name: 'Titan Rock Slam', chance: 0.32, dmgMult: 1.75 },
+    desc: 'A colossal monolith forged from mountain bedrock by an ancient sovereign to guard secluded tombs.'
+  },
+  am_hon_quy_vuong: {
+    id: 'am_hon_quy_vuong',
+    name: 'Nether Soul Specter King',
+    title: 'Abyssal Wraith Overlord',
+    realm: 'Nascent Soul (Early)',
+    hp: 8200, maxHp: 8200,
+    atk: 780, def: 510, strike: 80, dodge: 75, skill: 220,
+    dropExp: 9800, dropStones: 2400,
+    dropItem: 'tam_ma_kinh',
+    specialSkill: { name: 'Soul Sunder Howl', chance: 0.38, dmgMult: 2.10 },
+    desc: 'A wraith monarch forged from ten thousand vengeful spirits, commanding ghostly legions in dark burial grounds.'
+  },
 
   // ── TRIBULATION & CALAMITY PEAK ──
   thao_thiet_thuong_co: {

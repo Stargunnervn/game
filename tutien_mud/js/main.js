@@ -137,7 +137,9 @@
       const runData = {
         player: engine.player,
         currentEvent: engine.currentEvent,
-        eventHistory: engine.eventHistory
+        eventHistory: engine.eventHistory,
+        recentEventIds: engine.recentEventIds || [],
+        completedUniqueEvents: engine.completedUniqueEvents || []
       };
       localStorage.setItem('tutien_mud_active_run_v1', JSON.stringify(runData));
     } catch (e) {
@@ -154,6 +156,8 @@
           engine.player = data.player;
           engine.currentEvent = data.currentEvent;
           engine.eventHistory = data.eventHistory || [];
+          engine.recentEventIds = data.recentEventIds || [];
+          engine.completedUniqueEvents = data.completedUniqueEvents || [];
 
           // Re-attach methods to player object
           engine.player.hasTalent = (tId) => engine.player.talents.some(t => t.id === tId);

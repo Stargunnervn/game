@@ -14,6 +14,8 @@ class TuTienEngine {
     this.player = null;
     this.currentEvent = null;
     this.eventHistory = [];
+    this.recentEventIds = [];
+    this.completedUniqueEvents = [];
 
     this.loadGlobalHeritage();
   }
@@ -112,6 +114,8 @@ class TuTienEngine {
     });
 
     this.eventHistory = [];
+    this.recentEventIds = [];
+    this.completedUniqueEvents = [];
     this.recalculateTotalStats();
 
     this.addHistory(`[Path of Ascension] At age 16, ${this.player.name} with [${bg.name}] heritage awakened [${spiritRoot.name}]. Leaving the mortal realm, officially stepping onto the defiant path of immortal cultivation!`);
@@ -220,14 +224,23 @@ class TuTienEngine {
       return;
     }
 
-    // 65% chance to trigger a random world encounter
-    if (Math.random() < 0.65) {
+    // 70% chance to trigger a random world encounter
+    if (Math.random() < 0.70) {
       this.triggerRandomEvent();
     } else {
+      const meditationVignettes = [
+        `Year ${this.player.age} passes like tranquil flowing water. Meditating in your mountain cave, listening to pine breezes and harmonizing with cosmic rhythms, your cultivation deepens.`,
+        `Deep seclusion during Year ${this.player.age}. Watching autumn frost turn to spring blossoms outside your grotto, your genuine Qi circulates smoothly through all twelve major meridians.`,
+        `Year ${this.player.age} brings peaceful stillness. The rhythmic dripping of mineral waters deep within the caverns lulls your spiritual sense into serene meditation, steadily fortifying your foundation.`,
+        `Sitting beneath the pale moonlight in Year ${this.player.age}, cool lunar essence washes over your physical frame, gently purifying latent impurities and expanding your Qi reservoir.`,
+        `Year ${this.player.age} unfolds in quiet harmony. Sitting cross-legged upon a worn stone slab, your breathing becomes imperceptible as your mind aligns with heaven and earth.`
+      ];
+      const chosenText = meditationVignettes[Math.floor(Math.random() * meditationVignettes.length)];
+
       this.currentEvent = {
         id: 'tinh_toa_an_nhien',
         title: 'Serene Meditation',
-        text: `Year ${this.player.age} passes like tranquil flowing water. Meditating in your mountain cave, listening to pine breezes and harmonizing with cosmic rhythms, your cultivation deepens.`,
+        text: chosenText,
         choices: [
           {
             text: '【 Continue secluded meditation for another year 】',
@@ -242,8 +255,9 @@ class TuTienEngine {
     }
   }
 
-  // ── TRIGGER RANDOM ENCOUNTER EVENT ──
+  // ── TRIGGER RANDOM ENCOUNTER EVENT (WITH ANTI-REPETITION COOLDOWN) ──
   triggerRandomEvent() {
+    if (!this.player) return;
     const curLevel = this.player.realmIndex;
     const eligibleEvents = CULTIVATION_EVENTS.filter(ev => curLevel >= ev.minLevel && curLevel <= ev.maxLevel);
 
@@ -252,7 +266,41 @@ class TuTienEngine {
       return;
     }
 
-    const chosen = eligibleEvents[Math.floor(Math.random() * eligibleEvents.length)];
+    this.recentEventIds = this.recentEventIds || [];
+    this.completedUniqueEvents = this.completedUniqueEvents || [];
+
+    // Filter out recently seen events and completed unique events
+    let availableEvents = eligibleEvents.filter(ev => {
+      if (ev.unique && this.completedUniqueEvents.includes(ev.id)) return false;
+      if (this.recentEventIds.includes(ev.id)) return false;
+      return true;
+    });
+
+    // If recent pool is exhausted, keep only the single most recent event so no immediate repeats occur
+    if (availableEvents.length === 0) {
+      const lastId = this.recentEventIds[this.recentEventIds.length - 1];
+      this.recentEventIds = lastId ? [lastId] : [];
+      availableEvents = eligibleEvents.filter(ev => {
+        if (ev.unique && this.completedUniqueEvents.includes(ev.id)) return false;
+        if (this.recentEventIds.includes(ev.id)) return false;
+        return true;
+      });
+    }
+
+    if (availableEvents.length === 0) {
+      availableEvents = eligibleEvents.filter(ev => !(ev.unique && this.completedUniqueEvents.includes(ev.id)));
+    }
+
+    if (availableEvents.length === 0) {
+      this.cultivateOneYear();
+      return;
+    }
+
+    const chosen = availableEvents[Math.floor(Math.random() * availableEvents.length)];
+    this.recentEventIds.push(chosen.id);
+    if (this.recentEventIds.length > 20) this.recentEventIds.shift();
+    if (chosen.unique) this.completedUniqueEvents.push(chosen.id);
+
     this.currentEvent = chosen;
   }
 

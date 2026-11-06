@@ -157,6 +157,43 @@ const ITEMS_CATALOG = {
     passiveText: 'Dragon Glide: Successful dodges immediately trigger a 50% damage counter-strike.',
     price: 650,
     desc: 'Ethereal footwork technique mimicking heavenly dragons navigating the clouds, elusive and unpredictable.'
+  },
+  tinh_thach_ngoc_tuy: {
+    id: 'tinh_thach_ngoc_tuy',
+    name: 'Spiritual Jade Marrow',
+    type: 'CONSUMABLE',
+    tier: 'Apex Elixir',
+    effect: { addExp: 450, healHp: 180 },
+    price: 280,
+    desc: 'Pure subterranean spiritual marrow condensed over ten thousand years. Cleanses meridians instantly.'
+  },
+  thien_loi_linh_chu: {
+    id: 'thien_loi_linh_chu',
+    name: 'Celestial Lightning Orb',
+    type: 'WEAPON',
+    tier: 'High-Grade Treasure',
+    stats: { atk: 110, strike: 25, skill: 20 },
+    price: 580,
+    desc: 'An orb condensed from the core of heavenly tribulation thunderclouds, sparking with unbridled fury.'
+  },
+  bang_phach_tien_y: {
+    id: 'bang_phach_tien_y',
+    name: 'Ice Soul Ethereal Robe',
+    type: 'ARMOR',
+    tier: 'High-Grade Treasure',
+    stats: { hp: 420, def: 55, dodge: 15 },
+    price: 490,
+    desc: 'Woven from glacial silkworm threads atop frozen mountain summits, neutralizing kinetic force.'
+  },
+  tam_ma_kinh: {
+    id: 'tam_ma_kinh',
+    name: 'Heart Demon Subduing Canon',
+    type: 'MANUAL',
+    tier: 'Heaven Grade Manual',
+    stats: { atk: 60, strike: 22, skill: 25 },
+    passiveText: 'Demon Bane: Grants +20% bonus damage when battling demonic fiends.',
+    price: 480,
+    desc: 'An esoteric scripture designed to conquer internal delusions and transform mental demons into raw battle intent.'
   }
 };
 
