@@ -214,59 +214,7 @@ const APEX_UPGRADES_CATALOG = {
     buffs: { damage: 50, range: 450, hitstun: 45 }
   },
 
-  // ── HYBRID FUSION APEX MASTERY ──
-  THUNDER_GALE: {
-    name: 'Mjolnir Gale Tempest [APEX]',
-    desc: '1f startup, continuous lightning maelstrom wraps the fighter dealing 98 damage and absolute stun.',
-    buffs: { startup: 1, damage: 98, hitstun: 42, range: 200 }
-  },
-  VOID_CLEAVE: {
-    name: 'Singularity Void Sever [APEX]',
-    desc: 'Screen-cleaving zero singularity slice cuts through all shields and guards for 120 damage.',
-    buffs: { startup: 1, damage: 120, range: 380, unblockable: true }
-  },
-  COMET_CRASH: {
-    name: 'Extinction Meteor Crash [APEX]',
-    desc: 'Invulnerable descent from stratosphere slams down dealing 115 damage with arena shockwave.',
-    buffs: { damage: 115, isInvuln: true, range: 220, hitstun: 45 }
-  },
-  PHANTOM_SLIDE: {
-    name: 'Nether Eclipse Drift [APEX]',
-    desc: 'Pass through all attacks and blocks in absolute void state, tripping foe for 80 damage.',
-    buffs: { damage: 80, isInvuln: true, hitstun: 40, speedBoost: 10 }
-  },
-  AEGIS_REFLECT: {
-    name: 'Omni-Sanctuary Bulwark [APEX]',
-    desc: 'Indestructible golden sanctuary lasts 24 frames, completely immune to damage and reflecting 250%.',
-    buffs: { duration: 24, reflectPercent: 2.5, isInvuln: true }
-  },
-  SOLAR_SUPERNOVA: {
-    name: 'Hypernova Starfall Fist [APEX]',
-    desc: 'Cosmic supernova meteor strike with permanent Super Armor, annihilating area for 130 damage.',
-    buffs: { damage: 130, hasSuperArmor: true, radius: 150, hitstun: 50 }
-  },
-  TEMPEST_QUAKE: {
-    name: 'Apocalypse Chasm Quake [APEX]',
-    desc: 'Apocalyptic vacuum eruption pulls all foes into twin magma geysers dealing 118 damage.',
-    buffs: { damage: 118, pullRadius: 320, hitstun: 45 }
-  },
-  RAIKIRI_WARP: {
-    name: 'Divine Raikiri Zero [APEX]',
-    desc: '0f startup godspeed warp execution, striking foe instantly from behind for 110 paralyzing damage.',
-    buffs: { startup: 0, damage: 110, hitstun: 45, isInvuln: true }
-  },
-  MIRAGE_RIPOSTE: {
-    name: 'Asura Mirage Riposte [APEX]',
-    desc: 'Invulnerable phantom posture reflects 300% incoming damage with a lethal 125 damage counter-slice.',
-    buffs: { damage: 125, counterWindow: 28, reflectPercent: 3.0, isInvuln: true }
-  },
-  VALKYRIE_ASCENT: {
-    name: 'Eternal Valkyrie Zenith [APEX]',
-    desc: 'Instant zero-frame hitstun break with true invulnerability, erupting celestial fire for 96 damage.',
-    buffs: { startup: 1, damage: 96, isAirTech: true, isInvuln: true, superMeterBonus: 35 }
-  },
-
-  // ── NEW BASE MOVES APEX MASTERY ──
+  // ── 4 NEW ADVANCED BASE MOVES APEX MASTERY ──
   GLACIAL_SPIKE: {
     name: 'Absolute Zero Cocytus Glacier [APEX]',
     desc: '1f startup, freezes whole arena in crystalline glacier spikes for 60 damage and 50f stasis.',
@@ -286,33 +234,6 @@ const APEX_UPGRADES_CATALOG = {
     name: 'Asura Bloodfiend Onslaught [APEX]',
     desc: '0f startup, 75 damage, complete invulnerability throughout dash with +40 SP refund.',
     buffs: { startup: 0, damage: 75, isInvuln: true, superMeterBonus: 40, speedBoost: 12 }
-  },
-
-  // ── NEW HYBRID FUSION APEX MASTERY ──
-  FROSTFIRE_BURST: {
-    name: 'Ragnarok Frostfire Singularity [APEX]',
-    desc: '135 cataclysmic damage, dual elemental singularity freezes opponent then incinerates arena floor.',
-    buffs: { damage: 135, range: 320, hitstun: 50 }
-  },
-  EVENT_HORIZON_SLASH: {
-    name: 'Omega Event Horizon Sever [APEX]',
-    desc: '140 pure unblockable damage, screen-cleaving black hole slice bypassing all defenses.',
-    buffs: { damage: 140, range: 450, unblockable: true, isSpatial: true, hitstun: 55 }
-  },
-  CHRONO_JUDGMENT: {
-    name: 'Chronos Continuum Execution [APEX]',
-    desc: '145 damage across 60 frames of absolute temporal zero, completely paralyzing the opponent.',
-    buffs: { damage: 145, range: 320, hitstun: 60 }
-  },
-  THUNDER_METEOR: {
-    name: 'Divine Indra Thunderfall [APEX]',
-    desc: '138 colossal seismic lightning hammer strike with Super Armor and unblockable ground shockwaves.',
-    buffs: { damage: 138, range: 220, hasArmor: true, hitstun: 48 }
-  },
-  CARMINE_HARVEST: {
-    name: 'Blood Sovereign Thanatos Scythe [APEX]',
-    desc: '0f startup, 130 piercing damage, invulnerable crimson scythe siphoning 80% health directly.',
-    buffs: { startup: 0, damage: 130, isInvuln: true, siphonRatio: 0.80, range: 220 }
   }
 };
 

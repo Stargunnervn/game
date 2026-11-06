@@ -143,59 +143,7 @@ const MOVE_UPGRADES_CATALOG = {
     buffs: { damage: 32, range: 350, hitstun: 35 }
   },
 
-  // ── HYBRID FUSION EX UPGRADES ──
-  THUNDER_GALE: {
-    name: 'Thunder Gale Tempest EX',
-    desc: 'Electrified cyclone punches deal 78 damage with +35px extended shockwave reach.',
-    buffs: { damage: 78, range: 175, hitstun: 35 }
-  },
-  VOID_CLEAVE: {
-    name: 'Dimensional Void Cleave EX',
-    desc: 'Tears 4 consecutive reality rifts, dealing 92 damage through armor.',
-    buffs: { damage: 92, range: 250, hitstun: 40 }
-  },
-  COMET_CRASH: {
-    name: 'Comet Crater Impact EX',
-    desc: 'Seismic impact crater radius expanded by +50px, dealing 90 damage.',
-    buffs: { damage: 90, range: 170, hitstun: 40 }
-  },
-  PHANTOM_SLIDE: {
-    name: 'Phantom Ghost Slide EX',
-    desc: 'Pass-through glide velocity increased by 35%, sweep damage increased to 56.',
-    buffs: { damage: 56, speedBoost: 7, hitstun: 35 }
-  },
-  AEGIS_REFLECT: {
-    name: 'Aegis Divine Counter EX',
-    desc: 'Sacred aegis blocks 100% damage and reflects 150% back at the attacker.',
-    buffs: { reflectPercent: 1.5, parryHeal: 25 }
-  },
-  SOLAR_SUPERNOVA: {
-    name: 'Infernal Supernova Fist EX',
-    desc: 'Supernova meteor fist deals 105 damage and leaves a lingering scorch zone.',
-    buffs: { damage: 105, radius: 120, hasSuperArmor: true }
-  },
-  TEMPEST_QUAKE: {
-    name: 'Tectonic Tempest Vortex EX',
-    desc: 'Vacuum pull radius increased to 260px, twin seismic shocks deal 94 damage.',
-    buffs: { damage: 94, pullRadius: 260, hitstun: 38 }
-  },
-  RAIKIRI_WARP: {
-    name: 'Thunder God Flash Blitz EX',
-    desc: 'Warp behind foe dealing 85 lightning damage with 36f paralysis stun.',
-    buffs: { damage: 85, hitstun: 36, startup: 1 }
-  },
-  MIRAGE_RIPOSTE: {
-    name: 'Phantom Mirage Counter EX',
-    desc: 'Counter window expanded to 20 frames, critical counter slash deals 100 damage.',
-    buffs: { damage: 100, counterWindow: 20, isInvuln: true }
-  },
-  VALKYRIE_ASCENT: {
-    name: 'Phoenix Rebirth Skyward EX',
-    desc: 'Breaks hitstun on ground or air, refunds +20 SP on trigger, deals 74 damage.',
-    buffs: { damage: 74, isAirTech: true, superMeterBonus: 20, isInvuln: true }
-  },
-
-  // ── NEW ADVANCED BASE EX UPGRADES ──
+  // NEW ADVANCED BASE EX UPGRADES
   GLACIAL_SPIKE: {
     name: 'Permafrost Glacier Spike',
     desc: 'Ice stalagmite reaches 280px, deals 42 damage, and traps enemy feet for 45 frames.',
@@ -215,33 +163,6 @@ const MOVE_UPGRADES_CATALOG = {
     name: 'Crimson Rampage Rush',
     desc: 'Super Armor rush deals 52 damage, restores +30 SP, and grants +8 speed boost.',
     buffs: { damage: 52, hasArmor: true, superMeterBonus: 30, speedBoost: 8 }
-  },
-
-  // ── NEW HYBRID FUSION EX UPGRADES ──
-  FROSTFIRE_BURST: {
-    name: 'Frostfire Thermonuclear Burst EX',
-    desc: 'Thermonuclear steam blast expands to 260px dealing 110 cataclysmic damage.',
-    buffs: { damage: 110, range: 260, hitstun: 45 }
-  },
-  EVENT_HORIZON_SLASH: {
-    name: 'Singularity Event Horizon Slash EX',
-    desc: 'Massive unblockable dimensional rift cleaves for 116 damage across 400px.',
-    buffs: { damage: 116, range: 400, hitstun: 50, unblockable: true }
-  },
-  CHRONO_JUDGMENT: {
-    name: 'Absolute Chrono Judgment EX',
-    desc: 'Time freeze extended to 45 frames, dealing 120 damage with 10 dimensional slashes.',
-    buffs: { damage: 120, hitstun: 50, range: 280 }
-  },
-  THUNDER_METEOR: {
-    name: 'Thunder God Cataclysm Meteor EX',
-    desc: 'Electrified hammer fist deals 114 damage with Super Armor and double arena shockwaves.',
-    buffs: { damage: 114, hasArmor: true, range: 180, hitstun: 45 }
-  },
-  CARMINE_HARVEST: {
-    name: 'Carmine Blood Scythe Harvest EX',
-    desc: 'Invulnerable crimson scythe deals 105 damage and siphons 70% of damage dealt into health.',
-    buffs: { damage: 105, isInvuln: true, siphonRatio: 0.70, range: 180 }
   }
 };
 

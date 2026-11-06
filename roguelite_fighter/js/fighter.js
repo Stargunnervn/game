@@ -181,6 +181,7 @@ class TacticalFighter {
     this.isVulnerable = false;
     this.vulnerableTurns = 0;
     this.hasSpamPenalty = false;
+    this.airTechUsedInFlight = false;
 
     // Visual trails
     this.afterimages = [];
@@ -260,10 +261,12 @@ class TacticalFighter {
     }
 
     // ── MOVEMENT RESOLUTION ──
+    const speedMult = (this.isPlayer && typeof window !== 'undefined' && window.game && window.game.hasPerk('minimalist_scroll') && window.game.equippedMoves.size <= 7) ? 1.15 : 1.0;
+
     if (moveKey === 'DASH') {
       SFX.playDash();
       this.spawnAfterimage();
-      const dashSpeed = 16.5 + (moveData.speedBoost || 0);
+      const dashSpeed = (16.5 + (moveData.speedBoost || 0)) * speedMult;
       this.vx = Math.cos(rad) * dashSpeed * this.facing;
       this.vy = -Math.sin(rad) * 14.5;
       if (Math.abs(this.vy) > 2) this.isAirborne = true;
@@ -279,6 +282,7 @@ class TacticalFighter {
       this.hitstunFrames = 0;
       this.isInvulnerable = true;
       this.isAirborne = true;
+      this.airTechUsedInFlight = true;
       const techSpeed = 13;
       this.vx = Math.cos(rad) * techSpeed * this.facing;
       this.vy = moveData.launchY ? moveData.launchY : -Math.sin(rad) * 11;
@@ -594,6 +598,7 @@ class TacticalFighter {
       this.y = this.floorY;
       this.vy = 0;
       this.isAirborne = false;
+      this.airTechUsedInFlight = false;
       this.vx *= 0.82;
     }
 

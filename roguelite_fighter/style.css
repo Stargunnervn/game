@@ -1005,6 +1005,19 @@ canvas#aim-canvas:hover {
   border-color: rgba(255, 51, 102, 0.45) !important;
 }
 
+.btn-move.disabled-tech {
+  opacity: 0.38;
+  filter: grayscale(0.85);
+  cursor: not-allowed;
+  border-color: rgba(148, 163, 184, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.btn-move.disabled-tech:hover {
+  transform: none !important;
+  border-color: rgba(148, 163, 184, 0.4) !important;
+}
+
 /* SANCTUARY SHOP & SKILL FORGE OVERLAY */
 #screen-shop {
   width: 920px;

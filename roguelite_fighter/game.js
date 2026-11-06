@@ -496,6 +496,21 @@ class YomiEngine {
         return;
       }
 
+      // Air Tech Airborne and Usage Safeguard
+      if (mKey === 'AIR_RECOVERY') {
+        const isAirborne = this.player && (this.player.isAirborne || this.player.y < this.player.floorY - 15);
+        if (!isAirborne) {
+          SFX.playPunch(80);
+          this.showCombatToast('[WARNING] Air Tech is only usable while airborne in flight!');
+          return;
+        }
+        if (this.player && this.player.airTechUsedInFlight) {
+          SFX.playPunch(80);
+          this.showCombatToast('[WARNING] Air Tech exhausted! Only 1 recovery per jump/flight.');
+          return;
+        }
+      }
+
       document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       this.selectedPlayerMove = mKey;
@@ -625,6 +640,17 @@ class YomiEngine {
       else if (moveKey === 'BLOCK') frameText = 'Guard 80%';
       else if (moveKey === 'AIR_RECOVERY' || moveKey === 'VALKYRIE_ASCENT' || moveData.isAirTech) frameText = 'Air Tech';
 
+      if (moveKey === 'AIR_RECOVERY') {
+        const isAirborne = this.player && (this.player.isAirborne || this.player.y < this.player.floorY - 15);
+        if (!isAirborne) {
+          btn.classList.add('disabled-tech');
+          frameText = 'Air Only';
+        } else if (this.player && this.player.airTechUsedInFlight) {
+          btn.classList.add('disabled-tech');
+          frameText = 'Exhausted';
+        }
+      }
+
       const svgIcon = this.getMoveIconSVG(moveKey);
       const label = moveData.shortName || moveData.name.split(' ')[0] || moveKey;
       let badgeHtml = '';
@@ -652,11 +678,11 @@ class YomiEngine {
 
     // Ensure a valid affordable move is selected
     const selectedBtn = document.querySelector(`.btn-move[data-move="${this.selectedPlayerMove}"]`);
-    if (selectedBtn && !selectedBtn.classList.contains('insufficient-sp')) {
+    if (selectedBtn && !selectedBtn.classList.contains('insufficient-sp') && !selectedBtn.classList.contains('disabled-tech')) {
       document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
       selectedBtn.classList.add('selected');
     } else {
-      const fallbackBtn = document.querySelector('.btn-move:not(.insufficient-sp)') || document.querySelector('.btn-move');
+      const fallbackBtn = document.querySelector('.btn-move:not(.insufficient-sp):not(.disabled-tech)') || document.querySelector('.btn-move:not(.disabled-tech)') || document.querySelector('.btn-move');
       if (fallbackBtn) {
         document.querySelectorAll('.btn-move').forEach(b => b.classList.remove('selected'));
         fallbackBtn.classList.add('selected');
@@ -685,9 +711,13 @@ class YomiEngine {
     }, 2400);
   }
 
+  getMaxDeckSize() {
+    return this.hasPerk('tactical_holster') ? 16 : 14;
+  }
+
   unlockMove(moveKey) {
     this.ownedMoves.add(moveKey);
-    const MAX_EQUIPPED = 14;
+    const MAX_EQUIPPED = this.getMaxDeckSize();
 
     if (this.equippedMoves.size < MAX_EQUIPPED) {
       this.equippedMoves.add(moveKey);
@@ -767,7 +797,8 @@ class YomiEngine {
     const countEl = document.getElementById('modal-deck-count');
     if (!container) return;
     container.innerHTML = '';
-    if (countEl) countEl.innerText = `${this.equippedMoves.size} / 14 Moves (Owned: ${this.ownedMoves.size})`;
+    const maxDeck = this.getMaxDeckSize();
+    if (countEl) countEl.innerText = `${this.equippedMoves.size} / ${maxDeck} Moves (Owned: ${this.ownedMoves.size})`;
 
     Array.from(this.ownedMoves).forEach(moveKey => {
       const moveData = this.getMoveData(moveKey, true);
@@ -795,8 +826,8 @@ class YomiEngine {
           }
           this.equippedMoves.delete(moveKey);
         } else {
-          if (this.equippedMoves.size >= 14) {
-            this.showCombatToast('[WARNING] Deck full (14/14)! Bench a move first.');
+          if (this.equippedMoves.size >= maxDeck) {
+            this.showCombatToast(`[WARNING] Deck full (${maxDeck}/${maxDeck})! Bench a move first.`);
             return;
           }
           this.equippedMoves.add(moveKey);
@@ -811,6 +842,7 @@ class YomiEngine {
   }
 
   upgradeMove(moveKey) {
+    if (MOVES[moveKey]?.isFusion) return;
     if (MOVE_UPGRADES_CATALOG[moveKey]) {
       this.moveUpgrades.set(moveKey, MOVE_UPGRADES_CATALOG[moveKey]);
       this.rebuildMoveButtons();
@@ -864,8 +896,9 @@ class YomiEngine {
     // Apply Meta & Relic upgrades to Player
     const metaHp = (this.meta.upgrades.hp || 0) * 15;
     const relicHp = this.hasPerk('dragon_bone_charm') ? 45 : 0;
+    const holsterHp = this.hasPerk('tactical_holster') ? 20 : 0;
     const titanHp = this.hasPerk('titan_vitality') ? 35 : 0;
-    this.player.maxHp = 100 + metaHp + relicHp + titanHp;
+    this.player.maxHp = 100 + metaHp + relicHp + holsterHp + titanHp;
     this.player.hp = this.player.maxHp;
 
     const metaSp = (this.meta.upgrades.sp || 0) * 15;
@@ -958,6 +991,11 @@ class YomiEngine {
     if (this.hasPerk('tactical_foresight')) {
       if (this.player.hitstunFrames > 0) this.player.hitstunFrames = Math.max(0, this.player.hitstunFrames - 1);
       else this.enemy.hitstunFrames += 1;
+    }
+
+    // Grandmaster Arsenal Relic (if equipped deck >= 11 moves, grant +4 SP per decision turn)
+    if (this.hasPerk('grandmaster_arsenal') && this.equippedMoves.size >= 11 && this.player) {
+      this.player.superMeter = Math.min(this.player.maxSuper, this.player.superMeter + 4);
     }
 
     // Update Advantage Pill
@@ -1457,6 +1495,21 @@ class YomiEngine {
       return;
     }
 
+    // Air Tech Airborne and Usage Safeguard
+    if (this.selectedPlayerMove === 'AIR_RECOVERY') {
+      const isAirborne = this.player && (this.player.isAirborne || this.player.y < this.player.floorY - 15);
+      if (!isAirborne) {
+        SFX.playPunch(80);
+        this.showCombatToast('[WARNING] Air Tech is only usable while airborne in flight!');
+        return;
+      }
+      if (this.player && this.player.airTechUsedInFlight) {
+        SFX.playPunch(80);
+        this.showCombatToast('[WARNING] Air Tech exhausted! Only 1 recovery per jump/flight.');
+        return;
+      }
+    }
+
     SFX.playLockIn();
     this.turnState = 'SIMULATING';
     const tacPanel = document.getElementById('tactical-panel');
@@ -1578,22 +1631,39 @@ class YomiEngine {
   }
 
   checkWeakpointHit(attacker, defender, move) {
-    // 1. Whiff Punish: defender is actively in an attack animation
-    if (defender.moveKey && defender.moveFrame > 0 && !defender.hasHit) {
-      return { isWeakpoint: true, reason: 'WHIFF PUNISH' };
+    if (!attacker || !defender || !move) return { isWeakpoint: false };
+
+    // 1. Whiff Punish: defender finished active frames without hitting and is caught in recovery
+    const defMove = defender.currentMove;
+    if (defMove && ['ATTACK', 'SPECIAL'].includes(defMove.type) && !defender.hasHit) {
+      const recoveryStart = (defMove.startup || 0) + (defMove.activeFrames || 4);
+      if (defender.moveFrame > recoveryStart) {
+        return { isWeakpoint: true, reason: 'WHIFF PUNISH' };
+      }
     }
-    // 2. Anti-Air: defender is airborne and attacker aims high
-    if (defender.isAirborne && attacker.aimAngle >= 25) {
-      return { isWeakpoint: true, reason: 'ANTI-AIR WEAKPOINT' };
+
+    // 2. Anti-Air: defender is airborne and attacker intercepts with upward trajectory or anti-air
+    if (defender.isAirborne && (attacker.aimAngle >= 30 || move.type === 'ANTI_AIR' || (move.name && move.name.includes('Launcher')) || (move.name && move.name.includes('Dragon')))) {
+      return { isWeakpoint: true, reason: 'ANTI-AIR INTERCEPT' };
     }
-    // 3. Low Sweep: defender is standing and attacker sweeps low
-    if (!defender.isAirborne && !defender.isBlocking && (attacker.aimAngle <= -25 || (move.name && move.name.includes('Sweep')) || (move.name && move.name.includes('Slide')))) {
-      return { isWeakpoint: true, reason: 'LOW SWEEP WEAKPOINT' };
+
+    // 3. Low Sweep: defender is standing upright and struck low while standing block or attack startup
+    if (!defender.isAirborne && (attacker.aimAngle <= -30 || (move.name && move.name.includes('Sweep')) || (move.name && move.name.includes('Slide')))) {
+      if (defender.isBlocking || (defender.currentMove && defender.currentMove.type === 'ATTACK' && defender.moveFrame <= (defender.currentMove.startup || 4))) {
+        return { isWeakpoint: true, reason: 'LOW TRIP WEAKPOINT' };
+      }
     }
-    // 4. Backstab / Blindside: Attacking from defender's back
-    if ((defender.x - attacker.x) * defender.facing < 0) {
-      return { isWeakpoint: true, reason: 'BACKSTAB WEAKPOINT' };
+
+    // 4. Backstab / Blindside: Attacker is strictly behind the defender's facing direction
+    if ((defender.x - attacker.x) * defender.facing > 0) {
+      return { isWeakpoint: true, reason: 'BACKSTAB BLINDSIDE' };
     }
+
+    // 5. Stun Critical: Defender is stunned or in vulnerable whiff state
+    if (defender.isVulnerable || defender.hitstunFrames > 15) {
+      return { isWeakpoint: true, reason: 'STUN CRITICAL' };
+    }
+
     return { isWeakpoint: false };
   }
 
@@ -1642,6 +1712,10 @@ class YomiEngine {
           let wpMult = 1.65 + wpBonus;
           if (attacker.isPlayer && this.hasPerk('weakpoint_hunter')) wpMult += 0.35;
           if (attacker.isPlayer && this.hasPerk('weakpoint_prism')) wpMult += 0.50;
+          // Deck Resonance Stone: +3% weakpoint damage per equipped move in deck
+          if (attacker.isPlayer && this.hasPerk('deck_resonance_stone')) {
+            wpMult += (this.equippedMoves.size * 0.03);
+          }
 
           dmg = Math.round(dmg * wpMult);
           defender.hitstunFrames += 4;
@@ -1654,12 +1728,28 @@ class YomiEngine {
           if (attacker.isPlayer && attacker.hitsDealt === 1) {
             this.gold += 8;
             if (this.hasPerk('weakpoint_prism')) attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 15);
+            // Chakra Siphon Pouch Relic: +8 HP and +10 SP on weakpoint hit
+            if (this.hasPerk('chakra_siphon_pouch')) {
+              attacker.hp = Math.min(attacker.maxHp, attacker.hp + 8);
+              attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 10);
+              this.addDamageText(attacker.x, attacker.y - 80, '+8 HP +10 SP', '#38ef7d', true);
+            }
             this.updateHUD();
           }
         }
 
         if (attacker.isPlayer && this.hasPerk('berserk_core') && attacker.hp < attacker.maxHp * 0.5) {
           dmg *= 1.55;
+        }
+
+        // Minimalist Focus Scroll Relic (Equipped deck <= 7 moves: +28% total damage)
+        if (attacker.isPlayer && this.hasPerk('minimalist_scroll') && this.equippedMoves.size <= 7) {
+          dmg = Math.round(dmg * 1.28);
+        }
+
+        // Grandmaster Arsenal Relic (Defender has >= 11 equipped moves: 15% damage reduction)
+        if (defender.isPlayer && this.hasPerk('grandmaster_arsenal') && this.equippedMoves.size >= 11) {
+          dmg = Math.max(1, Math.round(dmg * 0.85));
         }
 
         // Momentum Engine Perk
@@ -1814,7 +1904,7 @@ class YomiEngine {
     if (goldDisplay) goldDisplay.innerText = `${this.gold} Gold`;
 
     const hudDeckCount = document.getElementById('hud-deck-count');
-    if (hudDeckCount) hudDeckCount.innerText = `${this.equippedMoves.size}/14`;
+    if (hudDeckCount) hudDeckCount.innerText = `${this.equippedMoves.size}/${this.getMaxDeckSize()}`;
 
     // Enemy Bars
     const p2Hp = Math.max(0, (this.enemy.hp / this.enemy.maxHp) * 100);
@@ -1982,9 +2072,9 @@ class YomiEngine {
   generateShopWares() {
     const wares = [];
 
-    // Upgrades & Breakthroughs for owned moves
+    // Upgrades & Breakthroughs for owned moves (Fusions are Tier 3 pinnacle, cannot be upgraded or breached)
     this.ownedMoves.forEach(mKey => {
-      if (!this.apexMoves.has(mKey)) {
+      if (!this.apexMoves.has(mKey) && !MOVES[mKey]?.isFusion) {
         if (this.moveUpgrades.has(mKey)) {
           const moveData = this.getMoveData(mKey, true);
           wares.push({
@@ -2140,10 +2230,29 @@ class YomiEngine {
             if (relic.id === 'dragon_bone_charm' && this.player) {
               this.player.maxHp += 45;
               this.player.hp = this.player.maxHp;
+            } else if (relic.id === 'tactical_holster' && this.player) {
+              this.player.maxHp += 20;
+              this.player.hp = this.player.maxHp;
+              this.showCombatToast('[RELIC] Deck capacity expanded to 16 moves!');
+            } else if (relic.id === 'purifying_incense') {
+              const basicPool = ['QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER'];
+              const ownedBasics = basicPool.filter(k => this.ownedMoves.has(k));
+              if (ownedBasics.length > 0 && this.ownedMoves.size > 4) {
+                const removedKey = ownedBasics[0];
+                this.ownedMoves.delete(removedKey);
+                this.equippedMoves.delete(removedKey);
+                this.moveUpgrades.delete(removedKey);
+                this.gold += 45;
+                this.showCombatToast(`[PURIFIED] ${MOVES[removedKey]?.name || removedKey} purged! +45 Gold refund.`);
+              } else {
+                this.gold += 45;
+                this.showCombatToast('[PURIFIED] Deck concentrated! +45 Gold refund.');
+              }
+              this.rebuildMoveButtons();
             } else if (relic.id === 'ki_reactor_core' && this.player) {
               this.player.superMeter = Math.min(this.player.maxSuper, this.player.superMeter + 40);
             } else if (relic.id === 'apex_catalyst_stone') {
-              const eligible = Array.from(this.ownedMoves).filter(k => !this.apexMoves.has(k));
+              const eligible = Array.from(this.ownedMoves).filter(k => !this.apexMoves.has(k) && !MOVES[k]?.isFusion);
               if (eligible.length > 0) {
                 const upgraded = eligible.filter(k => this.moveUpgrades.has(k));
                 const targetKey = upgraded.length > 0 ? upgraded[0] : eligible[0];
@@ -2171,9 +2280,10 @@ class YomiEngine {
     const container = document.getElementById('deck-grid-container');
     if (!container) return;
     container.innerHTML = '';
+    const maxDeck = this.getMaxDeckSize();
     const deckCountEl = document.getElementById('deck-count-text');
     if (deckCountEl) {
-      deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
+      deckCountEl.innerText = `${this.equippedMoves.size} / ${maxDeck} Active Moves (Owned: ${this.ownedMoves.size})`;
     }
 
     Array.from(this.ownedMoves).forEach(moveKey => {
@@ -2202,18 +2312,18 @@ class YomiEngine {
             if (deckCountEl) {
               deckCountEl.innerHTML = `<span style="color: #ff3366;">Minimum 4 combat moves required!</span>`;
               setTimeout(() => {
-                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / ${maxDeck} Active Moves (Owned: ${this.ownedMoves.size})`;
               }, 1800);
             }
             return;
           }
           this.equippedMoves.delete(moveKey);
         } else {
-          if (this.equippedMoves.size >= 14) {
+          if (this.equippedMoves.size >= maxDeck) {
             if (deckCountEl) {
-              deckCountEl.innerHTML = `<span style="color: #ff3366;">Deck Full (14/14)! Unequip a move first.</span>`;
+              deckCountEl.innerHTML = `<span style="color: #ff3366;">Deck Full (${maxDeck}/${maxDeck})! Unequip a move first.</span>`;
               setTimeout(() => {
-                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / 14 Active Moves (Owned: ${this.ownedMoves.size})`;
+                if (deckCountEl) deckCountEl.innerText = `${this.equippedMoves.size} / ${maxDeck} Active Moves (Owned: ${this.ownedMoves.size})`;
               }, 1800);
             }
             return;
@@ -2231,6 +2341,7 @@ class YomiEngine {
 
   // ── SKILL BREAKTHROUGH: FUSION OR APEX ──────────────────────────────────────
   openBreakthrough(moveKey) {
+    if (MOVES[moveKey]?.isFusion) return;
     const moveData = this.getMoveData(moveKey, true);
     if (!moveData) return;
 
@@ -2350,9 +2461,9 @@ class YomiEngine {
     const newMoveCandidates = [];
     const perkCandidates = [];
 
-    // 1. Upgrades for owned moves
+    // 1. Upgrades for owned moves (Fusions are Tier 3 pinnacle, cannot be upgraded or breached)
     this.ownedMoves.forEach(moveKey => {
-      if (!this.apexMoves.has(moveKey)) {
+      if (!this.apexMoves.has(moveKey) && !MOVES[moveKey]?.isFusion) {
         const moveData = this.getMoveData(moveKey, true);
         if (this.moveUpgrades.has(moveKey)) {
           upgradeCandidates.push({

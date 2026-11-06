@@ -17,7 +17,13 @@ const PERK_ICONS = {
   prism: '<svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6zM2 9h20M12 21L7.5 9M12 21l4.5-12"/></svg>',
   chrono: '<svg viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
   aegis: '<svg viewBox="0 0 24 24" fill="none" stroke="#38ef7d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 6v12"/></svg>',
-  catalyst: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+  catalyst: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  holster: '<svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v4l-3 12H8L5 8V4z"/><path d="M9 4v6h6V4"/></svg>',
+  scroll: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffd166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg>',
+  arsenal: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>',
+  resonance: '<svg viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10"/></svg>',
+  incense: '<svg viewBox="0 0 24 24" fill="none" stroke="#38ef7d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-8"/><path d="M8 14h8l-1 6H9l-1-6z"/><path d="M10 8c0-2 2-2 2-4 0 2 2 2 2 4s-2 2-2 4c0-2-2-2-2-4z"/></svg>',
+  pouch: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11V9a7 7 0 0 0-14 0v2a8 8 0 0 0 14 0z"/><path d="M9 6h6"/><path d="M10 9h4"/></svg>'
 };
 
 const ROGUELITE_PERKS = [
@@ -130,6 +136,48 @@ const SHOP_RELICS = [
     icon: PERK_ICONS.catalyst,
     cost: 180,
     desc: 'Immediately grants 1 free Breakthrough (Apex or Fusion) for any owned skill.'
+  },
+  {
+    id: 'tactical_holster',
+    name: 'Tactical Holster Belt',
+    icon: PERK_ICONS.holster,
+    cost: 120,
+    desc: 'Expands deck capacity from 14 to 16 moves, and permanently increases Max HP by +20.'
+  },
+  {
+    id: 'minimalist_scroll',
+    name: 'Minimalist Focus Scroll',
+    icon: PERK_ICONS.scroll,
+    cost: 140,
+    desc: 'Discipline over volume: If equipped deck has 7 or fewer moves, deal +28% total damage and gain +15% move speed.'
+  },
+  {
+    id: 'grandmaster_arsenal',
+    name: 'Grandmaster Arsenal Crate',
+    icon: PERK_ICONS.arsenal,
+    cost: 140,
+    desc: 'Master of all arts: If equipped deck has 11 or more moves, gain 15% damage reduction and +4 SP each turn.'
+  },
+  {
+    id: 'deck_resonance_stone',
+    name: 'Deck Resonance Stone',
+    icon: PERK_ICONS.resonance,
+    cost: 130,
+    desc: 'Harmonic resonance: Each move equipped in your deck grants +3% weakpoint critical damage.'
+  },
+  {
+    id: 'purifying_incense',
+    name: 'Purifying Shrine Incense',
+    icon: PERK_ICONS.incense,
+    cost: 90,
+    desc: 'Purifies your mind: Removes 1 basic strike from your deck and refunds +45 Gold immediately.'
+  },
+  {
+    id: 'chakra_siphon_pouch',
+    name: 'Chakra Siphon Pouch',
+    icon: PERK_ICONS.pouch,
+    cost: 115,
+    desc: 'Weakpoint strikes siphon vitality, restoring +8 HP and +10 SP per weakpoint hit.'
   }
 ];
 
