@@ -179,6 +179,7 @@ class YomiEngine {
     // Entities & Combat System
     this.player = null;
     this.enemy = null;
+    this.enemy2 = null;
     this.projectiles = [];
     this.spatialRifts = [];
     this.particles = [];
@@ -188,6 +189,31 @@ class YomiEngine {
     this.selectedPlayerMove = 'QUICK_JAB';
     this.selectedAimAngle = 0;
     this.selectedEnemyMove = 'STEP_FWD';
+    this.selectedEnemy2Move = 'STEP_FWD';
+
+    // Difficulty, God-Tier Moves & Habit Learning Counter-AI
+    this.difficulty = 'NORMAL';
+    this.tier4Moves = new Set();
+    this.playerHabits = {
+      jump: 0,
+      dash: 0,
+      sweep: 0,
+      airTech: 0,
+      block: 0,
+      parry: 0,
+      projectile: 0,
+      rush: 0,
+      totalTurns: 0
+    };
+
+    // Settings Configuration
+    this.settings = {
+      sfx: true,
+      screenShake: true,
+      hitFlash: true,
+      replaySpeed: 1.5
+    };
+    this.loadSettings();
 
     // Replay Recording System
     this.replayFrames = [];
@@ -241,6 +267,37 @@ class YomiEngine {
     this.setupReplayControls();
   }
 
+  loadSettings() {
+    try {
+      const saved = localStorage.getItem('yomi_rogue_settings_v1');
+      if (saved) {
+        this.settings = { ...this.settings, ...JSON.parse(saved) };
+        if (this.settings.replaySpeed) this.replaySpeed = this.settings.replaySpeed;
+      }
+    } catch (e) {
+      console.warn('Unable to load settings', e);
+    }
+  }
+
+  saveSettings() {
+    try {
+      localStorage.setItem('yomi_rogue_settings_v1', JSON.stringify(this.settings));
+    } catch (e) {
+      console.warn('Unable to save settings', e);
+    }
+  }
+
+  syncSettingsUI() {
+    const toggleSfx = document.getElementById('setting-sfx');
+    const toggleShake = document.getElementById('setting-screenshake');
+    const toggleFlash = document.getElementById('setting-hitflash');
+    const selectSpeed = document.getElementById('setting-replayspeed');
+    if (toggleSfx) toggleSfx.checked = this.settings.sfx !== false;
+    if (toggleShake) toggleShake.checked = this.settings.screenShake !== false;
+    if (toggleFlash) toggleFlash.checked = this.settings.hitFlash !== false;
+    if (selectSpeed) selectSpeed.value = String(this.settings.replaySpeed || 1.5);
+  }
+
   loadMeta() {
     try {
       const saved = localStorage.getItem('yomi_rogue_meta_v3');
@@ -265,6 +322,9 @@ class YomiEngine {
     if (!base) return null;
 
     if (isPlayer) {
+      if (this.tier4Moves && this.tier4Moves.has(moveKey)) {
+        return { ...base, isTier4: true };
+      }
       if (this.apexMoves && this.apexMoves.has(moveKey)) {
         const apex = APEX_UPGRADES_CATALOG[moveKey];
         if (apex) return { ...base, ...apex.buffs, isApex: true, name: apex.name, shortName: base.shortName };
@@ -342,6 +402,24 @@ class YomiEngine {
       }
     });
 
+    // Difficulty Toggle (Normal vs Hard+)
+    const diffNormal = document.getElementById('diff-normal');
+    const diffHardPlus = document.getElementById('diff-hardplus');
+    if (diffNormal && diffHardPlus) {
+      diffNormal.addEventListener('click', () => {
+        this.difficulty = 'NORMAL';
+        diffNormal.classList.add('active');
+        diffHardPlus.classList.remove('active');
+        try { if (typeof SFX !== 'undefined' && SFX.playCoin) SFX.playCoin(); } catch (e) {}
+      });
+      diffHardPlus.addEventListener('click', () => {
+        this.difficulty = 'HARD_PLUS';
+        diffHardPlus.classList.add('active');
+        diffNormal.classList.remove('active');
+        try { if (typeof SFX !== 'undefined' && SFX.playPunch) SFX.playPunch(90); } catch (e) {}
+      });
+    }
+
     // Start Screen
     const btnStart = document.getElementById('btn-start-run');
     if (btnStart) {
@@ -349,6 +427,66 @@ class YomiEngine {
         try { if (typeof SFX !== 'undefined' && SFX.init) SFX.init(); } catch (e) {}
         document.getElementById('screen-title').classList.remove('active');
         this.startExpedition();
+      });
+    }
+
+    // Settings Modal
+    const btnOpenSettings = document.getElementById('btn-open-settings');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+    if (btnOpenSettings) {
+      btnOpenSettings.addEventListener('click', () => {
+        this.syncSettingsUI();
+        document.getElementById('screen-settings').classList.add('active');
+      });
+    }
+    if (btnCloseSettings) {
+      btnCloseSettings.addEventListener('click', () => {
+        document.getElementById('screen-settings').classList.remove('active');
+      });
+    }
+
+    // Settings Inputs Binding
+    const toggleSfx = document.getElementById('setting-sfx');
+    const toggleShake = document.getElementById('setting-screenshake');
+    const toggleFlash = document.getElementById('setting-hitflash');
+    const selectSpeed = document.getElementById('setting-replayspeed');
+    if (toggleSfx) {
+      toggleSfx.addEventListener('change', (e) => {
+        this.settings.sfx = !!e.target.checked;
+        this.saveSettings();
+      });
+    }
+    if (toggleShake) {
+      toggleShake.addEventListener('change', (e) => {
+        this.settings.screenShake = !!e.target.checked;
+        this.saveSettings();
+      });
+    }
+    if (toggleFlash) {
+      toggleFlash.addEventListener('change', (e) => {
+        this.settings.hitFlash = !!e.target.checked;
+        this.saveSettings();
+      });
+    }
+    if (selectSpeed) {
+      selectSpeed.addEventListener('change', (e) => {
+        this.settings.replaySpeed = parseFloat(e.target.value) || 1.5;
+        this.replaySpeed = this.settings.replaySpeed;
+        this.saveSettings();
+      });
+    }
+
+    // Tactical Guide Modal
+    const btnOpenGuide = document.getElementById('btn-open-guide');
+    const btnCloseGuide = document.getElementById('btn-close-guide');
+    if (btnOpenGuide) {
+      btnOpenGuide.addEventListener('click', () => {
+        document.getElementById('screen-guide').classList.add('active');
+      });
+    }
+    if (btnCloseGuide) {
+      btnCloseGuide.addEventListener('click', () => {
+        document.getElementById('screen-guide').classList.remove('active');
       });
     }
 
@@ -467,6 +605,14 @@ class YomiEngine {
     if (tabDeck) {
       tabDeck.addEventListener('click', () => {
         this.activeShopTab = 'deck';
+        this.renderShopTab();
+      });
+    }
+
+    const tabTier4 = document.getElementById('tab-shop-tier4');
+    if (tabTier4) {
+      tabTier4.addEventListener('click', () => {
+        this.activeShopTab = 'tier4';
         this.renderShopTab();
       });
     }
@@ -591,7 +737,15 @@ class YomiEngine {
       EVENT_HORIZON_SLASH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 12a9 9 0 0 1-15 6.7L3 16M4 20L20 4"/></svg>',
       CHRONO_JUDGMENT: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/><path d="M3 3l18 18M21 3L3 21"/></svg>',
       THUNDER_METEOR: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8zM19 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>',
-      CARMINE_HARVEST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3a7.5 7.5 0 0 0-7 10.3L3 21l2 2 7.7-5.5A7.5 7.5 0 1 0 15.5 3zM18 6l3 3"/></svg>'
+      CARMINE_HARVEST: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3a7.5 7.5 0 0 0-7 10.3L3 21l2 2 7.7-5.5A7.5 7.5 0 1 0 15.5 3zM18 6l3 3"/></svg>',
+
+      // Tier 4 Zenith Singularity God-Arts
+      COSMIC_HYPERNOVA_ZERO: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+      SINGULARITY_EVENT_HORIZON_ZERO: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/></svg>',
+      CHRONO_CONTINUUM_EXECUTION: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 10"/><path d="M2 12h4M18 12h4M12 2v4M12 18v4M3 3l18 18"/></svg>',
+      INDRA_MJOLNIR_CATACLYSM: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8zM2 22h20M7 18l5-6 5 6"/></svg>',
+      VALKYRIE_RAGNAROK_GENESIS: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 7v6c0 5.5 3.5 10 8 11 4.5-1 8-5.5 8-11V7l-8-5z"/><path d="M12 6v12M8 12h8"/></svg>',
+      ASURA_OMNI_DIVINE_PUNISH: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
     };
     return icons[moveKey] || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
   }
@@ -624,11 +778,12 @@ class YomiEngine {
 
       const btn = document.createElement('button');
       btn.className = 'btn-move';
-      if (moveData.isApex) btn.classList.add('apex-move');
+      if (moveData.isTier4) btn.classList.add('tier4-move');
+      else if (moveData.isApex) btn.classList.add('apex-move');
       else if (moveData.isFusion) btn.classList.add('fusion-move');
       else if (moveData.isUpgraded) btn.classList.add('upgraded-move');
 
-      if (moveData.type === 'SPECIAL') btn.classList.add('special-btn');
+      if (moveData.type === 'SPECIAL' || moveData.isTier4) btn.classList.add('special-btn');
       btn.dataset.move = moveKey;
 
       // Frame & Spec Tag
@@ -654,7 +809,8 @@ class YomiEngine {
       const svgIcon = this.getMoveIconSVG(moveKey);
       const label = moveData.shortName || moveData.name.split(' ')[0] || moveKey;
       let badgeHtml = '';
-      if (moveData.isApex) badgeHtml = '<span class="move-badge badge-apex">APEX</span>';
+      if (moveData.isTier4) badgeHtml = '<span class="move-badge badge-tier4">ZENITH</span>';
+      else if (moveData.isApex) badgeHtml = '<span class="move-badge badge-apex">APEX</span>';
       else if (moveData.isFusion) badgeHtml = '<span class="move-badge badge-fusion">FUSION</span>';
       else if (moveData.isUpgraded) badgeHtml = '<span class="move-badge badge-upg">UPG</span>';
 
@@ -857,6 +1013,18 @@ class YomiEngine {
     this.relics.clear();
     this.moveUpgrades.clear();
     this.apexMoves.clear();
+    this.tier4Moves.clear();
+    this.playerHabits = {
+      jump: 0,
+      dash: 0,
+      sweep: 0,
+      airTech: 0,
+      block: 0,
+      parry: 0,
+      projectile: 0,
+      rush: 0,
+      totalTurns: 0
+    };
 
     // Reset standard starting deck
     this.ownedMoves = new Set([
@@ -880,18 +1048,45 @@ class YomiEngine {
     this.floorStage = stageNum || 1;
     this.enemyLastMoveKey = null;
 
-    // Generate enemy from 10-stage pool
-    const enemyData = generateEnemyData(this.currentFloor, this.floorStage);
+    // Generate enemy with difficulty scaling
+    const enemyData = generateEnemyData(this.currentFloor, this.floorStage, this.difficulty);
     this.currentOpponentData = enemyData;
 
-    // Instantiate Fighters
+    // Instantiate Primary Fighters
     this.player = new TacticalFighter('HUSTLER', 240, true, '#00f0ff');
     this.enemy = new TacticalFighter(enemyData.name, 784, false, enemyData.color);
+    this.enemy.isDeadFlag = false;
 
     // Apply custom visual colors
     if (enemyData.bodyColor) this.enemy.bodyColor = enemyData.bodyColor;
     if (enemyData.headColor) this.enemy.headColor = enemyData.headColor;
     if (enemyData.accentColor) this.enemy.accentColor = enemyData.accentColor;
+
+    // Multi-opponent Engine: Secondary Fighter Instantiation (Dual Boss / Gang-up Ambush)
+    const p2bCard = document.getElementById('p2-b-card');
+    if (enemyData.hasSecondEnemy && enemyData.secondEnemy) {
+      const e2Data = enemyData.secondEnemy;
+      this.enemy.x = 710;
+      this.enemy2 = new TacticalFighter(e2Data.name, 835, false, e2Data.color);
+      this.enemy2.isDeadFlag = false;
+      if (e2Data.bodyColor) this.enemy2.bodyColor = e2Data.bodyColor;
+      if (e2Data.headColor) this.enemy2.headColor = e2Data.headColor;
+      if (e2Data.accentColor) this.enemy2.accentColor = e2Data.accentColor;
+      this.enemy2.maxHp = e2Data.maxHp;
+      this.enemy2.hp = e2Data.maxHp;
+      this.enemy2.superMeter = e2Data.isBoss ? 40 : 10;
+
+      if (p2bCard) {
+        p2bCard.classList.remove('hidden');
+        const p2bName = document.getElementById('p2-b-name');
+        if (p2bName) p2bName.innerText = e2Data.name.toUpperCase();
+        const p2bArch = document.getElementById('p2-b-archetype');
+        if (p2bArch) p2bArch.innerText = e2Data.title ? e2Data.title.toUpperCase() : 'CO-BOSS';
+      }
+    } else {
+      this.enemy2 = null;
+      if (p2bCard) p2bCard.classList.add('hidden');
+    }
 
     // Apply Meta & Relic upgrades to Player
     const metaHp = (this.meta.upgrades.hp || 0) * 15;
@@ -900,6 +1095,9 @@ class YomiEngine {
     const titanHp = this.hasPerk('titan_vitality') ? 35 : 0;
     this.player.maxHp = 100 + metaHp + relicHp + holsterHp + titanHp;
     this.player.hp = this.player.maxHp;
+
+    // Adaptive Shield Perk (Energy Barrier)
+    this.player.barrierHp = this.hasPerk('adaptive_shield') ? 35 : 0;
 
     const metaSp = (this.meta.upgrades.sp || 0) * 15;
     const perkSp = this.hasPerk('ki_battery') ? 25 : 0;
@@ -923,7 +1121,8 @@ class YomiEngine {
     // Stage HUD Updates
     const stagePill = document.getElementById('stage-display');
     if (stagePill) {
-      stagePill.innerText = `FLOOR ${this.currentFloor} • STAGE ${this.floorStage} / 10`;
+      const diffTag = this.difficulty === 'HARD_PLUS' ? ' [HARD+]' : '';
+      stagePill.innerText = `FLOOR ${this.currentFloor} • STAGE ${this.floorStage} / 10${diffTag}`;
     }
 
     const p2Name = document.getElementById('p2-name');
@@ -934,6 +1133,15 @@ class YomiEngine {
       const archTag = enemyData.archetype ? ` • ${enemyData.archetype.toUpperCase()}` : '';
       p2Arch.innerText = enemyData.title ? `${enemyData.title.toUpperCase()}${archTag}` : (enemyData.isBoss ? 'BOSS' : 'FIGHTER');
       p2Arch.className = enemyData.isBoss ? 'boss-archetype-pill is-boss' : 'boss-archetype-pill';
+    }
+
+    // Encounter announcements
+    if (enemyData.isMiniBoss) {
+      this.showCombatToast('[WARNING] STAGE 5 MINI-BOSS: GUARANTEED RELIC / PASSIVE SPOILS!');
+    } else if (enemyData.isDualBoss) {
+      this.showCombatToast('[WARNING] DUAL BOSS CLASH: SYNARCHY ARCHONS SIMULTANEOUS DUEL!');
+    } else if (enemyData.hasSecondEnemy) {
+      this.showCombatToast('[WARNING] AMBUSH DETECTED: MULTIPLE OPPONENTS!');
     }
 
     // Reset Combat States
@@ -964,9 +1172,12 @@ class YomiEngine {
 
     this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
     this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
+    if (this.enemy2 && this.enemy2.hp > 0) {
+      this.enemy2.facing = this.enemy2.x < this.player.x ? 1 : -1;
+    }
 
     // Vulnerable State Lifecycle and Whiff Detection for Mobility Attacks
-    [this.player, this.enemy].forEach(f => {
+    [this.player, this.enemy, this.enemy2].forEach(f => {
       if (!f) return;
       if (f.moveKey) {
         const isMob = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(f.moveKey) ||
@@ -1017,20 +1228,24 @@ class YomiEngine {
     this.rebuildMoveButtons();
   }
 
-  // ── INTELLIGENT SCALING AI (POOL & TIER BASED, ANTI-TURTLING, AIR RECOVERY, DYNAMIC FOSTERING) ──────
-  chooseAIMove() {
-    const opp = this.currentOpponentData || {};
+  // ── INTELLIGENT SCALING AI (POOL & TIER BASED, ANTI-TURTLING, AIR RECOVERY, DYNAMIC FOSTERING, HABIT COUNTERING) ──────
+  chooseAIMove(aiFighter = this.enemy) {
+    if (!aiFighter) return 'STEP_FWD';
+    const isSecondEnemy = (aiFighter === this.enemy2);
+    const opp = (isSecondEnemy && this.currentOpponentData && this.currentOpponentData.secondEnemy)
+      ? this.currentOpponentData.secondEnemy
+      : (this.currentOpponentData || {});
     const movePool = [...(opp.moves || ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK']), 'AIR_RECOVERY'];
-    const aiTier = opp.aiTier || 'BALANCED';
+    const aiTier = opp.aiTier || (this.difficulty === 'HARD_PLUS' ? 'TACTICAL' : 'BALANCED');
     const bossKey = opp.catalogKey || '';
     const archetype = opp.archetype || 'all_rounder';
-    const dist = Math.abs(this.enemy.x - this.player.x);
+    const dist = Math.abs(aiFighter.x - this.player.x);
     const rand = Math.random();
     const playerInHitstun = this.player.hitstunFrames > 0;
     const playerAirborne = this.player.isAirborne || this.player.y < this.player.floorY - 10;
     const playerVulnerable = !!this.player.isVulnerable;
-    const enemyAirborne = this.enemy.isAirborne || this.enemy.y < this.enemy.floorY - 10;
-    const enemyInHitstun = this.enemy.hitstunFrames > 0;
+    const fighterAirborne = aiFighter.isAirborne || aiFighter.y < aiFighter.floorY - 10;
+    const fighterInHitstun = aiFighter.hitstunFrames > 0;
 
     // Progression scaling: Reaction accuracy & Air Tech proficiency by Tier
     const tierReactionRates = {
@@ -1041,7 +1256,7 @@ class YomiEngine {
       VETERAN: 0.93,
       BOSS: 0.99
     };
-    const reactionRate = tierReactionRates[aiTier] || 0.70;
+    const reactionRate = tierReactionRates[aiTier] || (this.difficulty === 'HARD_PLUS' ? 0.92 : 0.70);
 
     const airTechRates = {
       NOVICE: 0.35,
@@ -1051,7 +1266,7 @@ class YomiEngine {
       VETERAN: 0.92,
       BOSS: 0.99
     };
-    const airTechRate = airTechRates[aiTier] || 0.60;
+    const airTechRate = airTechRates[aiTier] || (this.difficulty === 'HARD_PLUS' ? 0.92 : 0.60);
 
     // Helper: Pick best available move matching conditions and having enough SP
     const canUse = (key, minSp = 0) => {
@@ -1059,33 +1274,96 @@ class YomiEngine {
       const mData = this.getMoveData(key, false);
       const cost = (mData && mData.superCost > 0) ? mData.superCost : 0;
       const required = Math.max(minSp, cost);
-      if (required > 0 && this.enemy.superMeter < required) return false;
+      if (required > 0 && aiFighter.superMeter < required) return false;
       return true;
     };
 
     // 0. AERIAL UKEMI RECOVERY: Break out of juggle combos and aerial tumble
-    if (enemyAirborne && enemyInHitstun) {
+    if (fighterAirborne && fighterInHitstun) {
       if (Math.random() < airTechRate) {
+        if (canUse('VALKYRIE_RAGNAROK_GENESIS')) return 'VALKYRIE_RAGNAROK_GENESIS';
         if (canUse('VALKYRIE_ASCENT')) return 'VALKYRIE_ASCENT';
         if (canUse('AIR_RECOVERY')) return 'AIR_RECOVERY';
       }
     }
 
+    // 0.5 TIER 4 SUPREME GOD-ARTS USAGE (Pantheon Bosses & Demiurges)
+    const godArts = [
+      'COSMIC_HYPERNOVA_ZERO',
+      'SINGULARITY_EVENT_HORIZON_ZERO',
+      'CHRONO_CONTINUUM_EXECUTION',
+      'INDRA_MJOLNIR_CATACLYSM',
+      'VALKYRIE_RAGNAROK_GENESIS',
+      'ASURA_OMNI_DIVINE_PUNISH'
+    ];
+    for (const godArt of godArts) {
+      if (canUse(godArt) && dist < 220 && Math.random() < (this.difficulty === 'HARD_PLUS' ? 0.85 : 0.70)) {
+        return godArt;
+      }
+    }
+
+    // 0.6 ADAPTIVE LEARNING COUNTER-AI (Habit Counter Priority)
+    if (this.difficulty === 'HARD_PLUS' || aiTier === 'BOSS' || aiTier === 'VETERAN' || this.currentFloor >= 3) {
+      const habits = this.playerHabits;
+      if (habits && habits.totalTurns >= 3) {
+        let counterKey = null;
+        if (habits.jump >= 3 && habits.jump / habits.totalTurns > 0.22) {
+          if (canUse('INDRA_MJOLNIR_CATACLYSM')) counterKey = 'INDRA_MJOLNIR_CATACLYSM';
+          else if (canUse('VALKYRIE_RAGNAROK_GENESIS')) counterKey = 'VALKYRIE_RAGNAROK_GENESIS';
+          else if (canUse('VALKYRIE_ASCENT')) counterKey = 'VALKYRIE_ASCENT';
+          else if (canUse('DRAGON_UPPER')) counterKey = 'DRAGON_UPPER';
+          else if (canUse('LAUNCHER')) counterKey = 'LAUNCHER';
+        } else if (habits.block >= 3 && habits.block / habits.totalTurns > 0.22) {
+          if (canUse('SINGULARITY_EVENT_HORIZON_ZERO')) counterKey = 'SINGULARITY_EVENT_HORIZON_ZERO';
+          else if (canUse('VOID_CLEAVE')) counterKey = 'VOID_CLEAVE';
+          else if (canUse('SONIC_PALM')) counterKey = 'SONIC_PALM';
+          else if (canUse('SWEEP')) counterKey = 'SWEEP';
+          else if (canUse('GRAVITY_CRUSH')) counterKey = 'GRAVITY_CRUSH';
+          else if (canUse('JUDGMENT_CUT')) counterKey = 'JUDGMENT_CUT';
+        } else if (habits.parry >= 2 && habits.parry / habits.totalTurns > 0.15) {
+          if (canUse('COSMIC_HYPERNOVA_ZERO')) counterKey = 'COSMIC_HYPERNOVA_ZERO';
+          else if (canUse('KI_BLAST')) counterKey = 'KI_BLAST';
+          else if (canUse('FIRE_BURST')) counterKey = 'FIRE_BURST';
+          else if (canUse('STEP_BACK')) counterKey = 'STEP_BACK';
+        } else if (habits.sweep >= 3 && habits.sweep / habits.totalTurns > 0.22) {
+          if (canUse('VALKYRIE_RAGNAROK_GENESIS')) counterKey = 'VALKYRIE_RAGNAROK_GENESIS';
+          else if (canUse('DIVE_KICK')) counterKey = 'DIVE_KICK';
+          else if (canUse('JUMP')) counterKey = 'JUMP';
+          else if (canUse('AIR_RECOVERY')) counterKey = 'AIR_RECOVERY';
+        } else if (habits.projectile >= 3 && habits.projectile / habits.totalTurns > 0.22) {
+          if (canUse('CHRONO_CONTINUUM_EXECUTION')) counterKey = 'CHRONO_CONTINUUM_EXECUTION';
+          else if (canUse('RAIKIRI_WARP')) counterKey = 'RAIKIRI_WARP';
+          else if (canUse('SUPER_DASH')) counterKey = 'SUPER_DASH';
+          else if (canUse('EVENT_HORIZON_SLASH')) counterKey = 'EVENT_HORIZON_SLASH';
+        }
+
+        if (counterKey && Math.random() < (this.difficulty === 'HARD_PLUS' ? 0.85 : 0.65)) {
+          if (this.hasPerk('tactical_adaptation_mirror')) {
+            aiFighter.hp = Math.max(1, aiFighter.hp - 25);
+            this.addDamageText(aiFighter.x, aiFighter.y - 75, 'MIRROR REVERSAL! 25 DMG', '#c084fc', true);
+            this.spawnSparks(aiFighter.x, aiFighter.y - 45, '#c084fc', 18);
+          }
+          return counterKey;
+        }
+      }
+    }
+
     // Defensive moves definition & Anti-Turtling System
-    const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER', 'MIRAGE_RIPOSTE'];
-    const wasDefending = defensiveMoves.includes(this.enemyLastMoveKey);
+    const defensiveMoves = ['BLOCK', 'PARRY', 'AEGIS_REFLECT', 'BLADE_COUNTER', 'MIRAGE_RIPOSTE', 'ASURA_OMNI_DIVINE_PUNISH'];
+    const prevMoveKey = isSecondEnemy ? this.selectedEnemy2Move : this.enemyLastMoveKey;
+    const wasDefending = defensiveMoves.includes(prevMoveKey);
     const isBerserker = bossKey === 'boss_crimson_oni' || archetype === 'berserker';
     const allowDefense = !wasDefending && !playerInHitstun && !playerAirborne && !playerVulnerable && !isBerserker;
 
     // Grounded hitstun defense: can attempt block or step back
-    if (this.enemy.hitstunFrames > 0 && !enemyAirborne) {
+    if (aiFighter.hitstunFrames > 0 && !fighterAirborne) {
       if (allowDefense && movePool.includes('BLOCK')) return 'BLOCK';
       if (allowDefense && movePool.includes('PARRY') && rand < 0.25) return 'PARRY';
       return movePool.includes('STEP_BACK') ? 'STEP_BACK' : 'STEP_FWD';
     }
 
     // SITUATIONAL REACTION 1: FREE AIR COMBAT (Enemy is in mid-air, not stunned)
-    if (enemyAirborne) {
+    if (fighterAirborne) {
       if (dist < 130) {
         if (canUse('GRAVITY_CRUSH')) return 'GRAVITY_CRUSH';
         if (canUse('THUNDER_METEOR')) return 'THUNDER_METEOR';
@@ -1175,7 +1453,7 @@ class YomiEngine {
     }
 
     // SITUATIONAL REACTION 5: CORNER ESCAPE (Enemy trapped near edge)
-    const isCornered = (this.enemy.x < 130 && this.enemy.facing === 1) || (this.enemy.x > 890 && this.enemy.facing === -1);
+    const isCornered = (aiFighter.x < 130 && aiFighter.facing === 1) || (aiFighter.x > 890 && aiFighter.facing === -1);
     if (isCornered) {
       if (canUse('SHADOW_TELEPORT')) return 'SHADOW_TELEPORT';
       if (canUse('GHOST_STEP')) return 'GHOST_STEP';
@@ -1441,13 +1719,15 @@ class YomiEngine {
     return 'STEP_FWD';
   }
 
-  getAIAimAngle(moveKey) {
-    const dx = (this.player.x - this.enemy.x) * this.enemy.facing;
-    const dy = -(this.player.y - this.enemy.y);
+  getAIAimAngle(moveKey, fighter = this.enemy) {
+    if (!fighter) fighter = this.enemy;
+    const target = this.player;
+    const dx = (target.x - fighter.x) * fighter.facing;
+    const dy = -(target.y - fighter.y);
     const directAngle = Math.round(Math.atan2(dy, Math.max(1, dx)) * 180 / Math.PI);
 
-    if (moveKey === 'AIR_RECOVERY' || moveKey === 'VALKYRIE_ASCENT') {
-      const dist = Math.abs(this.enemy.x - this.player.x);
+    if (moveKey === 'AIR_RECOVERY' || moveKey === 'VALKYRIE_ASCENT' || moveKey === 'VALKYRIE_RAGNAROK_GENESIS') {
+      const dist = Math.abs(fighter.x - target.x);
       // If player is close and trying to anti-air juggle, tech back and up
       if (dist < 160) {
         return 135;
@@ -1457,10 +1737,10 @@ class YomiEngine {
     }
 
     if (['JUMP', 'DOUBLE_JUMP'].includes(moveKey)) {
-      return this.player.isAirborne ? Math.max(45, directAngle) : 45;
+      return target.isAirborne ? Math.max(45, directAngle) : 45;
     }
 
-    if (moveKey === 'DIVE_KICK' || moveKey === 'COMET_CRASH' || moveKey === 'GRAVITY_CRUSH' || moveKey === 'THUNDER_METEOR') {
+    if (moveKey === 'DIVE_KICK' || moveKey === 'COMET_CRASH' || moveKey === 'GRAVITY_CRUSH' || moveKey === 'THUNDER_METEOR' || moveKey === 'INDRA_MJOLNIR_CATACLYSM') {
       return Math.min(-30, Math.max(-85, directAngle));
     }
 
@@ -1476,7 +1756,7 @@ class YomiEngine {
       return 60;
     }
 
-    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'DASH', 'SUPER_DASH', 'SHADOW_PULL', 'CHRONO_STASIS', 'SOUL_REAP', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP', 'SONIC_PALM', 'BLOOD_RUSH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'CARMINE_HARVEST'].includes(moveKey)) {
+    if (['KI_BLAST', 'FIRE_BURST', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'DASH', 'SUPER_DASH', 'SHADOW_PULL', 'CHRONO_STASIS', 'SOUL_REAP', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP', 'SONIC_PALM', 'BLOOD_RUSH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'CARMINE_HARVEST', 'COSMIC_HYPERNOVA_ZERO', 'SINGULARITY_EVENT_HORIZON_ZERO', 'CHRONO_CONTINUUM_EXECUTION'].includes(moveKey)) {
       // Dynamic true elevation angle targeting!
       return Math.min(75, Math.max(-45, directAngle));
     }
@@ -1515,12 +1795,39 @@ class YomiEngine {
     const tacPanel = document.getElementById('tactical-panel');
     if (tacPanel) tacPanel.classList.add('hidden');
 
-    this.selectedEnemyMove = this.chooseAIMove();
+    // Adaptive Habit Learning Tracker: profile player decision tendencies across turns
+    if (this.playerHabits) {
+      this.playerHabits.totalTurns = (this.playerHabits.totalTurns || 0) + 1;
+      if (this.selectedPlayerMove === 'JUMP') this.playerHabits.jump++;
+      else if (this.selectedPlayerMove === 'DASH') this.playerHabits.dash++;
+      else if (this.selectedPlayerMove === 'SWEEP') this.playerHabits.sweep++;
+      else if (this.selectedPlayerMove === 'AIR_RECOVERY') this.playerHabits.airTech++;
+      else if (this.selectedPlayerMove === 'BLOCK') this.playerHabits.block++;
+      else if (this.selectedPlayerMove === 'PARRY') this.playerHabits.parry++;
+      if (pData && (pData.projectile || pData.isSpatial || this.selectedPlayerMove === 'KI_BLAST')) {
+        this.playerHabits.projectile++;
+      }
+      if (pData && pData.startup <= 4 && pData.damage > 0) {
+        this.playerHabits.rush++;
+      }
+    }
+
+    this.selectedEnemyMove = this.chooseAIMove(this.enemy);
     this.enemyLastMoveKey = this.selectedEnemyMove;
-    const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove);
+    const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove, this.enemy);
 
     this.player.executeMove(this.selectedPlayerMove, this.selectedAimAngle);
     this.enemy.executeMove(this.selectedEnemyMove, enemyAimAngle);
+
+    let e2Dur = 0;
+    if (this.enemy2 && this.enemy2.hp > 0) {
+      this.selectedEnemy2Move = this.chooseAIMove(this.enemy2);
+      this.enemy2LastMoveKey = this.selectedEnemy2Move;
+      const enemy2AimAngle = this.getAIAimAngle(this.selectedEnemy2Move, this.enemy2);
+      this.enemy2.executeMove(this.selectedEnemy2Move, enemy2AimAngle);
+      const e2Data = this.getMoveData(this.selectedEnemy2Move, false);
+      e2Dur = (e2Data && e2Data.duration) || 16;
+    }
 
     // Phantom Dash Trap Perk
     if (this.selectedPlayerMove === 'DASH' && this.hasPerk('phantom_dash')) {
@@ -1531,7 +1838,7 @@ class YomiEngine {
     const eData = this.getMoveData(this.selectedEnemyMove, false);
     const pDur = (pData && pData.duration) || 16;
     const eDur = (eData && eData.duration) || 16;
-    this.simFramesLeft = Math.max(pDur, eDur, 18);
+    this.simFramesLeft = Math.max(pDur, eDur, e2Dur, 18);
   }
 
   recordFrame() {
@@ -1593,6 +1900,34 @@ class YomiEngine {
         title: (this.currentOpponentData && this.currentOpponentData.title) || '',
         afterimages: this.enemy.afterimages.map(a => ({ ...a }))
       },
+      e2: (this.enemy2 && this.enemy2.hp > 0) ? {
+        x: this.enemy2.x,
+        y: this.enemy2.y,
+        floorY: this.enemy2.floorY,
+        facing: this.enemy2.facing,
+        color: this.enemy2.color,
+        bodyColor: this.enemy2.bodyColor,
+        headColor: this.enemy2.headColor,
+        accentColor: this.enemy2.accentColor,
+        width: this.enemy2.width,
+        height: this.enemy2.height,
+        isAirborne: this.enemy2.isAirborne,
+        isInvulnerable: this.enemy2.isInvulnerable,
+        isBlocking: this.enemy2.isBlocking,
+        isParrying: this.enemy2.isParrying,
+        isVulnerable: this.enemy2.isVulnerable,
+        hitstunFrames: this.enemy2.hitstunFrames,
+        moveKey: this.enemy2.moveKey,
+        moveFrame: this.enemy2.moveFrame,
+        animTick: this.enemy2.animTick,
+        hp: this.enemy2.hp,
+        maxHp: this.enemy2.maxHp,
+        superMeter: this.enemy2.superMeter,
+        maxSuper: this.enemy2.maxSuper,
+        catalogKey: this.enemy2.catalogKey,
+        name: this.enemy2.name,
+        afterimages: this.enemy2.afterimages.map(a => ({ ...a }))
+      } : null,
       projectiles: this.projectiles.map(pr => ({ x: pr.x, y: pr.y, radius: pr.radius, color: pr.color })),
       spatialRifts: this.spatialRifts.map(sr => ({ x: sr.x, y: sr.y, radius: sr.radius, life: sr.life, maxLife: sr.maxLife })),
       particles: this.particles.map(pt => ({ x: pt.x, y: pt.y, color: pt.color, size: pt.size, life: pt.life, maxLife: pt.maxLife })),
@@ -1605,24 +1940,32 @@ class YomiEngine {
     this.evaluateHit(this.player, this.enemy);
     this.evaluateHit(this.enemy, this.player);
 
+    if (this.enemy2 && this.enemy2.hp > 0) {
+      this.evaluateHit(this.player, this.enemy2);
+      this.evaluateHit(this.enemy2, this.player);
+    }
+
     for (let i = this.spatialRifts.length - 1; i >= 0; i--) {
       const rift = this.spatialRifts[i];
       rift.update();
       if (!rift.hasHit && rift.life <= 14) {
-        const target = rift.isPlayer ? this.enemy : this.player;
-        const d = Math.hypot(rift.x - target.x, rift.y - (target.y - 45));
-        if (d <= rift.radius + 25) {
-          rift.hasHit = true;
-          const dmg = target.takeHit(rift.damage, rift.isPlayer ? this.player : this.enemy, true);
-          this.spawnSparks(target.x, target.y - 45, '#00f0ff', 24);
-          if (typeof PixelFX !== 'undefined') {
-            PixelFX.spawnVoidRift(target.x, target.y - 45, 1, 68);
-          }
-          if (rift.stasisFreeze) {
-            target.hitstunFrames = Math.max(target.hitstunFrames, rift.stasisFreeze);
-            this.addDamageText(target.x, target.y - 70, `${dmg} STASIS FREEZE!`, '#00f0ff', true);
-          } else {
-            this.addDamageText(target.x, target.y - 70, `${dmg} SPATIAL!`, '#00f0ff', true);
+        const potentialTargets = rift.isPlayer ? [this.enemy, this.enemy2].filter(e => e && e.hp > 0) : [this.player];
+        for (const target of potentialTargets) {
+          const d = Math.hypot(rift.x - target.x, rift.y - (target.y - 45));
+          if (d <= rift.radius + 25) {
+            rift.hasHit = true;
+            const dmg = target.takeHit(rift.damage, rift.isPlayer ? this.player : this.enemy, true);
+            this.spawnSparks(target.x, target.y - 45, '#00f0ff', 24);
+            if (typeof PixelFX !== 'undefined') {
+              PixelFX.spawnVoidRift(target.x, target.y - 45, 1, 68);
+            }
+            if (rift.stasisFreeze) {
+              target.hitstunFrames = Math.max(target.hitstunFrames, rift.stasisFreeze);
+              this.addDamageText(target.x, target.y - 70, `${dmg} STASIS FREEZE!`, '#00f0ff', true);
+            } else {
+              this.addDamageText(target.x, target.y - 70, `${dmg} SPATIAL!`, '#00f0ff', true);
+            }
+            break;
           }
         }
       }
@@ -1750,6 +2093,32 @@ class YomiEngine {
         // Grandmaster Arsenal Relic (Defender has >= 11 equipped moves: 15% damage reduction)
         if (defender.isPlayer && this.hasPerk('grandmaster_arsenal') && this.equippedMoves.size >= 11) {
           dmg = Math.max(1, Math.round(dmg * 0.85));
+        }
+
+        // Crowd Breaker Perk: +25% dmg and +15 SP when facing multiple opponents
+        if (attacker.isPlayer && this.enemy2 && this.enemy2.hp > 0 && this.hasPerk('crowd_breaker')) {
+          dmg = Math.round(dmg * 1.25);
+          attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 15);
+        }
+
+        // Twin Slayer Seal Relic: +35% dmg vs multiple enemies, -20% dmg taken
+        if (attacker.isPlayer && this.enemy2 && this.enemy2.hp > 0 && this.hasPerk('twin_slayer_seal')) {
+          dmg = Math.round(dmg * 1.35);
+        }
+        if (defender.isPlayer && this.enemy2 && this.enemy2.hp > 0 && this.hasPerk('twin_slayer_seal')) {
+          dmg = Math.max(1, Math.round(dmg * 0.80));
+        }
+
+        // Zenith Mastery Perk: Tier 4 Singularity arts deal +35 bonus damage and refund 30 SP
+        if (attacker.isPlayer && move.isTier4 && this.hasPerk('zenith_mastery')) {
+          dmg += 35;
+          attacker.superMeter = Math.min(attacker.maxSuper, attacker.superMeter + 30);
+          this.addDamageText(attacker.x, attacker.y - 95, '+35 ZENITH MASTERY!', '#ffd700', true);
+        }
+
+        // Astral Void Catalyst Relic: +6 frames temporal stasis
+        if (attacker.isPlayer && this.hasPerk('astral_void_catalyst')) {
+          defender.hitstunFrames += 6;
         }
 
         // Momentum Engine Perk
@@ -1916,6 +2285,18 @@ class YomiEngine {
     if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
     if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(this.enemy.hp)} / ${this.enemy.maxHp}`;
     if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
+
+    // Secondary Opponent HUD (Dual Boss / Multi-opponent)
+    if (this.enemy2) {
+      const p2bHp = Math.max(0, (this.enemy2.hp / this.enemy2.maxHp) * 100);
+      const p2bSp = Math.max(0, (this.enemy2.superMeter / this.enemy2.maxSuper) * 100);
+      const p2bHpBar = document.getElementById('p2-b-hp-bar');
+      const p2bHpTxt = document.getElementById('p2-b-hp-text');
+      const p2bSpBar = document.getElementById('p2-b-super-bar');
+      if (p2bHpBar) p2bHpBar.style.width = `${p2bHp}%`;
+      if (p2bHpTxt) p2bHpTxt.innerText = `${Math.ceil(this.enemy2.hp)} / ${this.enemy2.maxHp}`;
+      if (p2bSpBar) p2bSpBar.style.width = `${p2bSp}%`;
+    }
   }
 
   update() {
@@ -1942,38 +2323,64 @@ class YomiEngine {
     if (this.turnState === 'SIMULATING') {
       this.player.updateFramePhysics();
       this.enemy.updateFramePhysics();
+      if (this.enemy2 && this.enemy2.hp > 0) {
+        this.enemy2.updateFramePhysics();
+      }
       this.checkTacticalStrikes();
 
       // Projectiles update
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         const p = this.projectiles[i];
         p.update();
-        const target = p.isPlayer ? this.enemy : this.player;
-        const d = Math.hypot(p.x - target.x, p.y - (target.y - 45));
-        if (d < p.radius + 30) {
-          target.takeHit(p.damage, p.isPlayer ? this.player : this.enemy, false);
-          this.spawnSparks(p.x, p.y, p.color, 14);
-          if (p.pullsFoe) {
-            const attacker = p.isPlayer ? this.player : this.enemy;
-            target.x = attacker.x + attacker.facing * 85;
-            target.vx = 0;
-            this.addDamageText(target.x, target.y - 75, 'GRAVITY PULL!', '#9d4edd', true);
+        const targets = p.isPlayer ? [this.enemy, this.enemy2].filter(e => e && e.hp > 0) : [this.player];
+        for (const target of targets) {
+          const d = Math.hypot(p.x - target.x, p.y - (target.y - 45));
+          if (d < p.radius + 30) {
+            target.takeHit(p.damage, p.isPlayer ? this.player : this.enemy, false);
+            this.spawnSparks(p.x, p.y, p.color, 14);
+            if (p.pullsFoe) {
+              const attacker = p.isPlayer ? this.player : this.enemy;
+              target.x = attacker.x + attacker.facing * 85;
+              target.vx = 0;
+              this.addDamageText(target.x, target.y - 75, 'GRAVITY PULL!', '#9d4edd', true);
+            }
+            if (typeof PixelFX !== 'undefined') {
+              PixelFX.spawnHitSpark(p.x, p.y, p.color, 24);
+            }
+            p.active = false;
+            break;
           }
-          if (typeof PixelFX !== 'undefined') {
-            PixelFX.spawnHitSpark(p.x, p.y, p.color, 24);
-          }
-          p.active = false;
         }
         if (!p.active) this.projectiles.splice(i, 1);
+      }
+
+      // Enraged dynamic: when one enemy falls in dual battle, the surviving one becomes enraged
+      if (this.enemy2) {
+        if (this.enemy.hp <= 0 && !this.enemy.isDeadFlag && this.enemy2.hp > 0) {
+          this.enemy.isDeadFlag = true;
+          this.enemy2.atkBonus = (this.enemy2.atkBonus || 0) + 15;
+          this.addDamageText(this.enemy2.x, this.enemy2.y - 70, 'ENRAGED! +15 ATK', '#ff3366', true);
+          this.spawnSparks(this.enemy2.x, this.enemy2.y - 45, '#ff3366', 20);
+        }
+        if (this.enemy2.hp <= 0 && !this.enemy2.isDeadFlag && this.enemy.hp > 0) {
+          this.enemy2.isDeadFlag = true;
+          this.enemy.atkBonus = (this.enemy.atkBonus || 0) + 15;
+          this.addDamageText(this.enemy.x, this.enemy.y - 70, 'ENRAGED! +15 ATK', '#ff3366', true);
+          this.spawnSparks(this.enemy.x, this.enemy.y - 45, '#ff3366', 20);
+        }
       }
 
       this.recordFrame();
       this.updateHUD();
 
-      // Check Victory or Defeat
-      if (this.player.hp <= 0 || this.enemy.hp <= 0) {
+      // Check Victory or Defeat (Supports multi-opponent combat)
+      const enemy1Dead = this.enemy.hp <= 0;
+      const enemy2Dead = !this.enemy2 || this.enemy2.hp <= 0;
+      const allEnemiesDead = enemy1Dead && enemy2Dead;
+
+      if (this.player.hp <= 0 || allEnemiesDead) {
         this.turnState = 'ROUND_OVER';
-        if (this.enemy.hp <= 0) {
+        if (allEnemiesDead) {
           this.handleVictory();
         } else {
           this.handleDefeat();
@@ -2001,10 +2408,16 @@ class YomiEngine {
     this.gold += earnedGold;
     this.updateHUD();
 
+    // Stage 5 Mini-Boss Spoils: Guaranteed Relic or Passive Perk
+    if (this.floorStage === 5) {
+      this.showMiniBossReward();
+      return;
+    }
+
     // Check if Stage 10 Boss was defeated
     if (this.floorStage >= 10) {
-      if (this.currentFloor >= 3) {
-        // Run Complete: Defeated Final Boss!
+      if (this.currentFloor >= 4) {
+        // Run Complete: Defeated Floor 4 Supreme Primordial Singularity!
         this.showFinalVictory();
       } else {
         // Floor Clear: Open Floor Victory screen
@@ -2024,17 +2437,89 @@ class YomiEngine {
     }
   }
 
+  showMiniBossReward() {
+    const container = document.getElementById('miniboss-cards-container');
+    if (!container) {
+      this.showDraftOverlay();
+      return;
+    }
+    container.innerHTML = '';
+
+    // Collect candidate rewards: unowned Relics + unowned Rare/Legendary Passives
+    const availableRelics = (typeof SHOP_RELICS !== 'undefined' ? SHOP_RELICS : []).filter(r => !this.relics.has(r.id));
+    const availablePassives = (typeof ROGUELITE_PERKS !== 'undefined' ? ROGUELITE_PERKS : []).filter(p => !this.activePerks.has(p.id) && ['rare', 'legendary'].includes(p.tier || p.rarity));
+
+    const candidates = [];
+    availableRelics.forEach(r => candidates.push({ type: 'RELIC', data: r }));
+    availablePassives.forEach(p => candidates.push({ type: 'PERK', data: p }));
+
+    // Shuffle and pick 3
+    const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+    const picks = shuffled.slice(0, 3);
+
+    // If less than 3, fallback with Gold Cache
+    while (picks.length < 3) {
+      picks.push({
+        type: 'GOLD',
+        data: {
+          id: 'gold_cache_' + picks.length,
+          name: 'Sanctuary Gold Cache',
+          desc: 'Instantly gain +80 Gold for Sanctuary Shop upgrades.',
+          svgIcon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M15 9.5H9.5a2 2 0 0 0 0 4h5a2 2 0 0 1 0 4H9"/></svg>`
+        }
+      });
+    }
+
+    picks.forEach(pick => {
+      const card = document.createElement('div');
+      card.className = 'perk-card';
+      const item = pick.data;
+      const isRelic = pick.type === 'RELIC';
+      const tierVal = item.tier || item.rarity || 'rare';
+      const badgeText = isRelic ? 'ANCIENT RELIC' : (pick.type === 'GOLD' ? 'GOLD SPOILS' : `${tierVal.toUpperCase()} PASSIVE`);
+      const badgeClass = isRelic ? 'badge-fusion' : (tierVal === 'legendary' ? 'badge-apex' : 'badge-upg');
+      const iconSvg = item.svgIcon || this.getMoveIconSVG('PARRY');
+
+      card.innerHTML = `
+        <span class="perk-badge ${badgeClass}">${badgeText}</span>
+        <div class="perk-icon">${iconSvg}</div>
+        <div class="perk-name">${item.name}</div>
+        <div class="perk-desc">${item.desc}</div>
+      `;
+
+      card.addEventListener('click', () => {
+        SFX.playCoin();
+        if (pick.type === 'RELIC') {
+          this.relics.add(item.id);
+          this.addDamageText(this.player.x, this.player.y - 75, `RELIC: ${item.name}!`, '#ffd700', true);
+        } else if (pick.type === 'PERK') {
+          this.activePerks.add(item.id);
+          this.addDamageText(this.player.x, this.player.y - 75, `PERK: ${item.name}!`, '#00f0ff', true);
+        } else if (pick.type === 'GOLD') {
+          this.gold += 80;
+          this.addDamageText(this.player.x, this.player.y - 75, '+80 GOLD!', '#ffd700', true);
+        }
+        document.getElementById('screen-miniboss-reward').classList.remove('active');
+        this.openShop();
+      });
+
+      container.appendChild(card);
+    });
+
+    document.getElementById('screen-miniboss-reward').classList.add('active');
+  }
+
   showFinalVictory() {
     const vicEl = document.getElementById('screen-victory');
     if (vicEl) {
-      document.getElementById('victory-headline').innerText = 'EXPEDITION COMPLETE!';
-      document.getElementById('victory-sub').innerText = `You have defeated Emperor Zenith and become the Supreme God of Hustle!`;
+      document.getElementById('victory-headline').innerText = 'EXPEDITION COMPLETE: SUPREME GOD OF HUSTLE!';
+      document.getElementById('victory-sub').innerText = 'You have conquered the Astral Singularity, vanquished the Primordial Demiurge, and ascended to the Pantheon of Eternity!';
       const btnNext = document.getElementById('btn-next-floor');
       if (btnNext) {
-        btnNext.innerText = 'RESTART EXPEDITION';
+        btnNext.innerText = 'RETURN TO START MENU';
         btnNext.onclick = () => {
           vicEl.classList.remove('active');
-          this.startExpedition();
+          document.getElementById('screen-title').classList.add('active');
         };
       }
       vicEl.classList.add('active');
@@ -2149,6 +2634,8 @@ class YomiEngine {
     waresView.innerHTML = '';
     waresView.style.display = 'grid';
     deckView.style.display = 'none';
+    const tier4View = document.getElementById('shop-tier4-view');
+    if (tier4View) tier4View.style.display = 'none';
 
     if (this.activeShopTab === 'armory') {
       if (armoryTab) armoryTab.classList.add('active');
@@ -2272,7 +2759,91 @@ class YomiEngine {
       if (deckTab) deckTab.classList.add('active');
       waresView.style.display = 'none';
       deckView.style.display = 'block';
+      if (tier4View) tier4View.style.display = 'none';
       this.renderDeckCustomizer();
+
+    } else if (this.activeShopTab === 'tier4') {
+      const tier4Tab = document.getElementById('tab-shop-tier4');
+      if (tier4Tab) tier4Tab.classList.add('active');
+      waresView.style.display = 'none';
+      deckView.style.display = 'none';
+      if (tier4View) {
+        tier4View.style.display = 'block';
+        const container = document.getElementById('tier4-forge-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const recipes = (typeof TIER4_RECIPES !== 'undefined') ? TIER4_RECIPES : [];
+        recipes.forEach(recipe => {
+          const isOwned = this.ownedMoves.has(recipe.targetKey) || this.tier4Moves.has(recipe.targetKey);
+          const hasFusion = this.ownedMoves.has(recipe.fusionReq);
+          const hasApex = this.ownedMoves.has(recipe.apexReq) || this.apexMoves.has(recipe.apexReq);
+          const hasIngredients = hasFusion && hasApex;
+          const cost = this.hasPerk('zenith_singularity_core') ? Math.round(recipe.cost * 0.5) : recipe.cost;
+          const canAfford = this.gold >= cost;
+
+          const fMove = MOVES[recipe.fusionReq] || {};
+          const aMove = MOVES[recipe.apexReq] || {};
+
+          const card = document.createElement('div');
+          card.className = 'shop-card';
+          card.style.borderColor = isOwned ? '#ffd700' : (hasIngredients ? '#c084fc' : '#23334a');
+
+          let actionBtnHtml = '';
+          if (isOwned) {
+            actionBtnHtml = `<button class="btn-primary" style="margin-top: 12px; padding: 7px 16px; font-size: 12px; background: #23334a; color: #a0aec0;" disabled>MASTERED</button>`;
+          } else if (!hasIngredients) {
+            actionBtnHtml = `<button class="btn-primary" style="margin-top: 12px; padding: 7px 16px; font-size: 12px; background: #1a202c; color: #718096;" disabled>REQUIRES COMPONENTS</button>`;
+          } else {
+            actionBtnHtml = `<button class="btn-primary" style="margin-top: 12px; padding: 7px 16px; font-size: 12px; background: linear-gradient(135deg, #c084fc, #ffd700);" ${!canAfford ? 'disabled' : ''}>FORGE ZENITH GOD-ART</button>`;
+          }
+
+          card.innerHTML = `
+            <div>
+              <div class="shop-card-header">
+                <span class="perk-badge badge-apex">TIER 4 ZENITH</span>
+                <span class="shop-price">${cost} G</span>
+              </div>
+              <div class="perk-name" style="color: #ffd700;">${recipe.name}</div>
+              <div class="perk-desc">${recipe.desc}</div>
+              <div style="margin-top: 8px; font-size: 10.5px; display: flex; flex-direction: column; gap: 3px;">
+                <span style="color: ${hasFusion ? '#38ef7d' : '#ff3366'};">${hasFusion ? '[READY]' : '[MISSING]'} Fusion: ${fMove.name || recipe.fusionReq}</span>
+                <span style="color: ${hasApex ? '#38ef7d' : '#ff3366'};">${hasApex ? '[READY]' : '[MISSING]'} Apex: ${aMove.name || recipe.apexReq}</span>
+              </div>
+            </div>
+            ${actionBtnHtml}
+          `;
+
+          if (!isOwned && hasIngredients && canAfford) {
+            const btn = card.querySelector('button');
+            if (btn) {
+              btn.addEventListener('click', () => {
+                this.gold -= cost;
+                SFX.playFanfare();
+                this.addScreenShake(12, 25);
+
+                // Consume components
+                this.ownedMoves.delete(recipe.fusionReq);
+                this.equippedMoves.delete(recipe.fusionReq);
+                this.ownedMoves.delete(recipe.apexReq);
+                this.equippedMoves.delete(recipe.apexReq);
+
+                // Add God-Tier Art
+                this.ownedMoves.add(recipe.targetKey);
+                this.equippedMoves.add(recipe.targetKey);
+                this.tier4Moves.add(recipe.targetKey);
+
+                document.getElementById('shop-gold-display').innerText = `${this.gold} Gold Available`;
+                this.updateHUD();
+                this.rebuildMoveButtons();
+                this.renderShopTab();
+              });
+            }
+          }
+
+          container.appendChild(card);
+        });
+      }
     }
   }
 
@@ -2808,6 +3379,17 @@ class YomiEngine {
       if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
       if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(frame.e.hp)} / ${frame.e.maxHp}`;
       if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
+
+      if (frame.e2) {
+        const p2bHp = Math.max(0, (frame.e2.hp / frame.e2.maxHp) * 100);
+        const p2bSp = Math.max(0, (frame.e2.superMeter / frame.e2.maxSuper) * 100);
+        const p2bHpBar = document.getElementById('p2-b-hp-bar');
+        const p2bHpTxt = document.getElementById('p2-b-hp-text');
+        const p2bSpBar = document.getElementById('p2-b-super-bar');
+        if (p2bHpBar) p2bHpBar.style.width = `${p2bHp}%`;
+        if (p2bHpTxt) p2bHpTxt.innerText = `${Math.ceil(frame.e2.hp)} / ${frame.e2.maxHp}`;
+        if (p2bSpBar) p2bSpBar.style.width = `${p2bSp}%`;
+      }
     }
 
     const progress = (idx / Math.max(1, this.replayFrames.length - 1)) * 100;
@@ -2886,6 +3468,9 @@ class YomiEngine {
       if (frame) {
         renderFighterModel(this.ctx, frame.p, true);
         renderFighterModel(this.ctx, frame.e, false);
+        if (frame.e2 && frame.e2.hp > 0) {
+          renderFighterModel(this.ctx, frame.e2, false);
+        }
 
         if (frame.spatialRifts) {
           frame.spatialRifts.forEach(sr => {
@@ -2939,7 +3524,8 @@ class YomiEngine {
       this.projectiles.forEach(p => p.draw(this.ctx));
       this.spatialRifts.forEach(r => r.draw(this.ctx));
       if (this.player) this.player.draw(this.ctx);
-      if (this.enemy) this.enemy.draw(this.ctx);
+      if (this.enemy && this.enemy.hp > 0) this.enemy.draw(this.ctx);
+      if (this.enemy2 && this.enemy2.hp > 0) this.enemy2.draw(this.ctx);
       this.particles.forEach(pt => pt.draw(this.ctx));
       this.damageTexts.forEach(dt => dt.draw(this.ctx));
 

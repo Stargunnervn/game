@@ -562,6 +562,245 @@ const ENEMY_CATALOG = {
     goldReward: 600,
     introQuote: 'I was born in the heart of the first black hole. Return all things to nothingness.',
     defeatQuote: 'The singularity breaks... A new universe is born from your fists!'
+  },
+
+  // ── STAGE 5 MINI-BOSSES ACROSS ALL FLOORS ──
+  miniboss_corrupted_ronin: {
+    name: 'Corrupted Blade Ronin',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#ff0055',
+    bodyColor: '#2a0815',
+    headColor: '#ff3366',
+    accentColor: '#ffd166',
+    baseHp: 165,
+    aiTier: 'TACTICAL',
+    archetype: 'counter',
+    moves: ['DASH', 'HEAVY_SLASH', 'BLADE_COUNTER', 'BLOOD_RUSH', 'AIR_RECOVERY', 'PARRY'],
+    goldReward: 80,
+    introQuote: 'You have survived the outer disciples. Now face the corrupted blade master!',
+    defeatQuote: 'My corrupted edge yields... Claim the sanctuary spoils!'
+  },
+  miniboss_cyber_enforcer: {
+    name: 'Cybernetic Inquisitor',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#00f0ff',
+    bodyColor: '#0c1a2d',
+    headColor: '#00f0ff',
+    accentColor: '#ff00ff',
+    baseHp: 220,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['DASH', 'KI_BLAST', 'SONIC_PALM', 'AEGIS_REFLECT', 'SUPER_DASH', 'GRAVITY_CRUSH', 'AIR_RECOVERY'],
+    goldReward: 100,
+    introQuote: 'Threat level critically elevated. Initiating immediate quarantine purge!',
+    defeatQuote: 'Core reactor overloaded... Treasury clearance granted.'
+  },
+  miniboss_void_sentinel: {
+    name: 'Void Rift Sentinel',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#9d4edd',
+    bodyColor: '#190a2a',
+    headColor: '#c77dff',
+    accentColor: '#00f0ff',
+    baseHp: 275,
+    aiTier: 'VETERAN',
+    archetype: 'tank',
+    moves: ['DASH', 'SHADOW_PULL', 'GRAVITY_CRUSH', 'VOID_CLEAVE', 'EVENT_HORIZON_SLASH', 'PARRY', 'AIR_RECOVERY'],
+    goldReward: 125,
+    introQuote: 'None breach the inner citadel without submitting to the crushing singularity.',
+    defeatQuote: 'The rift shatters... The sanctum treasures are yours.'
+  },
+  miniboss_astral_demiurge: {
+    name: 'Astral Demiurge Inquisitor',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#ffd700',
+    bodyColor: '#251b03',
+    headColor: '#fff07a',
+    accentColor: '#00f0ff',
+    baseHp: 330,
+    aiTier: 'BOSS',
+    archetype: 'rushdown',
+    moves: ['SUPER_DASH', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP', 'VALKYRIE_ASCENT', 'COSMIC_HYPERNOVA_ZERO', 'AIR_RECOVERY'],
+    goldReward: 160,
+    introQuote: 'Mortal flesh dares intrude upon the cosmic pantheon? Burn in stellar fury!',
+    defeatQuote: 'A mortal wielding divine light... Proceed toward the cosmic throne.'
+  },
+
+  // ── FLOOR 4: THE ASTRAL SINGULARITY (PANTHEON OF GODS) ──
+  astral_demiurge_disciple: {
+    name: 'Astral Demiurge Disciple',
+    title: 'Cosmic Zealot',
+    color: '#38ef7d',
+    bodyColor: '#082515',
+    headColor: '#70f3aa',
+    accentColor: '#ffd700',
+    baseHp: 230,
+    aiTier: 'TACTICAL',
+    archetype: 'rushdown',
+    moves: ['STEP_FWD', 'DASH', 'GLACIAL_SPIKE', 'SONIC_PALM', 'SOLAR_SUPERNOVA', 'AIR_RECOVERY'],
+    goldReward: 70,
+    introQuote: 'We channel the first spark of creation!',
+    defeatQuote: 'The cosmos acknowledges your strike.'
+  },
+  void_seraph_sentinel: {
+    name: 'Void Seraph Sentinel',
+    title: 'Dimensional Warder',
+    color: '#c084fc',
+    bodyColor: '#1d0b30',
+    headColor: '#e9d5ff',
+    accentColor: '#ff007f',
+    baseHp: 250,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['DASH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'VOID_CLEAVE', 'AIR_RECOVERY'],
+    goldReward: 75,
+    introQuote: 'Space itself twists to defend our sanctum.',
+    defeatQuote: 'The dimensional rifts close...'
+  },
+  chrono_archon_titan: {
+    name: 'Chronos Archon Titan',
+    title: 'Temporal Sovereign',
+    color: '#00f0ff',
+    bodyColor: '#081728',
+    headColor: '#6fe8ff',
+    accentColor: '#ffd700',
+    baseHp: 270,
+    aiTier: 'VETERAN',
+    archetype: 'tank',
+    moves: ['STEP_FWD', 'CHRONO_JUDGMENT', 'RAIKIRI_WARP', 'AEGIS_REFLECT', 'AIR_RECOVERY'],
+    goldReward: 80,
+    introQuote: 'Your past, present, and defeat were written together.',
+    defeatQuote: 'You exist outside of timeline boundaries...'
+  },
+  ragnarok_valkyrie_sovereign: {
+    name: 'Ragnarok Valkyrie Sovereign',
+    title: 'War Goddess',
+    color: '#ff3366',
+    bodyColor: '#2b0612',
+    headColor: '#ff6688',
+    accentColor: '#00f0ff',
+    baseHp: 290,
+    aiTier: 'VETERAN',
+    archetype: 'counter',
+    moves: ['SUPER_DASH', 'VALKYRIE_ASCENT', 'CARMINE_HARVEST', 'MIRAGE_RIPOSTE', 'AIR_RECOVERY'],
+    goldReward: 85,
+    introQuote: 'Only the undefeated earn an audience with the Primordial Singularity.',
+    defeatQuote: 'You possess the will of a conqueror.'
+  },
+  cosmic_hypernova_colossus: {
+    name: 'Hypernova Star Colossus',
+    title: 'Living Star',
+    color: '#ff9f1c',
+    bodyColor: '#281403',
+    headColor: '#ffbf69',
+    accentColor: '#ff0055',
+    baseHp: 310,
+    aiTier: 'BOSS',
+    archetype: 'tank',
+    moves: ['SUPER_DASH', 'SOLAR_SUPERNOVA', 'COSMIC_HYPERNOVA_ZERO', 'TEMPEST_QUAKE', 'AIR_RECOVERY'],
+    goldReward: 90,
+    introQuote: 'I compress the fury of ten thousand suns into each blow!',
+    defeatQuote: 'My core collapses into quiet starlight...'
+  },
+  singularity_pantheon_inquisitor: {
+    name: 'Pantheon Grand Inquisitor',
+    title: 'Keeper of Reality',
+    color: '#b388ff',
+    bodyColor: '#170929',
+    headColor: '#d1b3ff',
+    accentColor: '#00f0ff',
+    baseHp: 325,
+    aiTier: 'BOSS',
+    archetype: 'all_rounder',
+    moves: ['DASH', 'SINGULARITY_EVENT_HORIZON_ZERO', 'CHRONO_CONTINUUM_EXECUTION', 'PARRY', 'AIR_RECOVERY'],
+    goldReward: 95,
+    introQuote: 'Reality itself bends to our supreme doctrine.',
+    defeatQuote: 'You have dismantled reality doctrine...'
+  },
+  indra_storm_demiurge: {
+    name: 'Divine Indra Storm Demiurge',
+    title: 'Avatar of Thunder',
+    color: '#ffd166',
+    bodyColor: '#261c02',
+    headColor: '#ffe399',
+    accentColor: '#00f0ff',
+    baseHp: 340,
+    aiTier: 'BOSS',
+    archetype: 'rushdown',
+    moves: ['SUPER_DASH', 'INDRA_MJOLNIR_CATACLYSM', 'THUNDER_METEOR', 'RAIKIRI_WARP', 'AIR_RECOVERY'],
+    goldReward: 100,
+    introQuote: 'Hear the thunder that woke the universe!',
+    defeatQuote: 'Silence falls over the heavens...'
+  },
+  asura_world_crusher: {
+    name: 'Asura World Crusher',
+    title: 'Titan of Wrath',
+    color: '#ff0055',
+    bodyColor: '#260010',
+    headColor: '#ff4d88',
+    accentColor: '#ffd700',
+    baseHp: 360,
+    aiTier: 'BOSS',
+    archetype: 'berserker',
+    moves: ['SUPER_DASH', 'ASURA_OMNI_DIVINE_PUNISH', 'CARMINE_HARVEST', 'VALKYRIE_RAGNAROK_GENESIS', 'AIR_RECOVERY'],
+    goldReward: 110,
+    introQuote: 'My wrath forged mountain ranges and shattered skies!',
+    defeatQuote: 'At last... A warrior whose fists surpass wrath.'
+  },
+  boss_primordial_singularity: {
+    name: 'The Primordial Singularity',
+    title: 'Supreme True Final Boss',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ffffff',
+    bodyColor: '#080812',
+    headColor: '#00f0ff',
+    accentColor: '#ffd700',
+    baseHp: 650,
+    aiTier: 'BOSS',
+    archetype: 'all_rounder',
+    moves: ['COSMIC_HYPERNOVA_ZERO', 'SINGULARITY_EVENT_HORIZON_ZERO', 'CHRONO_CONTINUUM_EXECUTION', 'INDRA_MJOLNIR_CATACLYSM', 'VALKYRIE_RAGNAROK_GENESIS', 'ASURA_OMNI_DIVINE_PUNISH', 'SUPER_DASH', 'AIR_RECOVERY'],
+    goldReward: 1000,
+    introQuote: 'I am the alpha and omega of all fighting forms. Witness the true summit of martial arts!',
+    defeatQuote: 'Inconceivable... The eternal singularity bows to your supreme mastery!'
+  },
+
+  // ── AMBUSH GANG-UP STRIKERS (MULTI-OPPONENT REINFORCEMENTS) ──
+  ambush_shadow_clone: {
+    name: 'Shadow Gang Clone',
+    title: 'Ambush Striker',
+    isAmbushMinion: true,
+    color: '#ff3366',
+    bodyColor: '#1f0810',
+    headColor: '#ff3366',
+    accentColor: '#ff9f1c',
+    baseHp: 75,
+    aiTier: 'TACTICAL',
+    archetype: 'rushdown',
+    moves: ['DASH', 'QUICK_JAB', 'SWEEP', 'BLOOD_RUSH', 'AIR_RECOVERY'],
+    goldReward: 20,
+    introQuote: 'Surround and overwhelm!',
+    defeatQuote: 'Dispersed...'
+  },
+  ambush_astral_phantom: {
+    name: 'Astral Gang Phantom',
+    title: 'Ambush Striker',
+    isAmbushMinion: true,
+    color: '#c084fc',
+    bodyColor: '#160927',
+    headColor: '#e9d5ff',
+    accentColor: '#00f0ff',
+    baseHp: 110,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['SUPER_DASH', 'KI_BLAST', 'THUNDER_PALM', 'SONIC_PALM', 'AIR_RECOVERY'],
+    goldReward: 35,
+    introQuote: 'You cannot defend both flanks at once!',
+    defeatQuote: 'Faded...'
   }
 };
 
@@ -579,7 +818,8 @@ const FLOOR_DEFINITIONS = [
       { stage: 3, pool: ['dojo_sparring_partner', 'street_brawler', 'frost_disciple'], hpMult: 1.1, goldBonus: 10 },
       // Stage 4 to 6: Adept fighters
       { stage: 4, pool: ['street_brawler', 'windblade_ronin', 'thunder_monk'], hpMult: 1.15, goldBonus: 15 },
-      { stage: 5, pool: ['windblade_ronin', 'frost_disciple'], hpMult: 1.2, goldBonus: 20 },
+      // Stage 5: Mini-Boss of Floor 1 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_corrupted_ronin'], hpMult: 1.0, goldBonus: 35, isMiniBoss: true },
       { stage: 6, pool: ['windblade_ronin', 'iron_temple_monk', 'thunder_monk'], hpMult: 1.25, goldBonus: 25 },
       // Stage 7 to 9: Elite challengers
       { stage: 7, pool: ['iron_temple_monk', 'street_brawler', 'frost_disciple'], hpMult: 1.3, goldBonus: 30 },
@@ -601,7 +841,8 @@ const FLOOR_DEFINITIONS = [
       { stage: 3, pool: ['void_cultist', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.1, goldBonus: 20 },
       // Stage 4 to 6
       { stage: 4, pool: ['crimson_assassin', 'dusk_duelist', 'berserk_gladiator'], hpMult: 1.15, goldBonus: 25 },
-      { stage: 5, pool: ['dusk_duelist', 'gravity_sorcerer'], hpMult: 1.2, goldBonus: 30 },
+      // Stage 5: Mini-Boss of Floor 2 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_cyber_enforcer'], hpMult: 1.0, goldBonus: 45, isMiniBoss: true },
       { stage: 6, pool: ['dusk_duelist', 'nether_abomination', 'berserk_gladiator'], hpMult: 1.25, goldBonus: 35 },
       // Stage 7 to 9
       { stage: 7, pool: ['nether_abomination', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.3, goldBonus: 40 },
@@ -623,29 +864,84 @@ const FLOOR_DEFINITIONS = [
       { stage: 3, pool: ['celestial_valkyrie', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.1, goldBonus: 30 },
       // Stage 4 to 6
       { stage: 4, pool: ['chrono_weaver', 'plasma_behemoth', 'abyssal_dreadnought'], hpMult: 1.15, goldBonus: 35 },
-      { stage: 5, pool: ['plasma_behemoth', 'valkyrie_warmaster'], hpMult: 1.2, goldBonus: 40 },
+      // Stage 5: Mini-Boss of Floor 3 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_void_sentinel'], hpMult: 1.0, goldBonus: 60, isMiniBoss: true },
       { stage: 6, pool: ['plasma_behemoth', 'divine_sword_saint', 'abyssal_dreadnought'], hpMult: 1.25, goldBonus: 45 },
       // Stage 7 to 9
       { stage: 7, pool: ['divine_sword_saint', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.3, goldBonus: 50 },
       { stage: 8, pool: ['divine_sword_saint', 'celestial_valkyrie', 'abyssal_dreadnought'], hpMult: 1.35, goldBonus: 60 },
       { stage: 9, pool: ['divine_sword_saint', 'valkyrie_warmaster'], hpMult: 1.45, goldBonus: 75 },
-      // Stage 10: Final Boss (Randomized from Floor 3 Boss Pool)
-      { stage: 10, pool: ['boss_celestial_emperor', 'boss_seraph_archon', 'boss_chronos_titan', 'boss_singularity_gorgon'], hpMult: 1.0, goldBonus: 100, isBossStage: true, isFinalBoss: true }
+      // Stage 10: Floor 3 DUAL BOSS (Celestial Emperor + Seraph Archon!)
+      { stage: 10, pool: ['boss_celestial_emperor', 'boss_chronos_titan'], hpMult: 1.0, goldBonus: 120, isBossStage: true, isDualBoss: true, partnerBossKey: 'boss_seraph_archon' }
+    ]
+  },
+  {
+    floor: 4,
+    name: 'The Astral Singularity',
+    bgTheme: 'singularity',
+    totalStages: 10,
+    stageRoster: [
+      // Stage 1 to 4: Cosmic Entities
+      { stage: 1, pool: ['astral_demiurge_disciple'], hpMult: 1.0, goldBonus: 40 },
+      { stage: 2, pool: ['astral_demiurge_disciple', 'void_seraph_sentinel'], hpMult: 1.05, goldBonus: 45 },
+      { stage: 3, pool: ['void_seraph_sentinel', 'chrono_archon_titan'], hpMult: 1.1, goldBonus: 50 },
+      { stage: 4, pool: ['chrono_archon_titan', 'ragnarok_valkyrie_sovereign'], hpMult: 1.15, goldBonus: 55 },
+      // Stage 5: Mini-Boss of Floor 4 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_astral_demiurge'], hpMult: 1.0, goldBonus: 80, isMiniBoss: true },
+      // Stage 6 to 9: Pantheon Guardians
+      { stage: 6, pool: ['ragnarok_valkyrie_sovereign', 'cosmic_hypernova_colossus'], hpMult: 1.25, goldBonus: 65 },
+      { stage: 7, pool: ['cosmic_hypernova_colossus', 'singularity_pantheon_inquisitor'], hpMult: 1.3, goldBonus: 70 },
+      { stage: 8, pool: ['singularity_pantheon_inquisitor', 'indra_storm_demiurge'], hpMult: 1.35, goldBonus: 80 },
+      { stage: 9, pool: ['indra_storm_demiurge', 'asura_world_crusher'], hpMult: 1.45, goldBonus: 95 },
+      // Stage 10: Supreme True Final Boss!
+      { stage: 10, pool: ['boss_primordial_singularity'], hpMult: 1.0, goldBonus: 250, isBossStage: true, isFinalBoss: true }
     ]
   }
 ];
 
 // Helper to instantiate enemy fighter data
-function generateEnemyData(floorNum, stageNum) {
-  const floorDef = FLOOR_DEFINITIONS[floorNum - 1] || FLOOR_DEFINITIONS[0];
+function generateEnemyData(floorNum, stageNum, difficulty = 'NORMAL') {
+  const floorDef = FLOOR_DEFINITIONS[floorNum - 1] || FLOOR_DEFINITIONS[FLOOR_DEFINITIONS.length - 1];
   const stageCfg = floorDef.stageRoster[stageNum - 1] || floorDef.stageRoster[0];
 
   const pool = stageCfg.pool;
   const pickedKey = pool[Math.floor(Math.random() * pool.length)];
   const rawEnemy = ENEMY_CATALOG[pickedKey];
 
-  const finalHp = Math.round(rawEnemy.baseHp * (stageCfg.hpMult || 1.0));
-  const finalGold = Math.round((rawEnemy.goldReward + (stageCfg.goldBonus || 0)));
+  let hpMultiplier = stageCfg.hpMult || 1.0;
+  if (difficulty === 'HARD_PLUS') {
+    hpMultiplier *= 1.40; // +40% HP on Hard+
+  }
+
+  const finalHp = Math.round(rawEnemy.baseHp * hpMultiplier);
+  const finalGold = Math.round((rawEnemy.goldReward + (stageCfg.goldBonus || 0)) * (difficulty === 'HARD_PLUS' ? 1.3 : 1.0));
+
+  // Determine if this encounter spawns a secondary enemy (Dual Boss or Gang-Up Ambush)
+  let isDualBoss = !!stageCfg.isDualBoss;
+  let partnerBossKey = stageCfg.partnerBossKey || null;
+
+  let hasSecondEnemy = isDualBoss;
+  let secondEnemyKey = partnerBossKey;
+
+  // In Hard+ mode, random non-boss stages feature gang-up ambushes!
+  if (difficulty === 'HARD_PLUS' && !isDualBoss && !stageCfg.isMiniBoss && !stageCfg.isBossStage) {
+    if ([4, 7, 8].includes(stageNum) || Math.random() < 0.45) {
+      hasSecondEnemy = true;
+      secondEnemyKey = floorNum >= 3 ? 'ambush_astral_phantom' : 'ambush_shadow_clone';
+    }
+  }
+
+  let secondEnemy = null;
+  if (hasSecondEnemy && secondEnemyKey && ENEMY_CATALOG[secondEnemyKey]) {
+    const rawE2 = ENEMY_CATALOG[secondEnemyKey];
+    const e2Hp = Math.round(rawE2.baseHp * hpMultiplier);
+    secondEnemy = {
+      ...rawE2,
+      catalogKey: secondEnemyKey,
+      maxHp: e2Hp,
+      hp: e2Hp
+    };
+  }
 
   return {
     ...rawEnemy,
@@ -655,8 +951,13 @@ function generateEnemyData(floorNum, stageNum) {
     goldReward: finalGold,
     floor: floorNum,
     stage: stageNum,
-    isBoss: !!rawEnemy.isBoss,
-    isFinalBoss: !!rawEnemy.isFinalBoss
+    isBoss: !!rawEnemy.isBoss || !!stageCfg.isBossStage,
+    isMiniBoss: !!stageCfg.isMiniBoss,
+    isFinalBoss: !!rawEnemy.isFinalBoss || (floorNum === 4 && stageNum === 10),
+    isDualBoss: isDualBoss,
+    hasSecondEnemy: hasSecondEnemy,
+    secondEnemyKey: secondEnemyKey,
+    secondEnemy: secondEnemy
   };
 }
 

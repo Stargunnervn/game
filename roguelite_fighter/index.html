@@ -56,6 +56,23 @@
           <div id="p2-super-bar" class="super-fill" style="width: 0%;"></div>
         </div>
       </div>
+
+      <!-- Secondary Opponent Status (for Dual Boss & Multi-Enemy Ambush) -->
+      <div class="fighter-card p2-b" id="p2-b-card" style="display: none;">
+        <div class="fighter-header">
+          <span id="p2b-hp-text">100 / 100</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="fighter-name" id="p2b-name">PARTNER</span>
+            <span class="boss-archetype-pill" id="p2b-archetype">AMBUSH</span>
+          </div>
+        </div>
+        <div class="bar-box">
+          <div id="p2b-hp-bar" class="bar-fill hp-p2b" style="width: 100%;"></div>
+        </div>
+        <div class="super-bar-box">
+          <div id="p2b-super-bar" class="super-fill" style="width: 0%;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- BOTTOM TACTICAL DECISION PANEL (YOMI HUSTLE STYLE) -->
@@ -200,14 +217,119 @@
       </div>
     </div>
 
-    <!-- TITLE SCREEN OVERLAY -->
+    <!-- START MENU / TITLE SCREEN OVERLAY -->
     <div id="screen-title" class="overlay-screen active">
-      <div class="main-title">YOMI ROGUE</div>
+      <div class="main-title" style="letter-spacing: 2px;">YOMI ROGUE</div>
       <div class="sub-title">SIMULTANEOUS TURN-BASED FIGHTING ROGUELITE</div>
       <div class="shards-pill" id="title-shards">Hustle Shards: 0</div>
-      <div style="display: flex; gap: 14px;">
-        <button id="btn-start-run" class="btn-primary">BEGIN EXPEDITION</button>
-        <button id="btn-open-dojo" class="btn-secondary">THE DOJO</button>
+
+      <!-- DIFFICULTY SELECTOR -->
+      <div class="difficulty-selector-box">
+        <div class="difficulty-title">SELECT EXPEDITION DIFFICULTY:</div>
+        <div class="difficulty-options">
+          <div class="diff-card active" id="diff-normal" data-mode="NORMAL">
+            <div class="diff-badge tier-upgrade">NORMAL</div>
+            <div class="diff-name">Standard Hustle</div>
+            <div class="diff-desc">Standard 3 floors. Balanced enemy AI and stats. Ideal for honing tactical fundamentals.</div>
+          </div>
+          <div class="diff-card" id="diff-hardplus" data-mode="HARD_PLUS">
+            <div class="diff-badge tier-apex">HARD+ ASCENSION</div>
+            <div class="diff-name">Adaptive Ascension</div>
+            <div class="diff-desc">+40% Enemy HP, upgraded movesets, gang-up ambushes, Floor 3 Dual Boss, adaptive counter-AI, and Floor 4 Astral Singularity (Tier 4 God Moves).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENU ACTIONS -->
+      <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; justify-content: center;">
+        <button id="btn-start-run" class="btn-primary" style="padding: 10px 28px; font-size: 15px;">BEGIN EXPEDITION</button>
+        <button id="btn-open-settings" class="btn-secondary" style="padding: 10px 20px;">SETTINGS</button>
+        <button id="btn-open-dojo" class="btn-secondary" style="padding: 10px 20px;">THE DOJO</button>
+        <button id="btn-open-guide" class="btn-secondary" style="padding: 10px 20px;">TACTICAL GUIDE</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS MODAL OVERLAY -->
+    <div id="screen-settings" class="overlay-screen">
+      <div class="main-title" style="font-size: 28px; color: var(--accent-cyan);">TACTICAL SETTINGS</div>
+      <div class="sub-title">Configure audio, visual dynamics, and battle simulation:</div>
+      <div class="settings-box">
+        <div class="setting-row">
+          <span>Master Audio SFX</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-sfx" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Screen Shake Intensity</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-screenshake" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Impact Hit Flash</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-hitflash" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Replay Speed Multiplier</span>
+          <select id="setting-replayspeed" class="setting-select">
+            <option value="1">1.0x Normal</option>
+            <option value="1.5" selected>1.5x Brisk</option>
+            <option value="2">2.0x Godspeed</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; margin-top: 20px;">
+        <button id="btn-close-settings" class="btn-primary">SAVE & CLOSE</button>
+      </div>
+    </div>
+
+    <!-- TACTICAL GUIDE OVERLAY -->
+    <div id="screen-guide" class="overlay-screen">
+      <div class="main-title" style="font-size: 28px; color: var(--accent-gold);">TACTICAL COMBAT GUIDE</div>
+      <div class="sub-title">Master simultaneous turn mechanics and evolution tiers:</div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="guide-card-title">1. SIMULTANEOUS PREDICTION</div>
+          <div class="guide-card-desc">Both fighters select actions simultaneously. Aim vector trajectories dictate your angle of attack and mobility destination.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">2. DETERMINISTIC WEAKPOINTS</div>
+          <div class="guide-card-desc">Zero RNG crits. Weakpoint strikes trigger on Whiff Punishes (recovery frames), Anti-Air intercepts, Low sweep trips, and true Backstabs.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">3. TIER 3 PEAK MASTERY</div>
+          <div class="guide-card-desc">Base moves evolve to EX upgrades, then branch into APEX Ascension or Hybrid Fusion. Both APEX and Fusion are Tier 3 pinnacle techniques.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">4. TIER 4 ZENITH SINGULARITY</div>
+          <div class="guide-card-desc">In the Sanctuary Forge or via ancient relics, merge 1 Fusion (Tier 3) + 1 Apex (Tier 3) to synthesize devastating Tier 4 God-Tier arts!</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">5. ADAPTIVE COUNTER-AI (HARD+)</div>
+          <div class="guide-card-desc">On Hard+ mode, enemies monitor your habits throughout the floor (jumping, sweeping, parrying) and deliberately deploy tactical counters!</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">6. STAGE 5 MINI-BOSS SPOILS</div>
+          <div class="guide-card-desc">Every floor features a Stage 5 Mini-Boss. Vanquishing them grants guaranteed Sanctuary Relics or Legendary Passive Perks.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; margin-top: 18px;">
+        <button id="btn-close-guide" class="btn-primary">RETURN TO MENU</button>
+      </div>
+    </div>
+
+    <!-- STAGE 5 MINI-BOSS TREASURY OVERLAY -->
+    <div id="screen-miniboss-reward" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 32px;">MINI-BOSS SLAIN!</div>
+      <div class="sub-title">Stage 5 Guardian defeated! Select your Sanctuary Treasury reward:</div>
+      <div class="cards-row" id="miniboss-cards-container">
+        <!-- Injected via JavaScript -->
       </div>
     </div>
 
@@ -245,6 +367,7 @@
         <button class="shop-tab-btn active" id="tab-shop-armory">Skill Armory</button>
         <button class="shop-tab-btn" id="tab-shop-supplies">Supplies & Relics</button>
         <button class="shop-tab-btn" id="tab-shop-deck">Skill Deck Customizer</button>
+        <button class="shop-tab-btn" id="tab-shop-tier4">Tier 4 Zenith Forge</button>
       </div>
 
       <!-- TAB 1 & 2 CONTENT: SHOP WARES -->
@@ -259,6 +382,17 @@
           <span style="color: var(--accent-cyan); font-size: 11px;">Click any move to Equip or Unequip from battle HUD</span>
         </div>
         <div class="deck-grid" id="deck-grid-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- TAB 4 CONTENT: TIER 4 ZENITH FORGE -->
+      <div id="shop-tier4-view" style="display: none; width: 100%;">
+        <div class="deck-summary">
+          <span>Tier 4 Zenith Forge: <b style="color: #ffd700;">Combine 1 Fusion (Tier 3) + 1 Apex (Tier 3)</b></span>
+          <span style="color: #c084fc; font-size: 11px;">Merge 1 owned Fusion move + 1 owned Apex move to unlock God-Tier arts</span>
+        </div>
+        <div class="shop-grid" id="tier4-forge-container">
           <!-- Injected via JavaScript -->
         </div>
       </div>

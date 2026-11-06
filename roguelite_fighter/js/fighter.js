@@ -449,6 +449,11 @@ class TacticalFighter {
       }
       this.superMeter = Math.min(this.maxSuper, this.superMeter + 25);
 
+      if (this.isPlayer && window.engine && window.engine.hasPerk('adaptive_shield')) {
+        this.barrierHp = Math.min(35, (this.barrierHp || 0) + 10);
+        window.engine.addDamageText(this.x, this.y - 85, '+10 BARRIER', '#00f0ff', true);
+      }
+
       if (moveData.parryHeal && this.isPlayer && window.engine) {
         this.hp = Math.min(this.maxHp, this.hp + moveData.parryHeal);
         window.engine.addDamageText(this.x, this.y - 85, `+${moveData.parryHeal} HP`, '#06d6a0');
@@ -522,6 +527,23 @@ class TacticalFighter {
 
     // FULL IMPACT HIT
     let finalDmg = Math.max(1, Math.round(dmg * (1 - this.defenseBonus)));
+
+    // Adaptive Shield Barrier Absorption
+    if (this.barrierHp > 0) {
+      if (this.barrierHp >= finalDmg) {
+        this.barrierHp -= finalDmg;
+        if (window.engine) {
+          window.engine.addDamageText(this.x, this.y - 70, `BARRIER ABSORB -${finalDmg}`, '#00f0ff', true);
+        }
+        return 0;
+      } else {
+        finalDmg -= this.barrierHp;
+        if (window.engine) {
+          window.engine.addDamageText(this.x, this.y - 70, 'BARRIER BROKEN!', '#00f0ff', true);
+        }
+        this.barrierHp = 0;
+      }
+    }
 
     // Punish Counter Check (Target was in Vulnerable state)
     if (this.isVulnerable) {

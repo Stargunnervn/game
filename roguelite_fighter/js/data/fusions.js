@@ -237,12 +237,65 @@ const APEX_UPGRADES_CATALOG = {
   }
 };
 
+// ── TIER 4 ZENITH SINGULARITY FORGE CATALOG (1 Fusion + 1 Apex) ──
+const TIER4_RECIPES = [
+  {
+    targetKey: 'COSMIC_HYPERNOVA_ZERO',
+    fusionReq: 'SOLAR_SUPERNOVA',
+    apexReq: 'GLACIAL_SPIKE',
+    cost: 150,
+    name: 'Cosmic Hypernova Zero [TIER 4]',
+    desc: 'Synthesize Solar Supernova (Fusion) + Glacial Spike (Apex) into a 0f 180 damage cosmic flash with absolute stasis.'
+  },
+  {
+    targetKey: 'SINGULARITY_EVENT_HORIZON_ZERO',
+    fusionReq: 'EVENT_HORIZON_SLASH',
+    apexReq: 'HEAVY_SLASH',
+    cost: 160,
+    name: 'Omega Singularity Rift Sever [TIER 4]',
+    desc: 'Synthesize Event Horizon Slash (Fusion) + Heavy Slash (Apex) into an unblockable 195 damage spatial collapse severance.'
+  },
+  {
+    targetKey: 'CHRONO_CONTINUUM_EXECUTION',
+    fusionReq: 'CHRONO_JUDGMENT',
+    apexReq: 'SONIC_PALM',
+    cost: 160,
+    name: 'Chronos Absolute Continuum Execution [TIER 4]',
+    desc: 'Synthesize Chrono Judgment (Fusion) + Sonic Palm (Apex) into a 65f temporal time-freeze with 16 dimensional slashes (190 dmg).'
+  },
+  {
+    targetKey: 'INDRA_MJOLNIR_CATACLYSM',
+    fusionReq: 'THUNDER_METEOR',
+    apexReq: 'QUICK_JAB',
+    cost: 150,
+    name: 'Divine Indra Mjolnir Cataclysm [TIER 4]',
+    desc: 'Synthesize Thunder Meteor (Fusion) + Quick Jab (Apex) into an electrified 185 damage seismic hammer strike.'
+  },
+  {
+    targetKey: 'VALKYRIE_RAGNAROK_GENESIS',
+    fusionReq: 'VALKYRIE_ASCENT',
+    apexReq: 'BLOOD_RUSH',
+    cost: 170,
+    name: 'Eternal Valkyrie Ragnarok Genesis [TIER 4]',
+    desc: 'Synthesize Valkyrie Ascent (Fusion) + Blood Rush (Apex) into an invulnerable zero-frame breakout with 100% lifesteal (175 dmg).'
+  },
+  {
+    targetKey: 'ASURA_OMNI_DIVINE_PUNISH',
+    fusionReq: 'MIRAGE_RIPOSTE',
+    apexReq: 'SWEEP',
+    cost: 155,
+    name: 'Asura Omni-Sanctuary Divine Riposte [TIER 4]',
+    desc: 'Synthesize Mirage Riposte (Fusion) + Low Sweep (Apex) into a 400% damage reflecting divine counter (180 dmg).'
+  }
+];
+
 if (typeof window !== 'undefined') {
   window.FUSION_RECIPES = FUSION_RECIPES;
   window.APEX_UPGRADES_CATALOG = APEX_UPGRADES_CATALOG;
+  window.TIER4_RECIPES = TIER4_RECIPES;
 }
 if (typeof module !== 'undefined') {
-  module.exports = { FUSION_RECIPES, APEX_UPGRADES_CATALOG };
+  module.exports = { FUSION_RECIPES, APEX_UPGRADES_CATALOG, TIER4_RECIPES };
 }
 
 

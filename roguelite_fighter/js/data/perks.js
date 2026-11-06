@@ -23,7 +23,13 @@ const PERK_ICONS = {
   arsenal: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>',
   resonance: '<svg viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="10"/></svg>',
   incense: '<svg viewBox="0 0 24 24" fill="none" stroke="#38ef7d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-8"/><path d="M8 14h8l-1 6H9l-1-6z"/><path d="M10 8c0-2 2-2 2-4 0 2 2 2 2 4s-2 2-2 4c0-2-2-2-2-4z"/></svg>',
-  pouch: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11V9a7 7 0 0 0-14 0v2a8 8 0 0 0 14 0z"/><path d="M9 6h6"/><path d="M10 9h4"/></svg>'
+  pouch: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11V9a7 7 0 0 0-14 0v2a8 8 0 0 0 14 0z"/><path d="M9 6h6"/><path d="M10 9h4"/></svg>',
+  zenith_core: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2"/><circle cx="12" cy="12" r="3"/></svg>',
+  twin_slayer: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M9.5 6.5L21 18v3h-3L6.5 9.5"/></svg>',
+  mirror: '<svg viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l6-6M9 21l12-12M15 21l6-6"/></svg>',
+  astral: '<svg viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+  crowd: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9f1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  barrier: '<svg viewBox="0 0 24 24" fill="none" stroke="#38ef7d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="12" r="3"/></svg>'
 };
 
 const ROGUELITE_PERKS = [
@@ -90,6 +96,30 @@ const ROGUELITE_PERKS = [
     type: 'PASSIVE',
     tier: 'legendary',
     desc: 'Landing a weakpoint strike restores 10% of dealt damage directly as HP.'
+  },
+  {
+    id: 'crowd_breaker',
+    name: 'Crowd Breaker',
+    icon: PERK_ICONS.crowd,
+    type: 'PASSIVE',
+    tier: 'legendary',
+    desc: 'Multi-opponent supremacy: Dealing damage when multiple enemies exist grants +15 SP and triggers a shockwave.'
+  },
+  {
+    id: 'zenith_mastery',
+    name: 'Zenith Singularity Mastery',
+    icon: PERK_ICONS.zenith_core,
+    type: 'PASSIVE',
+    tier: 'legendary',
+    desc: 'God-tier resonance: Tier 4 Zenith Singularity moves deal +35 extra pure damage and grant +10 frame advantage.'
+  },
+  {
+    id: 'adaptive_shield',
+    name: 'Adaptive Kinetic Barrier',
+    icon: PERK_ICONS.barrier,
+    type: 'PASSIVE',
+    tier: 'rare',
+    desc: 'Taking any enemy hit generates a kinetic barrier absorbing the next 30 incoming damage.'
   }
 ];
 
@@ -178,6 +208,34 @@ const SHOP_RELICS = [
     icon: PERK_ICONS.pouch,
     cost: 115,
     desc: 'Weakpoint strikes siphon vitality, restoring +8 HP and +10 SP per weakpoint hit.'
+  },
+  {
+    id: 'zenith_singularity_core',
+    name: 'Zenith Singularity Core',
+    icon: PERK_ICONS.zenith_core,
+    cost: 200,
+    desc: 'Ancient cosmic artifact: Unlocks forging Tier 4 God-Tier Zenith Singularity techniques by merging Tier 3 Fusion + Tier 3 Apex.'
+  },
+  {
+    id: 'twin_slayer_seal',
+    name: 'Twin Slayer Battle Seal',
+    icon: PERK_ICONS.twin_slayer,
+    cost: 135,
+    desc: 'Anti-gang warfare: When fighting against multiple enemies simultaneously, deal +35% total damage and gain 20% damage reduction.'
+  },
+  {
+    id: 'tactical_adaptation_mirror',
+    name: 'Tactical Adaptation Mirror',
+    icon: PERK_ICONS.mirror,
+    cost: 150,
+    desc: 'Inverts the AI counter-learning: When an enemy AI attempts a learned counter against you, reflect 25 unblockable damage immediately.'
+  },
+  {
+    id: 'astral_void_catalyst',
+    name: 'Astral Void Catalyst',
+    icon: PERK_ICONS.astral,
+    cost: 160,
+    desc: 'Cosmic efficiency: All Tier 4 and Tier 3 Fusion techniques cost 25% less SP and gain +35% extended strike range.'
   }
 ];
 
