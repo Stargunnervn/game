@@ -1063,7 +1063,7 @@ class YomiEngine {
     if (enemyData.accentColor) this.enemy.accentColor = enemyData.accentColor;
 
     // Multi-opponent Engine: Secondary Fighter Instantiation (Dual Boss / Gang-up Ambush)
-    const p2bCard = document.getElementById('p2-b-card');
+    const p2bName = document.getElementById('p2b-name');
     if (enemyData.hasSecondEnemy && enemyData.secondEnemy) {
       const e2Data = enemyData.secondEnemy;
       this.enemy.x = 710;
@@ -1076,16 +1076,11 @@ class YomiEngine {
       this.enemy2.hp = e2Data.maxHp;
       this.enemy2.superMeter = e2Data.isBoss ? 40 : 10;
 
-      if (p2bCard) {
-        p2bCard.classList.remove('hidden');
-        const p2bName = document.getElementById('p2-b-name');
-        if (p2bName) p2bName.innerText = e2Data.name.toUpperCase();
-        const p2bArch = document.getElementById('p2-b-archetype');
-        if (p2bArch) p2bArch.innerText = e2Data.title ? e2Data.title.toUpperCase() : 'CO-BOSS';
+      if (p2bName) {
+        p2bName.innerText = e2Data.name.toUpperCase();
       }
     } else {
       this.enemy2 = null;
-      if (p2bCard) p2bCard.classList.add('hidden');
     }
 
     // Apply Meta & Relic upgrades to Player
@@ -1170,15 +1165,20 @@ class YomiEngine {
     const tacPanel = document.getElementById('tactical-panel');
     if (tacPanel) tacPanel.classList.remove('hidden');
 
-    this.player.facing = this.player.x < this.enemy.x ? 1 : -1;
-    this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
+    const activeEnemy = (this.enemy && this.enemy.hp > 0) ? this.enemy : ((this.enemy2 && this.enemy2.hp > 0) ? this.enemy2 : this.enemy);
+    if (activeEnemy) {
+      this.player.facing = this.player.x < activeEnemy.x ? 1 : -1;
+    }
+    if (this.enemy && this.enemy.hp > 0) {
+      this.enemy.facing = this.enemy.x < this.player.x ? 1 : -1;
+    }
     if (this.enemy2 && this.enemy2.hp > 0) {
       this.enemy2.facing = this.enemy2.x < this.player.x ? 1 : -1;
     }
 
     // Vulnerable State Lifecycle and Whiff Detection for Mobility Attacks
     [this.player, this.enemy, this.enemy2].forEach(f => {
-      if (!f) return;
+      if (!f || f.hp <= 0) return;
       if (f.moveKey) {
         const isMob = ['DIVE_KICK', 'COMET_CRASH', 'PHANTOM_SLIDE', 'SWEEP', 'THUNDER_GALE'].includes(f.moveKey) ||
           (f.currentMove && (f.currentMove.moveDist > 0 || f.currentMove.spikesDown));
@@ -1812,12 +1812,17 @@ class YomiEngine {
       }
     }
 
-    this.selectedEnemyMove = this.chooseAIMove(this.enemy);
-    this.enemyLastMoveKey = this.selectedEnemyMove;
-    const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove, this.enemy);
-
     this.player.executeMove(this.selectedPlayerMove, this.selectedAimAngle);
-    this.enemy.executeMove(this.selectedEnemyMove, enemyAimAngle);
+
+    let eDur = 0;
+    if (this.enemy && this.enemy.hp > 0) {
+      this.selectedEnemyMove = this.chooseAIMove(this.enemy);
+      this.enemyLastMoveKey = this.selectedEnemyMove;
+      const enemyAimAngle = this.getAIAimAngle(this.selectedEnemyMove, this.enemy);
+      this.enemy.executeMove(this.selectedEnemyMove, enemyAimAngle);
+      const eData = this.getMoveData(this.selectedEnemyMove, false);
+      eDur = (eData && eData.duration) || 16;
+    }
 
     let e2Dur = 0;
     if (this.enemy2 && this.enemy2.hp > 0) {
@@ -1835,9 +1840,7 @@ class YomiEngine {
       this.projectiles.push(new Projectile(this.player.x, this.player.y - 40, 0, 0, true, 32, '#00f0ff'));
     }
 
-    const eData = this.getMoveData(this.selectedEnemyMove, false);
     const pDur = (pData && pData.duration) || 16;
-    const eDur = (eData && eData.duration) || 16;
     this.simFramesLeft = Math.max(pDur, eDur, e2Dur, 18);
   }
 
@@ -1871,7 +1874,7 @@ class YomiEngine {
         maxSuper: this.player.maxSuper,
         afterimages: this.player.afterimages.map(a => ({ ...a }))
       },
-      e: {
+      e: (this.enemy && this.enemy.hp > 0) ? {
         x: this.enemy.x,
         y: this.enemy.y,
         floorY: this.enemy.floorY,
@@ -1899,7 +1902,7 @@ class YomiEngine {
         name: this.enemy.name,
         title: (this.currentOpponentData && this.currentOpponentData.title) || '',
         afterimages: this.enemy.afterimages.map(a => ({ ...a }))
-      },
+      } : null,
       e2: (this.enemy2 && this.enemy2.hp > 0) ? {
         x: this.enemy2.x,
         y: this.enemy2.y,
@@ -1937,8 +1940,10 @@ class YomiEngine {
   }
 
   checkTacticalStrikes() {
-    this.evaluateHit(this.player, this.enemy);
-    this.evaluateHit(this.enemy, this.player);
+    if (this.enemy && this.enemy.hp > 0) {
+      this.evaluateHit(this.player, this.enemy);
+      this.evaluateHit(this.enemy, this.player);
+    }
 
     if (this.enemy2 && this.enemy2.hp > 0) {
       this.evaluateHit(this.player, this.enemy2);
@@ -2011,6 +2016,7 @@ class YomiEngine {
   }
 
   evaluateHit(attacker, defender) {
+    if (!attacker || !defender || attacker.hp <= 0 || defender.hp <= 0) return;
     if (!attacker.currentMove || (attacker.currentMove.type !== 'ATTACK' && attacker.currentMove.type !== 'SPECIAL')) return;
     const move = attacker.currentMove;
     if (move.projectile || move.isSpatial) return;
@@ -2275,27 +2281,101 @@ class YomiEngine {
     const hudDeckCount = document.getElementById('hud-deck-count');
     if (hudDeckCount) hudDeckCount.innerText = `${this.equippedMoves.size}/${this.getMaxDeckSize()}`;
 
-    // Enemy Bars
-    const p2Hp = Math.max(0, (this.enemy.hp / this.enemy.maxHp) * 100);
-    const p2Sp = Math.max(0, (this.enemy.superMeter / this.enemy.maxSuper) * 100);
+    // Opponent HUD (Unified for Single & Dual Opponents)
     const p2HpBar = document.getElementById('p2-hp-bar');
+    const p2bHpBar = document.getElementById('p2b-hp-bar');
     const p2HpTxt = document.getElementById('p2-hp-text');
     const p2SpBar = document.getElementById('p2-super-bar');
+    const p2bSpBar = document.getElementById('p2b-super-bar');
+    const dualBreakdown = document.getElementById('p2-dual-breakdown');
+    const dualSep = document.getElementById('p2-dual-sep');
+    const p2bName = document.getElementById('p2b-name');
+    const p2Name = document.getElementById('p2-name');
+    const p2Arch = document.getElementById('p2-archetype');
 
-    if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
-    if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(this.enemy.hp)} / ${this.enemy.maxHp}`;
-    if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
-
-    // Secondary Opponent HUD (Dual Boss / Multi-opponent)
     if (this.enemy2) {
-      const p2bHp = Math.max(0, (this.enemy2.hp / this.enemy2.maxHp) * 100);
-      const p2bSp = Math.max(0, (this.enemy2.superMeter / this.enemy2.maxSuper) * 100);
-      const p2bHpBar = document.getElementById('p2-b-hp-bar');
-      const p2bHpTxt = document.getElementById('p2-b-hp-text');
-      const p2bSpBar = document.getElementById('p2-b-super-bar');
-      if (p2bHpBar) p2bHpBar.style.width = `${p2bHp}%`;
-      if (p2bHpTxt) p2bHpTxt.innerText = `${Math.ceil(this.enemy2.hp)} / ${this.enemy2.maxHp}`;
-      if (p2bSpBar) p2bSpBar.style.width = `${p2bSp}%`;
+      // DUAL OPPONENT MODE: Combine both into unified health bar
+      const maxHpTotal = this.enemy.maxHp + this.enemy2.maxHp;
+      const curHp1 = Math.max(0, this.enemy.hp);
+      const curHp2 = Math.max(0, this.enemy2.hp);
+      const curTotal = curHp1 + curHp2;
+
+      const p2HpPercent = (curHp1 / maxHpTotal) * 100;
+      const p2bHpPercent = (curHp2 / maxHpTotal) * 100;
+
+      if (p2HpBar) {
+        p2HpBar.style.width = `${p2HpPercent}%`;
+        p2HpBar.style.display = p2HpPercent > 0 ? 'block' : 'none';
+      }
+      if (p2bHpBar) {
+        p2bHpBar.style.width = `${p2bHpPercent}%`;
+        p2bHpBar.style.display = p2bHpPercent > 0 ? 'block' : 'none';
+      }
+      if (p2HpTxt) {
+        p2HpTxt.innerText = `${Math.ceil(curTotal)} / ${maxHpTotal}`;
+      }
+      if (dualBreakdown) {
+        dualBreakdown.style.display = 'inline';
+        const e1Tag = this.enemy.hp > 0 ? `${Math.ceil(this.enemy.hp)}` : 'K.O.';
+        const e2Tag = this.enemy2.hp > 0 ? `${Math.ceil(this.enemy2.hp)}` : 'K.O.';
+        dualBreakdown.innerText = `[${e1Tag} | ${e2Tag}]`;
+      }
+      if (dualSep) dualSep.style.display = 'inline';
+      if (p2bName) {
+        p2bName.style.display = 'inline';
+        p2bName.style.opacity = this.enemy2.hp <= 0 ? '0.35' : '1';
+        p2bName.style.textDecoration = this.enemy2.hp <= 0 ? 'line-through' : 'none';
+      }
+      if (p2Name) {
+        p2Name.style.opacity = this.enemy.hp <= 0 ? '0.35' : '1';
+        p2Name.style.textDecoration = this.enemy.hp <= 0 ? 'line-through' : 'none';
+      }
+      if (p2Arch) {
+        p2Arch.innerText = (this.currentOpponentData && this.currentOpponentData.isDualBoss) ? 'DUAL BOSS' : 'AMBUSH';
+      }
+
+      // Super Bar: 50% split for each opponent
+      const p2Sp = Math.max(0, (this.enemy.superMeter / this.enemy.maxSuper) * 50);
+      const p2bSp = Math.max(0, (this.enemy2.superMeter / this.enemy2.maxSuper) * 50);
+      if (p2SpBar) {
+        p2SpBar.style.width = `${p2Sp}%`;
+        p2SpBar.style.display = 'block';
+      }
+      if (p2bSpBar) {
+        p2bSpBar.style.width = `${p2bSp}%`;
+        p2bSpBar.style.display = 'block';
+      }
+    } else {
+      // SINGLE OPPONENT MODE
+      const p2Hp = Math.max(0, (this.enemy.hp / this.enemy.maxHp) * 100);
+      const p2Sp = Math.max(0, (this.enemy.superMeter / this.enemy.maxSuper) * 100);
+
+      if (p2HpBar) {
+        p2HpBar.style.width = `${p2Hp}%`;
+        p2HpBar.style.display = 'block';
+      }
+      if (p2bHpBar) {
+        p2bHpBar.style.width = '0%';
+        p2bHpBar.style.display = 'none';
+      }
+      if (p2HpTxt) {
+        p2HpTxt.innerText = `${Math.ceil(this.enemy.hp)} / ${this.enemy.maxHp}`;
+      }
+      if (dualBreakdown) dualBreakdown.style.display = 'none';
+      if (dualSep) dualSep.style.display = 'none';
+      if (p2bName) p2bName.style.display = 'none';
+      if (p2Name) {
+        p2Name.style.opacity = '1';
+        p2Name.style.textDecoration = 'none';
+      }
+      if (p2SpBar) {
+        p2SpBar.style.width = `${p2Sp}%`;
+        p2SpBar.style.display = 'block';
+      }
+      if (p2bSpBar) {
+        p2bSpBar.style.width = '0%';
+        p2bSpBar.style.display = 'none';
+      }
     }
   }
 
@@ -2322,7 +2402,9 @@ class YomiEngine {
 
     if (this.turnState === 'SIMULATING') {
       this.player.updateFramePhysics();
-      this.enemy.updateFramePhysics();
+      if (this.enemy && this.enemy.hp > 0) {
+        this.enemy.updateFramePhysics();
+      }
       if (this.enemy2 && this.enemy2.hp > 0) {
         this.enemy2.updateFramePhysics();
       }
@@ -3371,24 +3453,95 @@ class YomiEngine {
       if (p1HpTxt) p1HpTxt.innerText = `${Math.ceil(frame.p.hp)} / ${frame.p.maxHp}`;
       if (p1SpBar) p1SpBar.style.width = `${p1Sp}%`;
 
-      const p2Hp = Math.max(0, (frame.e.hp / frame.e.maxHp) * 100);
-      const p2Sp = Math.max(0, (frame.e.superMeter / frame.e.maxSuper) * 100);
       const p2HpBar = document.getElementById('p2-hp-bar');
+      const p2bHpBar = document.getElementById('p2b-hp-bar');
       const p2HpTxt = document.getElementById('p2-hp-text');
       const p2SpBar = document.getElementById('p2-super-bar');
-      if (p2HpBar) p2HpBar.style.width = `${p2Hp}%`;
-      if (p2HpTxt) p2HpTxt.innerText = `${Math.ceil(frame.e.hp)} / ${frame.e.maxHp}`;
-      if (p2SpBar) p2SpBar.style.width = `${p2Sp}%`;
+      const p2bSpBar = document.getElementById('p2b-super-bar');
+      const dualBreakdown = document.getElementById('p2-dual-breakdown');
+      const dualSep = document.getElementById('p2-dual-sep');
+      const p2bName = document.getElementById('p2b-name');
+      const p2Name = document.getElementById('p2-name');
 
-      if (frame.e2) {
-        const p2bHp = Math.max(0, (frame.e2.hp / frame.e2.maxHp) * 100);
-        const p2bSp = Math.max(0, (frame.e2.superMeter / frame.e2.maxSuper) * 100);
-        const p2bHpBar = document.getElementById('p2-b-hp-bar');
-        const p2bHpTxt = document.getElementById('p2-b-hp-text');
-        const p2bSpBar = document.getElementById('p2-b-super-bar');
-        if (p2bHpBar) p2bHpBar.style.width = `${p2bHp}%`;
-        if (p2bHpTxt) p2bHpTxt.innerText = `${Math.ceil(frame.e2.hp)} / ${frame.e2.maxHp}`;
-        if (p2bSpBar) p2bSpBar.style.width = `${p2bSp}%`;
+      if (frame.e) {
+        if (frame.e2) {
+          const maxHpTotal = frame.e.maxHp + frame.e2.maxHp;
+          const curHp1 = Math.max(0, frame.e.hp);
+          const curHp2 = Math.max(0, frame.e2.hp);
+          const curTotal = curHp1 + curHp2;
+
+          const p2HpPercent = (curHp1 / maxHpTotal) * 100;
+          const p2bHpPercent = (curHp2 / maxHpTotal) * 100;
+
+          if (p2HpBar) {
+            p2HpBar.style.width = `${p2HpPercent}%`;
+            p2HpBar.style.display = p2HpPercent > 0 ? 'block' : 'none';
+          }
+          if (p2bHpBar) {
+            p2bHpBar.style.width = `${p2bHpPercent}%`;
+            p2bHpBar.style.display = p2bHpPercent > 0 ? 'block' : 'none';
+          }
+          if (p2HpTxt) {
+            p2HpTxt.innerText = `${Math.ceil(curTotal)} / ${maxHpTotal}`;
+          }
+          if (dualBreakdown) {
+            dualBreakdown.style.display = 'inline';
+            const e1Tag = frame.e.hp > 0 ? `${Math.ceil(frame.e.hp)}` : 'K.O.';
+            const e2Tag = frame.e2.hp > 0 ? `${Math.ceil(frame.e2.hp)}` : 'K.O.';
+            dualBreakdown.innerText = `[${e1Tag} | ${e2Tag}]`;
+          }
+          if (dualSep) dualSep.style.display = 'inline';
+          if (p2bName) {
+            p2bName.style.display = 'inline';
+            p2bName.style.opacity = frame.e2.hp <= 0 ? '0.35' : '1';
+            p2bName.style.textDecoration = frame.e2.hp <= 0 ? 'line-through' : 'none';
+          }
+          if (p2Name) {
+            p2Name.style.opacity = frame.e.hp <= 0 ? '0.35' : '1';
+            p2Name.style.textDecoration = frame.e.hp <= 0 ? 'line-through' : 'none';
+          }
+
+          const p2Sp = Math.max(0, (frame.e.superMeter / frame.e.maxSuper) * 50);
+          const p2bSp = Math.max(0, (frame.e2.superMeter / frame.e2.maxSuper) * 50);
+          if (p2SpBar) {
+            p2SpBar.style.width = `${p2Sp}%`;
+            p2SpBar.style.display = 'block';
+          }
+          if (p2bSpBar) {
+            p2bSpBar.style.width = `${p2bSp}%`;
+            p2bSpBar.style.display = 'block';
+          }
+        } else {
+          const p2Hp = Math.max(0, (frame.e.hp / frame.e.maxHp) * 100);
+          const p2Sp = Math.max(0, (frame.e.superMeter / frame.e.maxSuper) * 100);
+
+          if (p2HpBar) {
+            p2HpBar.style.width = `${p2Hp}%`;
+            p2HpBar.style.display = 'block';
+          }
+          if (p2bHpBar) {
+            p2bHpBar.style.width = '0%';
+            p2bHpBar.style.display = 'none';
+          }
+          if (p2HpTxt) {
+            p2HpTxt.innerText = `${Math.ceil(frame.e.hp)} / ${frame.e.maxHp}`;
+          }
+          if (dualBreakdown) dualBreakdown.style.display = 'none';
+          if (dualSep) dualSep.style.display = 'none';
+          if (p2bName) p2bName.style.display = 'none';
+          if (p2Name) {
+            p2Name.style.opacity = '1';
+            p2Name.style.textDecoration = 'none';
+          }
+          if (p2SpBar) {
+            p2SpBar.style.width = `${p2Sp}%`;
+            p2SpBar.style.display = 'block';
+          }
+          if (p2bSpBar) {
+            p2bSpBar.style.width = '0%';
+            p2bSpBar.style.display = 'none';
+          }
+        }
       }
     }
 
@@ -3466,8 +3619,12 @@ class YomiEngine {
       const idx = Math.min(this.replayFrames.length - 1, Math.max(0, Math.floor(this.replayIndex)));
       const frame = this.replayFrames[idx];
       if (frame) {
-        renderFighterModel(this.ctx, frame.p, true);
-        renderFighterModel(this.ctx, frame.e, false);
+        if (frame.p && (frame.p.hp === undefined || frame.p.hp > 0)) {
+          renderFighterModel(this.ctx, frame.p, true);
+        }
+        if (frame.e && (frame.e.hp === undefined || frame.e.hp > 0)) {
+          renderFighterModel(this.ctx, frame.e, false);
+        }
         if (frame.e2 && frame.e2.hp > 0) {
           renderFighterModel(this.ctx, frame.e2, false);
         }

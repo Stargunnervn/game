@@ -199,6 +199,7 @@ class TacticalFighter {
   }
 
   executeMove(moveKey, aimDeg = 0) {
+    if (this.hp <= 0) return;
     let moveData = window.engine ? window.engine.getMoveData(moveKey, this.isPlayer) : (typeof MOVES !== 'undefined' ? MOVES[moveKey] : null);
     if (!moveData) return;
 
@@ -432,7 +433,7 @@ class TacticalFighter {
   }
 
   takeHit(dmg, attacker, isHeavy = false, isSpike = false) {
-    if (this.isInvulnerable) return 0;
+    if (this.hp <= 0 || this.isInvulnerable) return 0;
 
     // PARRY CHECK
     const moveData = this.currentMove || {};
@@ -565,6 +566,19 @@ class TacticalFighter {
     }
 
     this.hp = Math.max(0, this.hp - finalDmg);
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.currentMove = null;
+      this.moveKey = null;
+      this.vx = 0;
+      this.vy = 0;
+      this.hitstunFrames = 0;
+      this.isAirborne = false;
+      this.y = this.floorY;
+      this.hasHit = false;
+      this.hitsDealt = 0;
+      return finalDmg;
+    }
 
     const aimDeg = attacker ? attacker.aimAngle : 0;
     const rad = (aimDeg * Math.PI) / 180;
@@ -607,6 +621,7 @@ class TacticalFighter {
   }
 
   updateFramePhysics() {
+    if (this.hp <= 0) return;
     this.vy += 0.58;
     this.x += this.vx;
     this.y += this.vy;
@@ -683,10 +698,12 @@ class TacticalFighter {
   }
 
   draw(ctx) {
+    if (this.hp <= 0) return;
     renderFighterModel(ctx, this, this.isPlayer);
   }
 
   drawGhostPreview(ctx, moveKey, aimDeg = 0) {
+    if (this.hp <= 0) return;
     const moveData = window.engine ? window.engine.getMoveData(moveKey, this.isPlayer) : null;
     if (!moveData) return;
 

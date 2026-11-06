@@ -40,37 +40,27 @@
         <div class="combo-callout" id="combo-display">3 HITS!</div>
       </div>
 
-      <!-- Opponent Status -->
-      <div class="fighter-card p2">
+      <!-- Opponent Status (Unified for Single & Dual Opponents) -->
+      <div class="fighter-card p2" id="opponent-card">
         <div class="fighter-header">
-          <span id="p2-hp-text">100 / 100</span>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="hp-readout-box">
+            <span id="p2-hp-text">100 / 100</span>
+            <span class="dual-hp-breakdown" id="p2-dual-breakdown" style="display: none;"></span>
+          </div>
+          <div class="opponent-names-row">
             <span class="fighter-name" id="p2-name">ROGUE MONK</span>
+            <span class="fighter-name dual-name-sep" id="p2-dual-sep" style="display: none;">&</span>
+            <span class="fighter-name" id="p2b-name" style="display: none;">PARTNER</span>
             <span class="boss-archetype-pill" id="p2-archetype">MONK</span>
           </div>
         </div>
-        <div class="bar-box">
+        <div class="bar-box opponent-bar-box" id="opponent-bar-box">
+          <div id="p2b-hp-bar" class="bar-fill hp-p2b" style="width: 0%; display: none;"></div>
           <div id="p2-hp-bar" class="bar-fill hp-p2" style="width: 100%;"></div>
         </div>
-        <div class="super-bar-box">
-          <div id="p2-super-bar" class="super-fill" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- Secondary Opponent Status (for Dual Boss & Multi-Enemy Ambush) -->
-      <div class="fighter-card p2-b" id="p2-b-card" style="display: none;">
-        <div class="fighter-header">
-          <span id="p2b-hp-text">100 / 100</span>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="fighter-name" id="p2b-name">PARTNER</span>
-            <span class="boss-archetype-pill" id="p2b-archetype">AMBUSH</span>
-          </div>
-        </div>
-        <div class="bar-box">
-          <div id="p2b-hp-bar" class="bar-fill hp-p2b" style="width: 100%;"></div>
-        </div>
-        <div class="super-bar-box">
-          <div id="p2b-super-bar" class="super-fill" style="width: 0%;"></div>
+        <div class="super-bar-box opponent-super-box">
+          <div id="p2b-super-bar" class="super-fill sp-p2b" style="width: 0%; display: none;"></div>
+          <div id="p2-super-bar" class="super-fill sp-p2" style="width: 0%;"></div>
         </div>
       </div>
     </div>

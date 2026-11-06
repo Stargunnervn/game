@@ -4,6 +4,7 @@
 // ============================================================================
 
 function renderFighterModel(ctx, f, isPlayer) {
+  if (!f || (f.hp !== undefined && f.hp <= 0)) return;
   ctx.save();
   const facing = f.facing || 1;
   const x = f.x;
