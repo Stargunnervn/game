@@ -346,7 +346,7 @@ class YomiEngine {
     const btnStart = document.getElementById('btn-start-run');
     if (btnStart) {
       btnStart.addEventListener('click', () => {
-        SFX.init();
+        try { if (typeof SFX !== 'undefined' && SFX.init) SFX.init(); } catch (e) {}
         document.getElementById('screen-title').classList.remove('active');
         this.startExpedition();
       });
@@ -356,7 +356,7 @@ class YomiEngine {
     const btnDojo = document.getElementById('btn-open-dojo');
     if (btnDojo) {
       btnDojo.addEventListener('click', () => {
-        SFX.init();
+        try { if (typeof SFX !== 'undefined' && SFX.init) SFX.init(); } catch (e) {}
         this.openDojoScreen();
       });
     }
@@ -1287,8 +1287,6 @@ class YomiEngine {
           if (canUse('COMET_CRASH') && rand < 0.4) return 'COMET_CRASH';
           if (canUse('HEAVY_SLASH')) return 'HEAVY_SLASH';
         }
-        return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
-      }
         return canUse('SUPER_DASH') ? 'SUPER_DASH' : 'STEP_FWD';
       }
 
@@ -2717,7 +2715,8 @@ class YomiEngine {
 
   drawArena() {
     const floorIdx = Math.max(0, Math.min(2, (this.currentFloor || 1) - 1));
-    const floorDef = FLOOR_DEFINITIONS[floorIdx] || FLOOR_DEFINITIONS[0];
+    const floorDefs = (typeof FLOOR_DEFINITIONS !== 'undefined' ? FLOOR_DEFINITIONS : (typeof window !== 'undefined' && window.FLOOR_DEFINITIONS ? window.FLOOR_DEFINITIONS : []));
+    const floorDef = (floorDefs && floorDefs[floorIdx]) || (floorDefs && floorDefs[0]) || { bgTheme: 'dojo' };
 
     const skyGrad = this.ctx.createLinearGradient(0, 0, 0, this.height);
     if (floorDef.bgTheme === 'dojo') {
