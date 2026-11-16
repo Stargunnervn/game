@@ -1,0 +1,973 @@
+// ============================================================================
+// ENEMY DEFINITIONS & 10-STAGE FLOOR PROGRESSION POOLS
+// ============================================================================
+
+const ENEMY_CATALOG = {
+  // ── FLOOR 1: THE IRON DOJO (Physical & Martial Arts) ──
+  shaolin_novice: {
+    name: 'Shaolin Novice',
+    title: 'Dojo Apprentice',
+    color: '#ff6b6b',
+    bodyColor: '#e74c3c',
+    headColor: '#f39c12',
+    accentColor: '#f1c40f',
+    baseHp: 80,
+    aiTier: 'NOVICE',
+    archetype: 'trainee',
+    moves: ['STEP_FWD', 'STEP_BACK', 'QUICK_JAB', 'SWEEP', 'BLOCK'],
+    goldReward: 25,
+    introQuote: 'Let us exchange blows! Teach me your style.',
+    defeatQuote: 'My fundamentals were lacking...'
+  },
+  dojo_sparring_partner: {
+    name: 'Sparring Adept',
+    title: 'Wooden Dummy Master',
+    color: '#e67e22',
+    bodyColor: '#d35400',
+    headColor: '#f39c12',
+    accentColor: '#e67e22',
+    baseHp: 95,
+    aiTier: 'NOVICE',
+    archetype: 'trainee',
+    moves: ['STEP_FWD', 'QUICK_JAB', 'HEAVY_SLASH', 'BLOCK', 'PARRY'],
+    goldReward: 30,
+    introQuote: 'Can you penetrate my steady guard?',
+    defeatQuote: 'A clean hit! Well played.'
+  },
+  street_brawler: {
+    name: 'Steel Knuckle Brawler',
+    title: 'Alleyway Fighter',
+    color: '#c0392b',
+    bodyColor: '#962d22',
+    headColor: '#e74c3c',
+    accentColor: '#bdc3c7',
+    baseHp: 110,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'rushdown',
+    moves: ['STEP_FWD', 'DASH', 'QUICK_JAB', 'LAUNCHER', 'GROUND_POUND'],
+    goldReward: 35,
+    introQuote: 'No fancy forms here, just brute force!',
+    defeatQuote: 'My knuckle irons shattered...'
+  },
+  windblade_ronin: {
+    name: 'Windblade Ronin',
+    title: 'Wandering Swordsman',
+    color: '#16a085',
+    bodyColor: '#1abc9c',
+    headColor: '#2ecc71',
+    accentColor: '#ecf0f1',
+    baseHp: 125,
+    aiTier: 'BALANCED',
+    archetype: 'counter',
+    moves: ['STEP_FWD', 'STEP_BACK', 'DASH', 'HEAVY_SLASH', 'PARRY', 'BLADE_COUNTER'],
+    goldReward: 42,
+    introQuote: 'The wind whispers your every move.',
+    defeatQuote: 'Your edge was sharper than the gale.'
+  },
+  iron_temple_monk: {
+    name: 'Iron Temple Monk',
+    title: 'Diamond Body Disciple',
+    color: '#d4ac0d',
+    bodyColor: '#b7950b',
+    headColor: '#f1c40f',
+    accentColor: '#f39c12',
+    baseHp: 145,
+    aiTier: 'TACTICAL',
+    archetype: 'tank',
+    moves: ['STEP_FWD', 'BLOCK', 'PARRY', 'LAUNCHER', 'LIGHTNING_PALM', 'GROUND_POUND'],
+    goldReward: 50,
+    introQuote: 'My spirit is an unyielding fortress.',
+    defeatQuote: 'The diamond has cracked...'
+  },
+  elite_dojo_master: {
+    name: 'Elite Dojo Instructor',
+    title: 'First Floor Gatekeeper',
+    color: '#8e44ad',
+    bodyColor: '#6c3483',
+    headColor: '#9b59b6',
+    accentColor: '#f1c40f',
+    baseHp: 170,
+    aiTier: 'VETERAN',
+    archetype: 'all_rounder',
+    moves: ['STEP_FWD', 'DASH', 'QUICK_JAB', 'HEAVY_SLASH', 'SWEEP', 'LAUNCHER', 'DRAGON_UPPER', 'PARRY'],
+    goldReward: 65,
+    introQuote: 'Show me what you have mastered in this dojo!',
+    defeatQuote: 'You have surpassed the instructor!'
+  },
+
+  // FLOOR 1 BOSS: IRON SHOGUN
+  boss_iron_shogun: {
+    name: 'Iron Shogun Raiden',
+    title: 'Lord of the Iron Mountain',
+    isBoss: true,
+    color: '#e74c3c',
+    bodyColor: '#78281f',
+    headColor: '#c0392b',
+    accentColor: '#f39c12',
+    baseHp: 260,
+    aiTier: 'BOSS',
+    archetype: 'counter',
+    moves: ['DASH', 'HEAVY_SLASH', 'LAUNCHER', 'GROUND_POUND', 'BLADE_COUNTER', 'DRAGON_UPPER', 'PARRY'],
+    goldReward: 140,
+    introQuote: 'Tremble before the invincible blade of the Shogunate!',
+    defeatQuote: 'Impossible... The Iron Dynasty falls...'
+  },
+  // FLOOR 1 BOSS 2: CRIMSON ONI GORYO
+  boss_crimson_oni: {
+    name: 'Crimson Oni Goryo',
+    title: 'Berserker of the Blood Forge',
+    isBoss: true,
+    color: '#ff2a2a',
+    bodyColor: '#5c0606',
+    headColor: '#c0392b',
+    accentColor: '#ff9900',
+    baseHp: 275,
+    aiTier: 'BOSS',
+    archetype: 'berserker',
+    moves: ['SUPER_DASH', 'METEOR_STRIKE', 'LIGHTNING_PALM', 'SWEEP', 'DRAGON_UPPER', 'LAUNCHER', 'GROUND_POUND', 'SOLAR_SUPERNOVA'],
+    goldReward: 145,
+    introQuote: 'My horns thirst for a worthy duel! Come, break against my iron fists!',
+    defeatQuote: 'Gwahaha! What ferocious strength... You have earned my respect!'
+  },
+  // FLOOR 1 BOSS 3: SHADOW KUNOICHI AYAME
+  boss_shadow_kunoichi: {
+    name: 'Shadow Lotus Ayame',
+    title: 'Silent Fang of the Shogunate',
+    isBoss: true,
+    color: '#ff007f',
+    bodyColor: '#2b0a22',
+    headColor: '#e056fd',
+    accentColor: '#00f0ff',
+    baseHp: 245,
+    aiTier: 'BOSS',
+    archetype: 'shinobi',
+    moves: ['GHOST_STEP', 'PHANTOM_SLIDE', 'DIVE_KICK', 'QUICK_JAB', 'THUNDER_GALE', 'BLADE_COUNTER', 'MIRAGE_RIPOSTE', 'PARRY'],
+    goldReward: 150,
+    introQuote: 'Do not blink. A shinobi strike comes from the blind spot of your soul.',
+    defeatQuote: 'A flawless counter... My shadow fades...'
+  },
+  frost_disciple: {
+    name: 'Frost Disciple',
+    title: 'Glacial Acolyte',
+    color: '#70d6ff',
+    bodyColor: '#1d3557',
+    headColor: '#a8dadc',
+    accentColor: '#457b9d',
+    baseHp: 110,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['STEP_FWD', 'GLACIAL_SPIKE', 'KI_BLAST', 'BLOCK', 'SWEEP'],
+    goldReward: 25,
+    introQuote: 'Feel the biting chill of the mountain winds.',
+    defeatQuote: 'My ice... shatters...'
+  },
+  thunder_monk: {
+    name: 'Thunder Monk',
+    title: 'Vibrating Fist',
+    color: '#ffb703',
+    bodyColor: '#2b2d42',
+    headColor: '#fb8500',
+    accentColor: '#ffd166',
+    baseHp: 130,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'rushdown',
+    moves: ['DASH', 'QUICK_JAB', 'LIGHTNING_PALM', 'SONIC_PALM', 'LAUNCHER'],
+    goldReward: 30,
+    introQuote: 'Can your guard withstand the resonance of thunder?',
+    defeatQuote: 'The vibrations... overcome me...'
+  },
+  boss_frost_colossus: {
+    name: 'Frost Monarch Ymir',
+    title: 'Colossus of the North',
+    isBoss: true,
+    color: '#38bdf8',
+    bodyColor: '#0c4a6e',
+    headColor: '#bae6fd',
+    accentColor: '#0284c7',
+    baseHp: 270,
+    aiTier: 'BOSS',
+    archetype: 'tank',
+    moves: ['GLACIAL_SPIKE', 'GROUND_POUND', 'METEOR_STRIKE', 'BLOCK', 'AEGIS_REFLECT', 'FROSTFIRE_BURST'],
+    goldReward: 160,
+    introQuote: 'Permafrost will encase this dojo. You are merely snow before an avalanche.',
+    defeatQuote: 'The glacier thaws... You possess the true eternal flame.'
+  },
+
+  // ── FLOOR 2: THE SHADOW RIFT (Spectral, Dark & Spatial) ──
+  spectral_stalker: {
+    name: 'Spectral Stalker',
+    title: 'Rift Walker',
+    color: '#9b59b6',
+    bodyColor: '#5b2c6f',
+    headColor: '#af7ac5',
+    accentColor: '#85c1e9',
+    baseHp: 155,
+    aiTier: 'BALANCED',
+    archetype: 'shinobi',
+    moves: ['STEP_FWD', 'GHOST_STEP', 'QUICK_JAB', 'SHADOW_TELEPORT', 'SWEEP'],
+    goldReward: 50,
+    introQuote: 'Can you strike a shadow in the dark?',
+    defeatQuote: 'Banished back into the ether...'
+  },
+  void_cultist: {
+    name: 'Void Cultist',
+    title: 'Acolyte of Oblivion',
+    color: '#5d6d7e',
+    bodyColor: '#34495e',
+    headColor: '#85929e',
+    accentColor: '#a569bd',
+    baseHp: 170,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['STEP_BACK', 'KI_BLAST', 'FIRE_BURST', 'BLOCK', 'SHADOW_TELEPORT'],
+    goldReward: 55,
+    introQuote: 'The darkness hungers for your essence.',
+    defeatQuote: 'The void still awaits you...'
+  },
+  crimson_assassin: {
+    name: 'Crimson Nightshade',
+    title: 'Silent Fang',
+    color: '#e91e63',
+    bodyColor: '#880e4f',
+    headColor: '#f06292',
+    accentColor: '#ffffff',
+    baseHp: 190,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'rushdown',
+    moves: ['DASH', 'SUPER_DASH', 'QUICK_JAB', 'HEAVY_SLASH', 'PARRY', 'LIGHTNING_PALM'],
+    goldReward: 65,
+    introQuote: 'One heartbeat is all I need to end you.',
+    defeatQuote: 'A lethal miscalculation...'
+  },
+  dusk_duelist: {
+    name: 'Duskblade Duelist',
+    title: 'Twilight Fencer',
+    color: '#3498db',
+    bodyColor: '#1b4f72',
+    headColor: '#5dade2',
+    accentColor: '#f4d03f',
+    baseHp: 215,
+    aiTier: 'VETERAN',
+    archetype: 'counter',
+    moves: ['STEP_FWD', 'STEP_BACK', 'HEAVY_SLASH', 'JUDGMENT_CUT', 'PARRY', 'BLADE_COUNTER', 'GHOST_STEP'],
+    goldReward: 75,
+    introQuote: 'Steel honed between twilight and oblivion.',
+    defeatQuote: 'Your timing was absolute perfection.'
+  },
+  nether_abomination: {
+    name: 'Nether Titan',
+    title: 'Rift Goliath',
+    color: '#27ae60',
+    bodyColor: '#145a32',
+    headColor: '#52be80',
+    accentColor: '#e74c3c',
+    baseHp: 250,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'juggernaut',
+    moves: ['STEP_FWD', 'GROUND_POUND', 'METEOR_STRIKE', 'WHIRLWIND', 'BLOCK'],
+    goldReward: 85,
+    introQuote: 'ROAARRR! CRUSH THE MORTAL!',
+    defeatQuote: 'The mountain of flesh crumbles...'
+  },
+  void_inquisitor: {
+    name: 'Void Inquisitor',
+    title: 'Keeper of the Rift Gates',
+    color: '#1abc9c',
+    bodyColor: '#0e6251',
+    headColor: '#48c9b0',
+    accentColor: '#af7ac5',
+    baseHp: 275,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['DASH', 'JUDGMENT_CUT', 'SHADOW_TELEPORT', 'LIGHTNING_PALM', 'WHIRLWIND', 'PARRY'],
+    goldReward: 95,
+    introQuote: 'You trespass in realms forbidden to living flesh.',
+    defeatQuote: 'The seals are broken...'
+  },
+
+  // FLOOR 2 BOSS: VOID PHANTOM LORD
+  boss_void_phantom_lord: {
+    name: 'Void Lord Malakor',
+    title: 'Sovereign of Non-Existence',
+    isBoss: true,
+    color: '#8e44ad',
+    bodyColor: '#4a235a',
+    headColor: '#bb8fce',
+    accentColor: '#00f0ff',
+    baseHp: 380,
+    aiTier: 'BOSS',
+    archetype: 'zoner',
+    moves: ['GHOST_STEP', 'SHADOW_TELEPORT', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'WHIRLWIND', 'PARRY', 'BLADE_COUNTER'],
+    goldReward: 220,
+    introQuote: 'All light dissolves into the eternal void. Surrender your soul!',
+    defeatQuote: 'Even the endless void can be sundered...'
+  },
+  // FLOOR 2 BOSS 2: ABYSSAL LEVIATHAN
+  boss_abyssal_leviathan: {
+    name: 'Abyssal Sovereign Dagon',
+    title: 'Colossus of the Deep Trenches',
+    isBoss: true,
+    color: '#008b8b',
+    bodyColor: '#003333',
+    headColor: '#20b2aa',
+    accentColor: '#00ffcc',
+    baseHp: 410,
+    aiTier: 'BOSS',
+    archetype: 'juggernaut',
+    moves: ['GROUND_POUND', 'COMET_CRASH', 'FIRE_BURST', 'METEOR_STRIKE', 'TEMPEST_QUAKE', 'SUPER_DASH', 'HEAVY_SLASH', 'AEGIS_REFLECT'],
+    goldReward: 230,
+    introQuote: 'The black ocean rises to swallow your mortal spark! Drown in the deep!',
+    defeatQuote: 'The ocean floor shatters... The leviathan sinks...'
+  },
+  // FLOOR 2 BOSS 3: SOUL REAPER THANATOS
+  boss_soul_reaper: {
+    name: 'Soul Harvester Thanatos',
+    title: 'Grand Arbiter of the Nethergate',
+    isBoss: true,
+    color: '#1abc9c',
+    bodyColor: '#0e6251',
+    headColor: '#48c9b0',
+    accentColor: '#e74c3c',
+    baseHp: 370,
+    aiTier: 'BOSS',
+    archetype: 'shinobi',
+    moves: ['SHADOW_TELEPORT', 'PHANTOM_SLIDE', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'SOUL_REAP', 'RAIKIRI_WARP', 'GHOST_STEP', 'BLADE_COUNTER', 'PARRY'],
+    goldReward: 240,
+    introQuote: 'Every breath you draw belongs to the grave. I have come to collect.',
+    defeatQuote: 'A mortal who defies death itself... Remarkable...'
+  },
+  berserk_gladiator: {
+    name: 'Crimson Gladiator',
+    title: 'Arena Bloodhound',
+    color: '#ef233c',
+    bodyColor: '#2b2d42',
+    headColor: '#d90429',
+    accentColor: '#ff758f',
+    baseHp: 170,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'berserker',
+    moves: ['BLOOD_RUSH', 'HEAVY_SLASH', 'METEOR_STRIKE', 'SUPER_DASH', 'PARRY'],
+    goldReward: 55,
+    introQuote: 'Pain is fuel. Blood is victory!',
+    defeatQuote: 'A glorious... death in battle...'
+  },
+  gravity_sorcerer: {
+    name: 'Gravity Sorcerer',
+    title: 'Singularity Weaver',
+    color: '#7b2cbf',
+    bodyColor: '#240046',
+    headColor: '#9d4edd',
+    accentColor: '#c77dff',
+    baseHp: 185,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['GRAVITY_CRUSH', 'SHADOW_PULL', 'VOID_CLEAVE', 'STEP_BACK', 'GHOST_STEP'],
+    goldReward: 65,
+    introQuote: 'Kneel before the weight of a dying star.',
+    defeatQuote: 'My gravity well... has collapsed...'
+  },
+  // FLOOR 2 BOSS 4: CARMINE WARLORD MALEK
+  boss_blood_wraith: {
+    name: 'Carmine Warlord Malek',
+    title: 'Blood Sovereign',
+    isBoss: true,
+    color: '#e63946',
+    bodyColor: '#3d0814',
+    headColor: '#ff4d6d',
+    accentColor: '#a4161a',
+    baseHp: 380,
+    aiTier: 'BOSS',
+    archetype: 'berserker',
+    moves: ['BLOOD_RUSH', 'SOUL_REAP', 'CARMINE_HARVEST', 'SUPER_DASH', 'MIRAGE_RIPOSTE', 'HEAVY_SLASH', 'SWEEP'],
+    goldReward: 260,
+    introQuote: 'Every wound you inflict only deepens my thirst. Feed my blade!',
+    defeatQuote: 'Consumed by my own crimson hunger... Exquisite power...'
+  },
+
+  // ── FLOOR 3: THE ASTRAL CITADEL (Celestial, Divine & Supreme) ──
+  astral_templar: {
+    name: 'Astral Templar',
+    title: 'Sky Shield of the Citadel',
+    color: '#f39c12',
+    bodyColor: '#7e5109',
+    headColor: '#f5b041',
+    accentColor: '#ffffff',
+    baseHp: 260,
+    aiTier: 'BALANCED',
+    archetype: 'tank',
+    moves: ['STEP_FWD', 'BLOCK', 'AEGIS_REFLECT', 'LAUNCHER', 'LIGHTNING_PALM', 'KI_BLAST'],
+    goldReward: 85,
+    introQuote: 'The light of the heavens shields the righteous!',
+    defeatQuote: 'My divine shield was shattered...'
+  },
+  celestial_valkyrie: {
+    name: 'Solar Valkyrie',
+    title: 'Wing of Judgment',
+    color: '#e74c3c',
+    bodyColor: '#922b21',
+    headColor: '#ec7063',
+    accentColor: '#f7dc6f',
+    baseHp: 285,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'aerial',
+    moves: ['DOUBLE_JUMP', 'DIVE_KICK', 'COMET_CRASH', 'HEAVY_SLASH', 'SUPER_DASH', 'DRAGON_UPPER'],
+    goldReward: 95,
+    introQuote: 'Descend from the heavens with radiant wrath!',
+    defeatQuote: 'My wings... clipped by a mortal...'
+  },
+  chrono_weaver: {
+    name: 'Chrono Sage',
+    title: 'Guardian of Timelines',
+    color: '#00bcd4',
+    bodyColor: '#006064',
+    headColor: '#4dd0e1',
+    accentColor: '#ffffff',
+    baseHp: 310,
+    aiTier: 'TACTICAL',
+    archetype: 'zoner',
+    moves: ['GHOST_STEP', 'SHADOW_TELEPORT', 'PARRY', 'FIRE_BURST', 'THUNDER_GALE', 'JUDGMENT_CUT'],
+    goldReward: 110,
+    introQuote: 'I have witnessed every outcome of this duel.',
+    defeatQuote: 'A divergence in destiny itself!'
+  },
+  plasma_behemoth: {
+    name: 'Apex War Sentinel',
+    title: 'Star-Forge Construct',
+    color: '#e67e22',
+    bodyColor: '#6e2c00',
+    headColor: '#f39c12',
+    accentColor: '#00f0ff',
+    baseHp: 350,
+    aiTier: 'AGGRESSIVE',
+    archetype: 'juggernaut',
+    moves: ['METEOR_STRIKE', 'GROUND_POUND', 'FIRE_BURST', 'BLOCK', 'SUPER_DASH'],
+    goldReward: 120,
+    introQuote: 'ENGAGING TARGET. MAXIMUM COMBAT PURGE PROTOCOL.',
+    defeatQuote: 'CORE TEMPERATURE CRITICAL... SHUTTING DOWN.'
+  },
+  divine_sword_saint: {
+    name: 'Celestial Sword Saint',
+    title: 'Grand Arbiter of the Astral Throne',
+    color: '#f1c40f',
+    bodyColor: '#7d6608',
+    headColor: '#f9e79f',
+    accentColor: '#00f0ff',
+    baseHp: 380,
+    aiTier: 'VETERAN',
+    archetype: 'all_rounder',
+    moves: ['SUPER_DASH', 'HEAVY_SLASH', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'BLADE_COUNTER', 'DRAGON_UPPER', 'PARRY'],
+    goldReward: 140,
+    introQuote: 'Few mortals reach this summit. Draw your weapon!',
+    defeatQuote: 'Magnificent technique! The throne is within your reach.'
+  },
+
+  // FLOOR 3 FINAL BOSS: CELESTIAL EMPEROR
+  boss_celestial_emperor: {
+    name: 'Celestial Emperor Zenith',
+    title: 'The Supreme God of Hustle',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ffffff',
+    bodyColor: '#1a5276',
+    headColor: '#f4d03f',
+    accentColor: '#00f0ff',
+    baseHp: 520,
+    aiTier: 'BOSS',
+    archetype: 'supreme',
+    moves: ['SUPER_DASH', 'GHOST_STEP', 'THUNDER_GALE', 'VOID_CLEAVE', 'SOLAR_SUPERNOVA', 'VALKYRIE_ASCENT', 'COMET_CRASH', 'AEGIS_REFLECT', 'DRAGON_UPPER', 'PARRY'],
+    goldReward: 500,
+    introQuote: 'You stand before the creator of the arena. Witness absolute martial perfection!',
+    defeatQuote: 'You have done the impossible... You are the true God of Hustle!'
+  },
+  // FLOOR 3 FINAL BOSS 2: SOLAR SERAPH URIEL
+  boss_seraph_archon: {
+    name: 'Solar Seraph Uriel',
+    title: 'Primordial Avatar of the Supernova',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ffd700',
+    bodyColor: '#78350f',
+    headColor: '#fef08a',
+    accentColor: '#ef4444',
+    baseHp: 510,
+    aiTier: 'BOSS',
+    archetype: 'aerial',
+    moves: ['DOUBLE_JUMP', 'DIVE_KICK', 'COMET_CRASH', 'FIRE_BURST', 'PHOENIX_KICK', 'VALKYRIE_ASCENT', 'DRAGON_UPPER', 'SUPER_DASH', 'THUNDER_GALE'],
+    goldReward: 500,
+    introQuote: 'Bask in the unyielding radiance of ten thousand suns! Purify your soul!',
+    defeatQuote: 'My sacred flames... extinguished by mortal hands...'
+  },
+  // FLOOR 3 FINAL BOSS 3: CHRONOMANCER AEON
+  boss_chronos_titan: {
+    name: 'Chronomancer Aeon',
+    title: 'Eternal Weaver of Timelines',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#00ffff',
+    bodyColor: '#0f172a',
+    headColor: '#38bdf8',
+    accentColor: '#f43f5e',
+    baseHp: 530,
+    aiTier: 'BOSS',
+    archetype: 'zoner',
+    moves: ['SHADOW_TELEPORT', 'GHOST_STEP', 'JUDGMENT_CUT', 'VOID_CLEAVE', 'CHRONO_STASIS', 'SHADOW_PULL', 'THUNDER_GALE', 'AEGIS_REFLECT', 'BLADE_COUNTER'],
+    goldReward: 500,
+    introQuote: 'In ten million futures, you never defeat me. Let us see if you can break destiny.',
+    defeatQuote: 'A rupture in the timeline... You have forged a new reality!'
+  },
+  abyssal_dreadnought: {
+    name: 'Abyssal Dreadnought',
+    title: 'Armored Titan',
+    color: '#00f0ff',
+    bodyColor: '#051923',
+    headColor: '#00a6fb',
+    accentColor: '#0582ca',
+    baseHp: 320,
+    aiTier: 'VETERAN',
+    archetype: 'juggernaut',
+    moves: ['GROUND_POUND', 'TEMPEST_QUAKE', 'AEGIS_REFLECT', 'HEAVY_SLASH', 'SONIC_PALM'],
+    goldReward: 130,
+    introQuote: 'No blade can pierce ten thousand tons of celestial steel.',
+    defeatQuote: 'My plating... fractured...'
+  },
+  valkyrie_warmaster: {
+    name: 'Valkyrie Warmaster',
+    title: 'Sky Sovereign',
+    color: '#ffd166',
+    bodyColor: '#1a1423',
+    headColor: '#ffe49e',
+    accentColor: '#f72585',
+    baseHp: 340,
+    aiTier: 'VETERAN',
+    archetype: 'aerial',
+    moves: ['DOUBLE_JUMP', 'VALKYRIE_ASCENT', 'PHOENIX_KICK', 'COMET_CRASH', 'SUPER_DASH'],
+    goldReward: 140,
+    introQuote: 'The skies belong to the righteous. Fall to earth!',
+    defeatQuote: 'My wings... clipped by your resolve...'
+  },
+  // FLOOR 3 FINAL BOSS 4: PRIMORDIAL DRAGON TIAMAT
+  boss_singularity_gorgon: {
+    name: 'Primordial Dragon Tiamat',
+    title: 'Event Horizon Sovereign',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ff007f',
+    bodyColor: '#120024',
+    headColor: '#ff54b0',
+    accentColor: '#00f0ff',
+    baseHp: 560,
+    aiTier: 'BOSS',
+    archetype: 'zoner',
+    moves: ['SHADOW_PULL', 'GRAVITY_CRUSH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'VOID_CLEAVE', 'SHADOW_TELEPORT', 'AEGIS_REFLECT', 'THUNDER_METEOR'],
+    goldReward: 600,
+    introQuote: 'I was born in the heart of the first black hole. Return all things to nothingness.',
+    defeatQuote: 'The singularity breaks... A new universe is born from your fists!'
+  },
+
+  // ── STAGE 5 MINI-BOSSES ACROSS ALL FLOORS ──
+  miniboss_corrupted_ronin: {
+    name: 'Corrupted Blade Ronin',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#ff0055',
+    bodyColor: '#2a0815',
+    headColor: '#ff3366',
+    accentColor: '#ffd166',
+    baseHp: 165,
+    aiTier: 'TACTICAL',
+    archetype: 'counter',
+    moves: ['DASH', 'HEAVY_SLASH', 'BLADE_COUNTER', 'BLOOD_RUSH', 'AIR_RECOVERY', 'PARRY'],
+    goldReward: 80,
+    introQuote: 'You have survived the outer disciples. Now face the corrupted blade master!',
+    defeatQuote: 'My corrupted edge yields... Claim the sanctuary spoils!'
+  },
+  miniboss_cyber_enforcer: {
+    name: 'Cybernetic Inquisitor',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#00f0ff',
+    bodyColor: '#0c1a2d',
+    headColor: '#00f0ff',
+    accentColor: '#ff00ff',
+    baseHp: 220,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['DASH', 'KI_BLAST', 'SONIC_PALM', 'AEGIS_REFLECT', 'SUPER_DASH', 'GRAVITY_CRUSH', 'AIR_RECOVERY'],
+    goldReward: 100,
+    introQuote: 'Threat level critically elevated. Initiating immediate quarantine purge!',
+    defeatQuote: 'Core reactor overloaded... Treasury clearance granted.'
+  },
+  miniboss_void_sentinel: {
+    name: 'Void Rift Sentinel',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#9d4edd',
+    bodyColor: '#190a2a',
+    headColor: '#c77dff',
+    accentColor: '#00f0ff',
+    baseHp: 275,
+    aiTier: 'VETERAN',
+    archetype: 'tank',
+    moves: ['DASH', 'SHADOW_PULL', 'GRAVITY_CRUSH', 'VOID_CLEAVE', 'EVENT_HORIZON_SLASH', 'PARRY', 'AIR_RECOVERY'],
+    goldReward: 125,
+    introQuote: 'None breach the inner citadel without submitting to the crushing singularity.',
+    defeatQuote: 'The rift shatters... The sanctum treasures are yours.'
+  },
+  miniboss_astral_demiurge: {
+    name: 'Astral Demiurge Inquisitor',
+    title: 'Stage 5 Mini-Boss',
+    isMiniBoss: true,
+    color: '#ffd700',
+    bodyColor: '#251b03',
+    headColor: '#fff07a',
+    accentColor: '#00f0ff',
+    baseHp: 330,
+    aiTier: 'BOSS',
+    archetype: 'rushdown',
+    moves: ['SUPER_DASH', 'SOLAR_SUPERNOVA', 'RAIKIRI_WARP', 'VALKYRIE_ASCENT', 'COSMIC_HYPERNOVA_ZERO', 'AIR_RECOVERY'],
+    goldReward: 160,
+    introQuote: 'Mortal flesh dares intrude upon the cosmic pantheon? Burn in stellar fury!',
+    defeatQuote: 'A mortal wielding divine light... Proceed toward the cosmic throne.'
+  },
+
+  // ── FLOOR 4: THE ASTRAL SINGULARITY (PANTHEON OF GODS) ──
+  astral_demiurge_disciple: {
+    name: 'Astral Demiurge Disciple',
+    title: 'Cosmic Zealot',
+    color: '#38ef7d',
+    bodyColor: '#082515',
+    headColor: '#70f3aa',
+    accentColor: '#ffd700',
+    baseHp: 230,
+    aiTier: 'TACTICAL',
+    archetype: 'rushdown',
+    moves: ['STEP_FWD', 'DASH', 'GLACIAL_SPIKE', 'SONIC_PALM', 'SOLAR_SUPERNOVA', 'AIR_RECOVERY'],
+    goldReward: 70,
+    introQuote: 'We channel the first spark of creation!',
+    defeatQuote: 'The cosmos acknowledges your strike.'
+  },
+  void_seraph_sentinel: {
+    name: 'Void Seraph Sentinel',
+    title: 'Dimensional Warder',
+    color: '#c084fc',
+    bodyColor: '#1d0b30',
+    headColor: '#e9d5ff',
+    accentColor: '#ff007f',
+    baseHp: 250,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['DASH', 'EVENT_HORIZON_SLASH', 'CHRONO_JUDGMENT', 'VOID_CLEAVE', 'AIR_RECOVERY'],
+    goldReward: 75,
+    introQuote: 'Space itself twists to defend our sanctum.',
+    defeatQuote: 'The dimensional rifts close...'
+  },
+  chrono_archon_titan: {
+    name: 'Chronos Archon Titan',
+    title: 'Temporal Sovereign',
+    color: '#00f0ff',
+    bodyColor: '#081728',
+    headColor: '#6fe8ff',
+    accentColor: '#ffd700',
+    baseHp: 270,
+    aiTier: 'VETERAN',
+    archetype: 'tank',
+    moves: ['STEP_FWD', 'CHRONO_JUDGMENT', 'RAIKIRI_WARP', 'AEGIS_REFLECT', 'AIR_RECOVERY'],
+    goldReward: 80,
+    introQuote: 'Your past, present, and defeat were written together.',
+    defeatQuote: 'You exist outside of timeline boundaries...'
+  },
+  ragnarok_valkyrie_sovereign: {
+    name: 'Ragnarok Valkyrie Sovereign',
+    title: 'War Goddess',
+    color: '#ff3366',
+    bodyColor: '#2b0612',
+    headColor: '#ff6688',
+    accentColor: '#00f0ff',
+    baseHp: 290,
+    aiTier: 'VETERAN',
+    archetype: 'counter',
+    moves: ['SUPER_DASH', 'VALKYRIE_ASCENT', 'CARMINE_HARVEST', 'MIRAGE_RIPOSTE', 'AIR_RECOVERY'],
+    goldReward: 85,
+    introQuote: 'Only the undefeated earn an audience with the Primordial Singularity.',
+    defeatQuote: 'You possess the will of a conqueror.'
+  },
+  cosmic_hypernova_colossus: {
+    name: 'Hypernova Star Colossus',
+    title: 'Living Star',
+    color: '#ff9f1c',
+    bodyColor: '#281403',
+    headColor: '#ffbf69',
+    accentColor: '#ff0055',
+    baseHp: 310,
+    aiTier: 'BOSS',
+    archetype: 'tank',
+    moves: ['SUPER_DASH', 'SOLAR_SUPERNOVA', 'COSMIC_HYPERNOVA_ZERO', 'TEMPEST_QUAKE', 'AIR_RECOVERY'],
+    goldReward: 90,
+    introQuote: 'I compress the fury of ten thousand suns into each blow!',
+    defeatQuote: 'My core collapses into quiet starlight...'
+  },
+  singularity_pantheon_inquisitor: {
+    name: 'Pantheon Grand Inquisitor',
+    title: 'Keeper of Reality',
+    color: '#b388ff',
+    bodyColor: '#170929',
+    headColor: '#d1b3ff',
+    accentColor: '#00f0ff',
+    baseHp: 325,
+    aiTier: 'BOSS',
+    archetype: 'all_rounder',
+    moves: ['DASH', 'SINGULARITY_EVENT_HORIZON_ZERO', 'CHRONO_CONTINUUM_EXECUTION', 'PARRY', 'AIR_RECOVERY'],
+    goldReward: 95,
+    introQuote: 'Reality itself bends to our supreme doctrine.',
+    defeatQuote: 'You have dismantled reality doctrine...'
+  },
+  indra_storm_demiurge: {
+    name: 'Divine Indra Storm Demiurge',
+    title: 'Avatar of Thunder',
+    color: '#ffd166',
+    bodyColor: '#261c02',
+    headColor: '#ffe399',
+    accentColor: '#00f0ff',
+    baseHp: 340,
+    aiTier: 'BOSS',
+    archetype: 'rushdown',
+    moves: ['SUPER_DASH', 'INDRA_MJOLNIR_CATACLYSM', 'THUNDER_METEOR', 'RAIKIRI_WARP', 'AIR_RECOVERY'],
+    goldReward: 100,
+    introQuote: 'Hear the thunder that woke the universe!',
+    defeatQuote: 'Silence falls over the heavens...'
+  },
+  asura_world_crusher: {
+    name: 'Asura World Crusher',
+    title: 'Titan of Wrath',
+    color: '#ff0055',
+    bodyColor: '#260010',
+    headColor: '#ff4d88',
+    accentColor: '#ffd700',
+    baseHp: 360,
+    aiTier: 'BOSS',
+    archetype: 'berserker',
+    moves: ['SUPER_DASH', 'ASURA_OMNI_DIVINE_PUNISH', 'CARMINE_HARVEST', 'VALKYRIE_RAGNAROK_GENESIS', 'AIR_RECOVERY'],
+    goldReward: 110,
+    introQuote: 'My wrath forged mountain ranges and shattered skies!',
+    defeatQuote: 'At last... A warrior whose fists surpass wrath.'
+  },
+  boss_primordial_singularity: {
+    name: 'The Primordial Singularity',
+    title: 'Supreme True Final Boss',
+    isBoss: true,
+    isFinalBoss: true,
+    color: '#ffffff',
+    bodyColor: '#080812',
+    headColor: '#00f0ff',
+    accentColor: '#ffd700',
+    baseHp: 650,
+    aiTier: 'BOSS',
+    archetype: 'all_rounder',
+    moves: ['COSMIC_HYPERNOVA_ZERO', 'SINGULARITY_EVENT_HORIZON_ZERO', 'CHRONO_CONTINUUM_EXECUTION', 'INDRA_MJOLNIR_CATACLYSM', 'VALKYRIE_RAGNAROK_GENESIS', 'ASURA_OMNI_DIVINE_PUNISH', 'SUPER_DASH', 'AIR_RECOVERY'],
+    goldReward: 1000,
+    introQuote: 'I am the alpha and omega of all fighting forms. Witness the true summit of martial arts!',
+    defeatQuote: 'Inconceivable... The eternal singularity bows to your supreme mastery!'
+  },
+
+  // ── AMBUSH GANG-UP STRIKERS (MULTI-OPPONENT REINFORCEMENTS) ──
+  ambush_shadow_clone: {
+    name: 'Shadow Gang Clone',
+    title: 'Ambush Striker',
+    isAmbushMinion: true,
+    color: '#ff3366',
+    bodyColor: '#1f0810',
+    headColor: '#ff3366',
+    accentColor: '#ff9f1c',
+    baseHp: 75,
+    aiTier: 'TACTICAL',
+    archetype: 'rushdown',
+    moves: ['DASH', 'QUICK_JAB', 'SWEEP', 'BLOOD_RUSH', 'AIR_RECOVERY'],
+    goldReward: 20,
+    introQuote: 'Surround and overwhelm!',
+    defeatQuote: 'Dispersed...'
+  },
+  ambush_astral_phantom: {
+    name: 'Astral Gang Phantom',
+    title: 'Ambush Striker',
+    isAmbushMinion: true,
+    color: '#c084fc',
+    bodyColor: '#160927',
+    headColor: '#e9d5ff',
+    accentColor: '#00f0ff',
+    baseHp: 110,
+    aiTier: 'VETERAN',
+    archetype: 'zoner',
+    moves: ['SUPER_DASH', 'KI_BLAST', 'THUNDER_PALM', 'SONIC_PALM', 'AIR_RECOVERY'],
+    goldReward: 35,
+    introQuote: 'You cannot defend both flanks at once!',
+    defeatQuote: 'Faded...'
+  }
+};
+
+// ── 10 STAGES PER FLOOR CONFIGURATION ──
+const FLOOR_DEFINITIONS = [
+  {
+    floor: 1,
+    name: 'The Iron Dojo',
+    bgTheme: 'dojo',
+    totalStages: 10,
+    stageRoster: [
+      // Stage 1 to 3: Novice sparring
+      { stage: 1, pool: ['shaolin_novice'], hpMult: 1.0, goldBonus: 0 },
+      { stage: 2, pool: ['shaolin_novice', 'dojo_sparring_partner'], hpMult: 1.05, goldBonus: 5 },
+      { stage: 3, pool: ['dojo_sparring_partner', 'street_brawler', 'frost_disciple'], hpMult: 1.1, goldBonus: 10 },
+      // Stage 4 to 6: Adept fighters
+      { stage: 4, pool: ['street_brawler', 'windblade_ronin', 'thunder_monk'], hpMult: 1.15, goldBonus: 15 },
+      // Stage 5: Mini-Boss of Floor 1 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_corrupted_ronin'], hpMult: 1.0, goldBonus: 35, isMiniBoss: true },
+      { stage: 6, pool: ['windblade_ronin', 'iron_temple_monk', 'thunder_monk'], hpMult: 1.25, goldBonus: 25 },
+      // Stage 7 to 9: Elite challengers
+      { stage: 7, pool: ['iron_temple_monk', 'street_brawler', 'frost_disciple'], hpMult: 1.3, goldBonus: 30 },
+      { stage: 8, pool: ['iron_temple_monk', 'elite_dojo_master', 'thunder_monk'], hpMult: 1.35, goldBonus: 35 },
+      { stage: 9, pool: ['elite_dojo_master'], hpMult: 1.45, goldBonus: 45 },
+      // Stage 10: Floor Boss (Randomized from Floor 1 Boss Pool)
+      { stage: 10, pool: ['boss_iron_shogun', 'boss_crimson_oni', 'boss_shadow_kunoichi', 'boss_frost_colossus'], hpMult: 1.0, goldBonus: 50, isBossStage: true }
+    ]
+  },
+  {
+    floor: 2,
+    name: 'The Shadow Rift',
+    bgTheme: 'rift',
+    totalStages: 10,
+    stageRoster: [
+      // Stage 1 to 3
+      { stage: 1, pool: ['spectral_stalker'], hpMult: 1.0, goldBonus: 10 },
+      { stage: 2, pool: ['spectral_stalker', 'void_cultist', 'berserk_gladiator'], hpMult: 1.05, goldBonus: 15 },
+      { stage: 3, pool: ['void_cultist', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.1, goldBonus: 20 },
+      // Stage 4 to 6
+      { stage: 4, pool: ['crimson_assassin', 'dusk_duelist', 'berserk_gladiator'], hpMult: 1.15, goldBonus: 25 },
+      // Stage 5: Mini-Boss of Floor 2 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_cyber_enforcer'], hpMult: 1.0, goldBonus: 45, isMiniBoss: true },
+      { stage: 6, pool: ['dusk_duelist', 'nether_abomination', 'berserk_gladiator'], hpMult: 1.25, goldBonus: 35 },
+      // Stage 7 to 9
+      { stage: 7, pool: ['nether_abomination', 'crimson_assassin', 'gravity_sorcerer'], hpMult: 1.3, goldBonus: 40 },
+      { stage: 8, pool: ['nether_abomination', 'void_inquisitor', 'berserk_gladiator'], hpMult: 1.35, goldBonus: 45 },
+      { stage: 9, pool: ['void_inquisitor', 'gravity_sorcerer'], hpMult: 1.45, goldBonus: 55 },
+      // Stage 10: Floor Boss (Randomized from Floor 2 Boss Pool)
+      { stage: 10, pool: ['boss_void_phantom_lord', 'boss_abyssal_leviathan', 'boss_soul_reaper', 'boss_blood_wraith'], hpMult: 1.0, goldBonus: 80, isBossStage: true }
+    ]
+  },
+  {
+    floor: 3,
+    name: 'The Astral Citadel',
+    bgTheme: 'astral',
+    totalStages: 10,
+    stageRoster: [
+      // Stage 1 to 3
+      { stage: 1, pool: ['astral_templar'], hpMult: 1.0, goldBonus: 20 },
+      { stage: 2, pool: ['astral_templar', 'celestial_valkyrie', 'abyssal_dreadnought'], hpMult: 1.05, goldBonus: 25 },
+      { stage: 3, pool: ['celestial_valkyrie', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.1, goldBonus: 30 },
+      // Stage 4 to 6
+      { stage: 4, pool: ['chrono_weaver', 'plasma_behemoth', 'abyssal_dreadnought'], hpMult: 1.15, goldBonus: 35 },
+      // Stage 5: Mini-Boss of Floor 3 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_void_sentinel'], hpMult: 1.0, goldBonus: 60, isMiniBoss: true },
+      { stage: 6, pool: ['plasma_behemoth', 'divine_sword_saint', 'abyssal_dreadnought'], hpMult: 1.25, goldBonus: 45 },
+      // Stage 7 to 9
+      { stage: 7, pool: ['divine_sword_saint', 'chrono_weaver', 'valkyrie_warmaster'], hpMult: 1.3, goldBonus: 50 },
+      { stage: 8, pool: ['divine_sword_saint', 'celestial_valkyrie', 'abyssal_dreadnought'], hpMult: 1.35, goldBonus: 60 },
+      { stage: 9, pool: ['divine_sword_saint', 'valkyrie_warmaster'], hpMult: 1.45, goldBonus: 75 },
+      // Stage 10: Floor 3 DUAL BOSS (Celestial Emperor + Seraph Archon!)
+      { stage: 10, pool: ['boss_celestial_emperor', 'boss_chronos_titan'], hpMult: 1.0, goldBonus: 120, isBossStage: true, isDualBoss: true, partnerBossKey: 'boss_seraph_archon' }
+    ]
+  },
+  {
+    floor: 4,
+    name: 'The Astral Singularity',
+    bgTheme: 'singularity',
+    totalStages: 10,
+    stageRoster: [
+      // Stage 1 to 4: Cosmic Entities
+      { stage: 1, pool: ['astral_demiurge_disciple'], hpMult: 1.0, goldBonus: 40 },
+      { stage: 2, pool: ['astral_demiurge_disciple', 'void_seraph_sentinel'], hpMult: 1.05, goldBonus: 45 },
+      { stage: 3, pool: ['void_seraph_sentinel', 'chrono_archon_titan'], hpMult: 1.1, goldBonus: 50 },
+      { stage: 4, pool: ['chrono_archon_titan', 'ragnarok_valkyrie_sovereign'], hpMult: 1.15, goldBonus: 55 },
+      // Stage 5: Mini-Boss of Floor 4 (Guaranteed Relic / Passive reward!)
+      { stage: 5, pool: ['miniboss_astral_demiurge'], hpMult: 1.0, goldBonus: 80, isMiniBoss: true },
+      // Stage 6 to 9: Pantheon Guardians
+      { stage: 6, pool: ['ragnarok_valkyrie_sovereign', 'cosmic_hypernova_colossus'], hpMult: 1.25, goldBonus: 65 },
+      { stage: 7, pool: ['cosmic_hypernova_colossus', 'singularity_pantheon_inquisitor'], hpMult: 1.3, goldBonus: 70 },
+      { stage: 8, pool: ['singularity_pantheon_inquisitor', 'indra_storm_demiurge'], hpMult: 1.35, goldBonus: 80 },
+      { stage: 9, pool: ['indra_storm_demiurge', 'asura_world_crusher'], hpMult: 1.45, goldBonus: 95 },
+      // Stage 10: Supreme True Final Boss!
+      { stage: 10, pool: ['boss_primordial_singularity'], hpMult: 1.0, goldBonus: 250, isBossStage: true, isFinalBoss: true }
+    ]
+  }
+];
+
+// Helper to instantiate enemy fighter data
+function generateEnemyData(floorNum, stageNum, difficulty = 'NORMAL') {
+  const floorDef = FLOOR_DEFINITIONS[floorNum - 1] || FLOOR_DEFINITIONS[FLOOR_DEFINITIONS.length - 1];
+  const stageCfg = floorDef.stageRoster[stageNum - 1] || floorDef.stageRoster[0];
+
+  const pool = stageCfg.pool;
+  const pickedKey = pool[Math.floor(Math.random() * pool.length)];
+  const rawEnemy = ENEMY_CATALOG[pickedKey];
+
+  let hpMultiplier = stageCfg.hpMult || 1.0;
+  if (difficulty === 'HARD_PLUS') {
+    hpMultiplier *= 1.40; // +40% HP on Hard+
+  }
+
+  const finalHp = Math.round(rawEnemy.baseHp * hpMultiplier);
+  const finalGold = Math.round((rawEnemy.goldReward + (stageCfg.goldBonus || 0)) * (difficulty === 'HARD_PLUS' ? 1.3 : 1.0));
+
+  // Determine if this encounter spawns a secondary enemy (Dual Boss or Gang-Up Ambush)
+  let isDualBoss = !!stageCfg.isDualBoss;
+  let partnerBossKey = stageCfg.partnerBossKey || null;
+
+  let hasSecondEnemy = isDualBoss;
+  let secondEnemyKey = partnerBossKey;
+
+  // In Hard+ mode, random non-boss stages feature gang-up ambushes!
+  if (difficulty === 'HARD_PLUS' && !isDualBoss && !stageCfg.isMiniBoss && !stageCfg.isBossStage) {
+    if ([4, 7, 8].includes(stageNum) || Math.random() < 0.45) {
+      hasSecondEnemy = true;
+      secondEnemyKey = floorNum >= 3 ? 'ambush_astral_phantom' : 'ambush_shadow_clone';
+    }
+  }
+
+  let secondEnemy = null;
+  if (hasSecondEnemy && secondEnemyKey && ENEMY_CATALOG[secondEnemyKey]) {
+    const rawE2 = ENEMY_CATALOG[secondEnemyKey];
+    const e2Hp = Math.round(rawE2.baseHp * hpMultiplier);
+    secondEnemy = {
+      ...rawE2,
+      catalogKey: secondEnemyKey,
+      maxHp: e2Hp,
+      hp: e2Hp
+    };
+  }
+
+  return {
+    ...rawEnemy,
+    catalogKey: pickedKey,
+    maxHp: finalHp,
+    hp: finalHp,
+    goldReward: finalGold,
+    floor: floorNum,
+    stage: stageNum,
+    isBoss: !!rawEnemy.isBoss || !!stageCfg.isBossStage,
+    isMiniBoss: !!stageCfg.isMiniBoss,
+    isFinalBoss: !!rawEnemy.isFinalBoss || (floorNum === 4 && stageNum === 10),
+    isDualBoss: isDualBoss,
+    hasSecondEnemy: hasSecondEnemy,
+    secondEnemyKey: secondEnemyKey,
+    secondEnemy: secondEnemy
+  };
+}
+
+if (typeof window !== 'undefined') {
+  window.ENEMY_CATALOG = ENEMY_CATALOG;
+  window.FLOOR_DEFINITIONS = FLOOR_DEFINITIONS;
+  window.generateEnemyData = generateEnemyData;
+}
+if (typeof module !== 'undefined') {
+  module.exports = { ENEMY_CATALOG, FLOOR_DEFINITIONS, generateEnemyData };
+}
+
+

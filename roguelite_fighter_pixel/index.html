@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YOMI ROGUE: Pixel Build (Experimental)</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #pixel-build-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      background: #1a0a2e;
+      border-bottom: 2px solid #a855f7;
+      color: #a855f7;
+      font-family: 'Chakra Petch', monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-align: center;
+      padding: 4px 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="pixel-build-banner">PIXEL ART BUILD (EXPERIMENTAL) - sprite renderer active</div>
+
+  <div id="game-container">
+    <canvas id="game-canvas" width="1024" height="600"></canvas>
+
+    <!-- TOP COMBAT HUD -->
+    <div id="top-hud">
+      <!-- Player 1 Status -->
+      <div class="fighter-card p1">
+        <div class="fighter-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="fighter-name" id="p1-name">HUSTLER (YOU)</span>
+            <div class="gold-pill" id="gold-display">50 Gold</div>
+          </div>
+          <span id="p1-hp-text">100 / 100</span>
+        </div>
+        <div class="bar-box">
+          <div id="p1-hp-bar" class="bar-fill hp-p1" style="width: 100%;"></div>
+        </div>
+        <div class="super-bar-box">
+          <div id="p1-super-bar" class="super-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Center Match Indicators -->
+      <div id="match-center">
+        <div class="stage-pill" id="stage-display">FLOOR 1 • STAGE 1 / 10</div>
+        <div class="frame-advantage-tag" id="advantage-display">NEUTRAL</div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button id="btn-top-replay" class="btn-top-replay" title="Watch uninterrupted match replay [R]">REPLAY [R]</button>
+          <button id="btn-top-deck" class="btn-top-replay btn-top-deck" title="Customize Equipped Deck [D]">DECK (<span id="hud-deck-count">10/14</span>)</button>
+        </div>
+        <div class="combo-callout" id="combo-display">3 HITS!</div>
+      </div>
+
+      <!-- Opponent Status (Unified for Single & Dual Opponents) -->
+      <div class="fighter-card p2" id="opponent-card">
+        <div class="fighter-header">
+          <div class="hp-readout-box">
+            <span id="p2-hp-text">100 / 100</span>
+            <span class="dual-hp-breakdown" id="p2-dual-breakdown" style="display: none;"></span>
+          </div>
+          <div class="opponent-names-row">
+            <span class="fighter-name" id="p2-name">ROGUE MONK</span>
+            <span class="fighter-name dual-name-sep" id="p2-dual-sep" style="display: none;">&</span>
+            <span class="fighter-name" id="p2b-name" style="display: none;">PARTNER</span>
+            <span class="boss-archetype-pill" id="p2-archetype">MONK</span>
+          </div>
+        </div>
+        <div class="bar-box opponent-bar-box" id="opponent-bar-box">
+          <div id="p2b-hp-bar" class="bar-fill hp-p2b" style="width: 0%; display: none;"></div>
+          <div id="p2-hp-bar" class="bar-fill hp-p2" style="width: 100%;"></div>
+        </div>
+        <div class="super-bar-box opponent-super-box">
+          <div id="p2b-super-bar" class="super-fill sp-p2b" style="width: 0%; display: none;"></div>
+          <div id="p2-super-bar" class="super-fill sp-p2" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM TACTICAL DECISION PANEL (YOMI HUSTLE STYLE) -->
+    <div id="tactical-panel">
+      <div class="move-categories">
+        <!-- ROW 1: MOVEMENT & ATTACKS -->
+        <div class="move-row">
+          <div class="category-group">
+            <span class="cat-label">Movement</span>
+            <div class="btn-row" id="movement-btns">
+              <button class="btn-move" data-move="STEP_FWD">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                  <span class="move-name">Step Fwd</span>
+                </div>
+                <span class="move-frames">Adv: +1</span>
+              </button>
+              <button class="btn-move" data-move="STEP_BACK">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></span>
+                  <span class="move-name">Step Back</span>
+                </div>
+                <span class="move-frames">Adv: +1</span>
+              </button>
+              <button class="btn-move" data-move="JUMP">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>
+                  <span class="move-name">Jump</span>
+                </div>
+                <span class="move-frames">360° Aim</span>
+              </button>
+              <button class="btn-move" data-move="DASH">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></span>
+                  <span class="move-name">Dash</span>
+                </div>
+                <span class="move-frames">Air / Gnd</span>
+              </button>
+              <button class="btn-move" data-move="AIR_RECOVERY">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></span>
+                  <span class="move-name">Air Tech</span>
+                </div>
+                <span class="move-frames">Ukemi Break</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="category-group">
+            <span class="cat-label">Attacks</span>
+            <div class="btn-row" id="attack-btns">
+              <button class="btn-move selected" data-move="QUICK_JAB">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg></span>
+                  <span class="move-name">Jab</span>
+                </div>
+                <span class="move-frames">3f • 8 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="HEAVY_SLASH">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4l5.5 5.5-11 11H3.5v-5.5l11-11z"/></svg></span>
+                  <span class="move-name">Slash</span>
+                </div>
+                <span class="move-frames">7f • 22 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="SWEEP">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h12l6 4M6 13l4 4"/></svg></span>
+                  <span class="move-name">Sweep</span>
+                </div>
+                <span class="move-frames">5f • 14 Dmg</span>
+              </button>
+              <button class="btn-move" data-move="LAUNCHER">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V3m0 0l-5 5m5-5l5 5"/></svg></span>
+                  <span class="move-name">Launcher</span>
+                </div>
+                <span class="move-frames">9f • Juggle</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2: DEFENSE & SPECIALS -->
+        <div class="move-row">
+          <div class="category-group">
+            <span class="cat-label">Defense</span>
+            <div class="btn-row" id="defense-btns">
+              <button class="btn-move" data-move="BLOCK">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                  <span class="move-name">Block</span>
+                </div>
+                <span class="move-frames">Guard 80%</span>
+              </button>
+              <button class="btn-move" data-move="PARRY">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19l14-14"/></svg></span>
+                  <span class="move-name">Parry</span>
+                </div>
+                <span class="move-frames">Frame Trap</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="category-group">
+            <span class="cat-label">Special</span>
+            <div class="btn-row" id="special-btns">
+              <button class="btn-move special-btn" data-move="KI_BLAST">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+                  <span class="move-name">Ki Blast</span>
+                </div>
+                <span class="move-frames">30 SP</span>
+              </button>
+              <button class="btn-move special-btn" data-move="DRAGON_UPPER">
+                <div class="move-header">
+                  <span class="move-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg></span>
+                  <span class="move-name">Dragon</span>
+                </div>
+                <span class="move-frames">60 SP</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOMI HUSTLE AIM WHEEL (AIM & VECTOR SELECTOR) -->
+      <div class="aim-wheel-box">
+        <span class="aim-label">Aim / Vector</span>
+        <canvas id="aim-canvas" width="48" height="48" title="Click or drag to adjust trajectory"></canvas>
+        <span class="aim-angle-readout" id="aim-readout">0° [FWD]</span>
+      </div>
+
+      <!-- LOCK IN ACTION -->
+      <div class="lock-in-section">
+        <button id="btn-lock-in" class="btn-lockin">
+          <span>LOCK IN</span>
+          <span class="key-hint">[SPACE / ENTER]</span>
+        </button>
+        <div class="move-preview-desc" id="move-desc">Quick Jab (3f startup)</div>
+      </div>
+    </div>
+
+    <!-- START MENU / TITLE SCREEN OVERLAY -->
+    <div id="screen-title" class="overlay-screen active">
+      <div class="main-title" style="letter-spacing: 2px;">YOMI ROGUE</div>
+      <div class="sub-title">SIMULTANEOUS TURN-BASED FIGHTING ROGUELITE</div>
+      <div class="shards-pill" id="title-shards">Hustle Shards: 0</div>
+
+      <!-- DIFFICULTY SELECTOR -->
+      <div class="difficulty-selector-box">
+        <div class="difficulty-title">SELECT EXPEDITION DIFFICULTY:</div>
+        <div class="difficulty-options">
+          <div class="diff-card active" id="diff-normal" data-mode="NORMAL">
+            <div class="diff-badge tier-upgrade">NORMAL</div>
+            <div class="diff-name">Standard Hustle</div>
+            <div class="diff-desc">Standard 3 floors. Balanced enemy AI and stats. Ideal for honing tactical fundamentals.</div>
+          </div>
+          <div class="diff-card" id="diff-hardplus" data-mode="HARD_PLUS">
+            <div class="diff-badge tier-apex">HARD+ ASCENSION</div>
+            <div class="diff-name">Adaptive Ascension</div>
+            <div class="diff-desc">+40% Enemy HP, upgraded movesets, gang-up ambushes, Floor 3 Dual Boss, adaptive counter-AI, and Floor 4 Astral Singularity (Tier 4 God Moves).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENU ACTIONS -->
+      <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; justify-content: center;">
+        <button id="btn-start-run" class="btn-primary" style="padding: 10px 28px; font-size: 15px;">BEGIN EXPEDITION</button>
+        <button id="btn-open-settings" class="btn-secondary" style="padding: 10px 20px;">SETTINGS</button>
+        <button id="btn-open-dojo" class="btn-secondary" style="padding: 10px 20px;">THE DOJO</button>
+        <button id="btn-open-guide" class="btn-secondary" style="padding: 10px 20px;">TACTICAL GUIDE</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS MODAL OVERLAY -->
+    <div id="screen-settings" class="overlay-screen">
+      <div class="main-title" style="font-size: 28px; color: var(--accent-cyan);">TACTICAL SETTINGS</div>
+      <div class="sub-title">Configure audio, visual dynamics, and battle simulation:</div>
+      <div class="settings-box">
+        <div class="setting-row">
+          <span>Master Audio SFX</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-sfx" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Screen Shake Intensity</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-screenshake" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Impact Hit Flash</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-hitflash" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Replay Speed Multiplier</span>
+          <select id="setting-replayspeed" class="setting-select">
+            <option value="1">1.0x Normal</option>
+            <option value="1.5" selected>1.5x Brisk</option>
+            <option value="2">2.0x Godspeed</option>
+          </select>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; margin-top: 20px;">
+        <button id="btn-close-settings" class="btn-primary">SAVE & CLOSE</button>
+      </div>
+    </div>
+
+    <!-- TACTICAL GUIDE OVERLAY -->
+    <div id="screen-guide" class="overlay-screen">
+      <div class="main-title" style="font-size: 28px; color: var(--accent-gold);">TACTICAL COMBAT GUIDE</div>
+      <div class="sub-title">Master simultaneous turn mechanics and evolution tiers:</div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="guide-card-title">1. SIMULTANEOUS PREDICTION</div>
+          <div class="guide-card-desc">Both fighters select actions simultaneously. Aim vector trajectories dictate your angle of attack and mobility destination.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">2. DETERMINISTIC WEAKPOINTS</div>
+          <div class="guide-card-desc">Zero RNG crits. Weakpoint strikes trigger on Whiff Punishes (recovery frames), Anti-Air intercepts, Low sweep trips, and true Backstabs.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">3. TIER 3 PEAK MASTERY</div>
+          <div class="guide-card-desc">Base moves evolve to EX upgrades, then branch into APEX Ascension or Hybrid Fusion. Both APEX and Fusion are Tier 3 pinnacle techniques.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">4. TIER 4 ZENITH SINGULARITY</div>
+          <div class="guide-card-desc">In the Sanctuary Forge or via ancient relics, merge 1 Fusion (Tier 3) + 1 Apex (Tier 3) to synthesize devastating Tier 4 God-Tier arts!</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">5. ADAPTIVE COUNTER-AI (HARD+)</div>
+          <div class="guide-card-desc">On Hard+ mode, enemies monitor your habits throughout the floor (jumping, sweeping, parrying) and deliberately deploy tactical counters!</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-card-title">6. STAGE 5 MINI-BOSS SPOILS</div>
+          <div class="guide-card-desc">Every floor features a Stage 5 Mini-Boss. Vanquishing them grants guaranteed Sanctuary Relics or Legendary Passive Perks.</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 14px; margin-top: 18px;">
+        <button id="btn-close-guide" class="btn-primary">RETURN TO MENU</button>
+      </div>
+    </div>
+
+    <!-- STAGE 5 MINI-BOSS TREASURY OVERLAY -->
+    <div id="screen-miniboss-reward" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 32px;">MINI-BOSS SLAIN!</div>
+      <div class="sub-title">Stage 5 Guardian defeated! Select your Sanctuary Treasury reward:</div>
+      <div class="cards-row" id="miniboss-cards-container">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- BUFF DRAFTING OVERLAY (VICTORY) -->
+    <div id="screen-draft" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 34px;">ROUND CLEARED!</div>
+      <div class="sub-title">Select a Tactical Synergy Perk to enhance your moveset:</div>
+      <div class="cards-row" id="buff-cards-container">
+        <!-- Injected via JavaScript -->
+      </div>
+      <button id="btn-draft-replay" class="btn-secondary" style="margin-top: 10px;">WATCH MATCH REPLAY</button>
+    </div>
+
+    <!-- THE DOJO OVERLAY (META PROGRESSION) -->
+    <div id="screen-dojo" class="overlay-screen">
+      <div class="main-title" style="font-size: 32px;">THE ANCIENT DOJO</div>
+      <div class="sub-title">Permanent conditioning via Hustle Shards:</div>
+      <div class="shards-pill" id="dojo-shards">Hustle Shards: 0</div>
+      
+      <div class="dojo-grid" id="dojo-upgrades-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <button id="btn-close-dojo" class="btn-secondary">BACK TO MAIN</button>
+    </div>
+
+    <!-- SANCTUARY SHOP & SKILL FORGE OVERLAY (POST-BOSS) -->
+    <div id="screen-shop" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 30px;">SANCTUARY FORGE & MARKET</div>
+      <div class="sub-title">Prepare your tactical loadout before entering the next floor:</div>
+      <div class="gold-pill" id="shop-gold-display" style="font-size: 14px; margin-bottom: 16px;">120 Gold Available</div>
+      
+      <!-- SHOP TABS -->
+      <div class="shop-tabs">
+        <button class="shop-tab-btn active" id="tab-shop-armory">Skill Armory</button>
+        <button class="shop-tab-btn" id="tab-shop-supplies">Supplies & Relics</button>
+        <button class="shop-tab-btn" id="tab-shop-deck">Skill Deck Customizer</button>
+        <button class="shop-tab-btn" id="tab-shop-tier4">Tier 4 Zenith Forge</button>
+      </div>
+
+      <!-- TAB 1 & 2 CONTENT: SHOP WARES -->
+      <div id="shop-wares-view" class="shop-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- TAB 3 CONTENT: DECK CUSTOMIZER -->
+      <div id="shop-deck-view" style="display: none; width: 100%;">
+        <div class="deck-summary">
+          <span>Active Equipped Deck: <b id="deck-count-text">10 / 14 Active Moves</b> (Max 14)</span>
+          <span style="color: var(--accent-cyan); font-size: 11px;">Click any move to Equip or Unequip from battle HUD</span>
+        </div>
+        <div class="deck-grid" id="deck-grid-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- TAB 4 CONTENT: TIER 4 ZENITH FORGE -->
+      <div id="shop-tier4-view" style="display: none; width: 100%;">
+        <div class="deck-summary">
+          <span>Tier 4 Zenith Forge: <b style="color: #ffd700;">Combine 1 Fusion (Tier 3) + 1 Apex (Tier 3)</b></span>
+          <span style="color: #c084fc; font-size: 11px;">Merge 1 owned Fusion move + 1 owned Apex move to unlock God-Tier arts</span>
+        </div>
+        <div class="shop-grid" id="tier4-forge-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 14px; justify-content: center; margin-top: 10px;">
+        <button id="btn-leave-shop" class="btn-primary">ENTER NEXT FLOOR -></button>
+      </div>
+    </div>
+
+    <!-- SKILL BREAKTHROUGH OVERLAY (FUSION VS APEX) -->
+    <div id="screen-breakthrough" class="overlay-screen">
+      <div class="main-title" style="color: #c084fc; font-size: 30px;">SKILL BREAKTHROUGH!</div>
+      <div class="sub-title" id="breakthrough-sub">Choose the evolutionary path for your mastered skill:</div>
+      
+      <div class="breakthrough-options">
+        <div class="breakthrough-card fusion-opt" id="btn-opt-fusion">
+          <div>
+            <span class="perk-badge tier-fusion">SKILL FUSION</span>
+            <div class="perk-name" id="fusion-title">Hybrid Fusion</div>
+            <div class="perk-desc" id="fusion-desc">Merge this move with another owned skill to create a devastating dual-element technique!</div>
+          </div>
+          <button class="btn-secondary" style="margin-top: 15px; border-color: #c084fc; color: #c084fc;">FUSE SKILL</button>
+        </div>
+
+        <div class="breakthrough-card apex-opt" id="btn-opt-apex">
+          <div>
+            <span class="perk-badge tier-apex">APEX ASCENSION</span>
+            <div class="perk-name" id="apex-title">Apex Mastery</div>
+            <div class="perk-desc" id="apex-desc">Ascend this skill to its ultimate standalone purity: extreme damage, 1f startup, and super armor.</div>
+          </div>
+          <button class="btn-primary" style="margin-top: 15px;">ASCEND TO APEX</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPEDITION & FLOOR VICTORY OVERLAY -->
+    <div id="screen-victory" class="overlay-screen">
+      <div class="main-title" id="victory-headline" style="color: var(--accent-gold); font-size: 34px;">FLOOR CLEARED!</div>
+      <div class="sub-title" id="victory-sub">The floor guardian has fallen!</div>
+      <div class="shards-pill" id="victory-shards">+50 Hustle Shards Acquired!</div>
+      <div style="display: flex; gap: 14px; margin-top: 15px;">
+        <button id="btn-victory-replay" class="btn-secondary">WATCH MATCH REPLAY</button>
+        <button id="btn-next-floor" class="btn-primary">ENTER SANCTUARY SHOP -></button>
+      </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="screen-gameover" class="overlay-screen">
+      <div class="main-title" id="gameover-headline" style="color: var(--accent-red);">KNOCKED OUT</div>
+      <div class="sub-title" id="gameover-sub">Defeated in Stage 3</div>
+      <div class="shards-pill" id="gameover-shards">+16 Hustle Shards acquired!</div>
+      <div style="display: flex; gap: 14px;">
+        <button id="btn-retry-run" class="btn-primary">NEW RUN</button>
+        <button id="btn-gameover-replay" class="btn-secondary">WATCH REPLAY</button>
+        <button id="btn-gameover-dojo" class="btn-secondary">ENTER DOJO</button>
+      </div>
+    </div>
+
+    <!-- FLOATING COMBAT TOAST NOTIFICATION -->
+    <div id="combat-toast" class="combat-toast"></div>
+
+    <!-- UNIVERSAL DECK CUSTOMIZER MODAL (ACCESSIBLE ANYTIME VIA TOP HUD OR SHORTCUT [D]) -->
+    <div id="screen-deck-modal" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 28px;">COMBAT SKILL DECK</div>
+      <div class="deck-summary" style="margin-bottom: 12px;">
+        <span>Active Deck: <b id="modal-deck-count" style="color: #00f0ff;">10 / 14 Moves</b></span>
+        <span style="color: #94a3b8; font-size: 11px;">Click any skill card to Equip or Stash (Min: 4, Max: 14)</span>
+      </div>
+      <div class="deck-grid" id="modal-deck-grid" style="max-height: 340px; overflow-y: auto; width: 100%; max-width: 840px; padding: 4px;">
+        <!-- Injected via JavaScript -->
+      </div>
+      <div style="margin-top: 14px; display: flex; gap: 12px;">
+        <button id="btn-close-deck-modal" class="btn-primary" style="padding: 8px 26px;">RETURN TO BATTLE</button>
+      </div>
+    </div>
+
+    <!-- DECK SWAP MODAL (WHEN DRAFTING A MOVE AT 14/14 CAPACITY) -->
+    <div id="screen-deck-swap" class="overlay-screen">
+      <div class="main-title" style="color: var(--accent-gold); font-size: 26px;">DECK FULL (14/14)</div>
+      <div class="sub-title" id="swap-modal-sub" style="margin-bottom: 12px; color: #fff;">
+        Select an equipped move below to replace with <b id="swap-new-move-name" style="color: var(--accent-cyan);">New Move</b>:
+      </div>
+      <div class="deck-grid" id="swap-deck-grid" style="max-height: 280px; overflow-y: auto; width: 100%; max-width: 820px; padding: 4px;">
+        <!-- Injected via JavaScript: lists the equipped moves to choose a replacement -->
+      </div>
+      <div style="margin-top: 14px; display: flex; gap: 12px;">
+        <button id="btn-swap-send-stash" class="btn-secondary" style="padding: 8px 20px;">SEND NEW SKILL TO STASH</button>
+      </div>
+    </div>
+
+    <!-- CINEMATIC REPLAY CONTROLS (YOMI HUSTLE STYLE) -->
+    <div id="replay-hud" class="replay-bar hidden">
+      <div class="replay-badge">
+        <span class="replay-dot"></span>
+        <span>CINEMATIC REPLAY</span>
+      </div>
+      <button id="btn-replay-play" class="replay-ctrl-btn" title="Play / Pause [Space]">
+        <span id="replay-play-icon">⏸ PAUSE</span>
+      </button>
+      <button id="btn-replay-restart" class="replay-ctrl-btn" title="Restart Replay">
+        <span>⏮ RESTART</span>
+      </button>
+      <input type="range" id="replay-scrubber" min="0" max="100" value="0" class="replay-slider">
+      <span id="replay-time-display" class="replay-time">00:00 / 00:00</span>
+      <button id="btn-replay-speed" class="replay-speed-btn" title="Toggle Speed">
+        <span id="replay-speed-label">1.0x</span>
+      </button>
+      <button id="btn-replay-exit" class="replay-exit-btn">
+        <span>EXIT REPLAY</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Modular Roguelite Game Components -->
+  <script src="js/data/moves.js"></script>
+  <script src="js/data/upgrades.js"></script>
+  <script src="js/data/fusions.js"></script>
+  <script src="js/data/enemies.js"></script>
+  <script src="js/data/perks.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/pixelfx_engine.js"></script>
+  <script src="js/animator.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

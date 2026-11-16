@@ -1,0 +1,254 @@
+{
+ "frames": {
+  "hustler": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 18
+   }
+  },
+  "iron_shogun": {
+   "frame": {
+    "x": 18,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "crimson_oni": {
+   "frame": {
+    "x": 34,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "shadow_kunoichi": {
+   "frame": {
+    "x": 50,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "void_phantom_lord": {
+   "frame": {
+    "x": 0,
+    "y": 20,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "abyssal_leviathan": {
+   "frame": {
+    "x": 16,
+    "y": 20,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "soul_reaper": {
+   "frame": {
+    "x": 32,
+    "y": 20,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "celestial_emperor": {
+   "frame": {
+    "x": 48,
+    "y": 20,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "seraph_archon": {
+   "frame": {
+    "x": 0,
+    "y": 40,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "chronos_titan": {
+   "frame": {
+    "x": 16,
+    "y": 40,
+    "w": 14,
+    "h": 18
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 18
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 18
+   }
+  },
+  "badge_sword": {
+   "frame": {
+    "x": 32,
+    "y": 40,
+    "w": 11,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 11,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 11,
+    "h": 11
+   }
+  },
+  "badge_shield": {
+   "frame": {
+    "x": 45,
+    "y": 40,
+    "w": 12,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 11
+   }
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "all_fighters.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 64,
+   "h": 58
+  },
+  "scale": "1"
+ }
+}
