@@ -1,7 +1,7 @@
 // =============================================================================
 // PIXEL FIGHTER ANIMATOR - Offscreen-Cached Crisp Pixel Art Renderer
-// Reads 48x48 frame grids from FIGHTER_SPRITES (sprite_data.js) and caches
-// each frame into an offscreen <canvas> for fast 60fps drawImage rendering.
+// Supports 13 animation states, live idle breathing during DECISION phase,
+// complete 55-move mapping, and subtle squash-and-stretch juice.
 // =============================================================================
 
 const SPRITE_KEY_MAP = {
@@ -40,41 +40,70 @@ function resolveSpriteKey(f, isPlayer) {
   return isPlayer ? 'hustler' : 'generic_enemy';
 }
 
-const ATTACK_LIGHT_MOVES = new Set([
-  'QUICK_JAB','THUNDER_GALE','LIGHTNING_PALM','KI_BLAST','FIRE_BURST',
-]);
-
-const ATTACK_HEAVY_MOVES = new Set([
-  'HEAVY_SLASH','VOID_CLEAVE','WHIRLWIND','JUDGMENT_CUT','BLADE_COUNTER',
-  'LAUNCHER','COMET_CRASH','DRAGON_UPPER','METEOR_STRIKE','GROUND_POUND',
-]);
+const MOVE_TO_ANIM = {
+  // Dash / Blitz
+  DASH: 'dash', SUPER_DASH: 'dash', GHOST_STEP: 'dash', SHADOW_TELEPORT: 'dash',
+  RAIKIRI_WARP: 'dash', BLOOD_RUSH: 'dash',
+  // Defense
+  BLOCK: 'block', PARRY: 'block', AEGIS_REFLECT: 'block',
+  // Light attacks
+  QUICK_JAB: 'attack_light', LIGHTNING_PALM: 'attack_light', SONIC_PALM: 'attack_light',
+  THUNDER_GALE: 'attack_light', BLADE_COUNTER: 'attack_light', MIRAGE_RIPOSTE: 'attack_light',
+  // Heavy slashes & slams
+  HEAVY_SLASH: 'attack_heavy', JUDGMENT_CUT: 'attack_heavy', WHIRLWIND: 'attack_heavy',
+  METEOR_STRIKE: 'attack_heavy', GROUND_POUND: 'attack_heavy', SOUL_REAP: 'attack_heavy',
+  VOID_CLEAVE: 'attack_heavy', TEMPEST_QUAKE: 'attack_heavy', EVENT_HORIZON_SLASH: 'attack_heavy',
+  CHRONO_JUDGMENT: 'attack_heavy', THUNDER_METEOR: 'attack_heavy', CARMINE_HARVEST: 'attack_heavy',
+  INDRA_MJOLNIR_CATACLYSM: 'attack_heavy', ASURA_OMNI_DIVINE_PUNISH: 'attack_heavy',
+  // Kicks & sweeps
+  SWEEP: 'attack_kick', DIVE_KICK: 'attack_kick', PHOENIX_KICK: 'attack_kick',
+  PHANTOM_SLIDE: 'attack_kick',
+  // Uppercuts & aerial ascents
+  LAUNCHER: 'attack_upper', DRAGON_UPPER: 'attack_upper', COMET_CRASH: 'attack_upper',
+  VALKYRIE_ASCENT: 'attack_upper', VALKYRIE_RAGNAROK_GENESIS: 'attack_upper',
+  // Energy blasts & cosmic specials
+  KI_BLAST: 'attack_special', FIRE_BURST: 'attack_special', CHRONO_STASIS: 'attack_special',
+  SHADOW_PULL: 'attack_special', GLACIAL_SPIKE: 'attack_special', GRAVITY_CRUSH: 'attack_special',
+  SOLAR_SUPERNOVA: 'attack_special', FROSTFIRE_BURST: 'attack_special',
+  COSMIC_HYPERNOVA_ZERO: 'attack_special', SINGULARITY_EVENT_HORIZON_ZERO: 'attack_special',
+  CHRONO_CONTINUUM_EXECUTION: 'attack_special',
+};
 
 function getAnimState(f) {
   if (f.hp !== undefined && f.hp <= 0) return 'death';
   if ((f.hitstunFrames || 0) > 0) return 'hit';
   if (f.isBlocking || f.isParrying) return 'block';
   const mk = f.moveKey;
-  if (mk && ATTACK_LIGHT_MOVES.has(mk)) return 'attack_light';
-  if (mk && ATTACK_HEAVY_MOVES.has(mk)) return 'attack_heavy';
+  if (mk && MOVE_TO_ANIM[mk]) return MOVE_TO_ANIM[mk];
+  if (mk && (mk === 'STEP_FWD' || mk === 'STEP_BACK')) return 'walk';
   if (f.isAirborne || (f.y !== undefined && f.floorY !== undefined && f.y < f.floorY - 5)) return 'jump';
-  if (Math.abs(f.vx || 0) > 3) return 'run';
+  if (Math.abs(f.vx || 0) > 5) return 'dash';
+  if (Math.abs(f.vx || 0) > 2.5) return 'run';
   if (Math.abs(f.vx || 0) > 0.1) return 'walk';
   return 'idle';
 }
 
-function getAnimFrame(f, state, stateFrameCount) {
+function getAnimFrame(f, state, stateFrameCount, isPlayer) {
   const tick = f.animTick || 0;
-  if (state === 'death') return Math.min(Math.floor(tick / 10), stateFrameCount - 1);
-  if (state === 'hit') return Math.floor(tick / 6) % stateFrameCount;
-  if (state === 'attack_light' || state === 'attack_heavy') {
+  // Use live wall-clock tick for idle/block so fighters visibly breathe even in DECISION phase
+  const liveTick = Math.floor(performance.now() / 110) + (isPlayer ? 0 : 3);
+
+  if (state === 'death') return Math.min(Math.floor(tick / 8), stateFrameCount - 1);
+  if (state === 'hit') return Math.floor(tick / 4) % stateFrameCount;
+  if (state === 'block') return liveTick % stateFrameCount;
+  if (state === 'idle') return liveTick % stateFrameCount;
+  if (state === 'dash') return Math.floor(tick / 3) % stateFrameCount;
+  if (state === 'run') return Math.floor(tick / 4) % stateFrameCount;
+  if (state === 'walk') return Math.floor(tick / 5) % stateFrameCount;
+  if (state.startsWith('attack_')) {
     const mf = f.moveFrame || 0;
-    return Math.min(Math.floor(mf / 4), stateFrameCount - 1);
+    return Math.min(Math.floor(mf / 3), stateFrameCount - 1);
   }
-  return Math.floor(tick / 8) % stateFrameCount;
+  return Math.floor(tick / 6) % stateFrameCount;
 }
 
 // ---------------------------------------------------------------------------
-// OFFSCREEN CANVAS CACHE (48x48 -> cached canvas)
+// OFFSCREEN CANVAS CACHE
 // ---------------------------------------------------------------------------
 const _spriteCanvasCache = new Map();
 
@@ -143,14 +172,13 @@ function renderFighterModel(ctx, f, isPlayer) {
   const H = 48 * scale; // 96
   const flipX = facing === -1;
 
-  // Pixelated ground shadow (snapped to 2px grid)
+  // Ground shadow
   const shadowScale = Math.max(0.35, 1 - (floorY - y) / 320);
   const sw = Math.round((24 * shadowScale) / 2) * 2;
   ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
   ctx.fillRect(x - sw, floorY - 2, sw * 2, 4);
   ctx.fillRect(x - sw + 4, floorY + 2, (sw - 4) * 2, 2);
 
-  // Resolve sprite + state
   const sprites = window.FIGHTER_SPRITES;
   const spriteKey = resolveSpriteKey(f, isPlayer);
   const fallbackKey = isPlayer ? 'hustler' : 'generic_enemy';
@@ -163,12 +191,12 @@ function renderFighterModel(ctx, f, isPlayer) {
       ctx.restore();
       return;
     }
-    const frameIdx = getAnimFrame(f, state, stateFrames.length);
+    const frameIdx = getAnimFrame(f, state, stateFrames.length, isPlayer);
     const frame = stateFrames[Math.min(frameIdx, stateFrames.length - 1)];
     const cacheKey = `${spriteKey}:${state}:${frameIdx}`;
     const spriteCanvas = getCachedSpriteCanvas(cacheKey, frame);
 
-    // Pixelated afterimages using cached sprite silhouette
+    // Afterimages
     if (f.afterimages && f.afterimages.length > 0 && spriteCanvas) {
       f.afterimages.forEach(img => {
         ctx.save();
@@ -182,22 +210,31 @@ function renderFighterModel(ctx, f, isPlayer) {
 
     if (f.isInvulnerable) ctx.globalAlpha = 0.5;
 
-    const drawX = x - W / 2;
-    const drawY = y - H;
+    // Subtle Squash & Stretch anchored at feet (x, y)
+    let sx = 1, sy = 1;
+    if (state === 'attack_heavy' && frameIdx === 1) { sx = 1.08; sy = 0.94; }
+    else if (state === 'attack_upper' && frameIdx === 1) { sx = 0.92; sy = 1.08; }
+    else if (state === 'dash') { sx = 1.1; sy = 0.92; }
+    else if (state === 'hit' && frameIdx === 0) { sx = 0.94; sy = 1.06; }
+
+    const drawW = Math.round(W * sx);
+    const drawH = Math.round(H * sy);
+    const drawX = x - Math.round(drawW / 2);
+    const drawY = y - drawH;
 
     if ((f.hitstunFrames || 0) > 0) ctx.filter = 'brightness(3) saturate(0)';
 
     if (spriteCanvas) {
-      drawCachedSprite(ctx, spriteCanvas, drawX, drawY, W, H, flipX);
+      drawCachedSprite(ctx, spriteCanvas, drawX, drawY, drawW, drawH, flipX);
     }
 
     ctx.filter = 'none';
     ctx.globalAlpha = 1.0;
 
-    // Pixel dust puffs when running on ground
-    if (state === 'run' && y >= floorY - 2 && animTick % 6 < 3) {
-      ctx.fillStyle = 'rgba(200, 220, 240, 0.45)';
-      const dustX = x - facing * 18 - (animTick % 6) * facing * 2;
+    // Dust puffs on run / dash
+    if ((state === 'run' || state === 'dash') && y >= floorY - 2 && animTick % 4 < 2) {
+      ctx.fillStyle = 'rgba(200, 220, 240, 0.5)';
+      const dustX = x - facing * 18 - (animTick % 4) * facing * 3;
       ctx.fillRect(dustX, floorY - 6, 4, 4);
       ctx.fillRect(dustX - facing * 6, floorY - 4, 4, 2);
     }
@@ -205,19 +242,17 @@ function renderFighterModel(ctx, f, isPlayer) {
     // Super meter pixel aura
     if ((f.superMeter || 0) >= 80) {
       ctx.save();
-      const pulse = (Math.floor(animTick / 4) % 2 === 0);
-      ctx.globalAlpha = pulse ? 0.45 : 0.25;
+      const livePulse = Math.floor(performance.now() / 120);
+      ctx.globalAlpha = (livePulse % 2 === 0) ? 0.45 : 0.25;
       ctx.fillStyle = isPlayer ? '#00f0ff' : '#ff3366';
-      // Rising pixel aura sparks
       for (let i = 0; i < 4; i++) {
-        const sx = drawX + 16 + ((i * 19 + animTick * 3) % 64);
-        const sy = drawY + H - ((animTick * 4 + i * 23) % 88);
-        ctx.fillRect(Math.round(sx / 2) * 2, Math.round(sy / 2) * 2, 4, 4);
+        const sxSpark = drawX + 16 + ((i * 19 + livePulse * 6) % 64);
+        const sySpark = drawY + drawH - ((livePulse * 8 + i * 23) % 88);
+        ctx.fillRect(Math.round(sxSpark / 2) * 2, Math.round(sySpark / 2) * 2, 4, 4);
       }
       ctx.restore();
     }
 
-    // Overlays (block shield, parry arc)
     ctx.save();
     ctx.translate(x, y - 48);
     renderFighterOverlays(ctx, f, 0, 0, facing);
@@ -233,16 +268,12 @@ function renderFighterModel(ctx, f, isPlayer) {
   ctx.restore();
 }
 
-// ---------------------------------------------------------------------------
-// PIXEL OVERLAY RENDERER (Block shield, Parry flash, Vulnerable frame)
-// ---------------------------------------------------------------------------
 function renderFighterOverlays(ctx, f, x, y, facing) {
   if (f.isBlocking || f.isParrying) {
     ctx.save();
     const col = f.isParrying ? '#00f0ff' : '#ffd166';
     ctx.fillStyle = col;
     const sx = facing * 24;
-    // Pixelated shield arc made of crisp 4x4 blocks
     for (let dy = -32; dy <= 32; dy += 6) {
       const curve = Math.round((1 - (dy * dy) / 1400) * 10) * facing;
       ctx.globalAlpha = f.isParrying ? 0.9 : 0.65;
@@ -254,7 +285,6 @@ function renderFighterOverlays(ctx, f, x, y, facing) {
   if (f.isVulnerable) {
     ctx.save();
     ctx.fillStyle = '#ff2a55';
-    // Pixelated exclamation / target corners
     ctx.fillRect(-30, -48, 8, 4);
     ctx.fillRect(-30, -48, 4, 8);
     ctx.fillRect(22, -48, 8, 4);
