@@ -5,18 +5,24 @@
 // =============================================================================
 
 const SPRITE_KEY_MAP = {
-  'HUSTLER':                  'hustler',
-  'boss_iron_shogun':         'iron_shogun',
-  'boss_crimson_oni':         'crimson_oni',
-  'boss_shadow_kunoichi':     'shadow_kunoichi',
-  'boss_void_phantom_lord':   'void_phantom_lord',
-  'boss_abyssal_leviathan':   'abyssal_leviathan',
-  'boss_soul_reaper':         'soul_reaper',
-  'boss_celestial_emperor':   'celestial_emperor',
-  'boss_seraph_archon':       'seraph_archon',
-  'boss_chronos_titan':       'chronos_titan',
-  'boss_frost_colossus':      'iron_shogun',
-  'boss_blood_wraith':        'soul_reaper',
+  'HUSTLER':                     'hustler',
+  'boss_iron_shogun':            'iron_shogun',
+  'boss_crimson_oni':            'crimson_oni',
+  'boss_shadow_kunoichi':        'shadow_kunoichi',
+  'boss_frost_colossus':         'iron_shogun',
+  'boss_void_phantom_lord':      'void_phantom_lord',
+  'boss_abyssal_leviathan':      'abyssal_leviathan',
+  'boss_soul_reaper':            'soul_reaper',
+  'boss_blood_wraith':           'crimson_oni',
+  'boss_celestial_emperor':      'celestial_emperor',
+  'boss_seraph_archon':          'seraph_archon',
+  'boss_chronos_titan':          'chronos_titan',
+  'boss_singularity_gorgon':     'void_phantom_lord',
+  'boss_primordial_singularity': 'primordial_singularity',
+  'miniboss_corrupted_ronin':    'iron_shogun',
+  'miniboss_cyber_enforcer':     'chronos_titan',
+  'miniboss_void_sentinel':      'void_phantom_lord',
+  'miniboss_astral_demiurge':    'celestial_emperor',
 };
 
 const SPRITE_NAME_MAP = {
@@ -29,6 +35,7 @@ const SPRITE_NAME_MAP = {
   'Celestial Emperor Zenith':  'celestial_emperor',
   'Seraph Archon Uriel':       'seraph_archon',
   'Chronos Titan Kronax':      'chronos_titan',
+  'THE PRIMORDIAL SINGULARITY': 'primordial_singularity',
 };
 
 function resolveSpriteKey(f, isPlayer) {
@@ -170,17 +177,35 @@ function renderFighterModel(ctx, f, isPlayer) {
   const floorY = f.floorY || 470;
   const facing = f.facing || 1;
   const animTick = f.animTick || 0;
-  const scale = 2;
-  const W = 48 * scale; // 96
-  const H = 48 * scale; // 96
+  const isFinalBoss = f.catalogKey === 'boss_primordial_singularity' || f.isFinalBoss;
+  const isBoss = !isPlayer && (f.isBoss || (f.catalogKey && f.catalogKey.startsWith('boss_')));
+  const isMiniBoss = !isPlayer && (f.isMiniBoss || (f.catalogKey && f.catalogKey.startsWith('miniboss_')));
+  const scale = isFinalBoss ? 3.0 : (isBoss ? 2.5 : (isMiniBoss ? 2.25 : 2.0));
+  const W = Math.round(48 * scale);
+  const H = Math.round(48 * scale);
   const flipX = facing === -1;
 
   // Ground shadow
   const shadowScale = Math.max(0.35, 1 - (floorY - y) / 320);
-  const sw = Math.round((24 * shadowScale) / 2) * 2;
+  const sw = Math.round((12 * scale * shadowScale) / 2) * 2;
   ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
   ctx.fillRect(x - sw, floorY - 2, sw * 2, 4);
   ctx.fillRect(x - sw + 4, floorY + 2, (sw - 4) * 2, 2);
+
+  // Boss menacing pixel aura
+  if (isBoss || isMiniBoss) {
+    const livePulse = Math.floor(performance.now() / 100);
+    ctx.save();
+    ctx.fillStyle = isFinalBoss ? '#ff0055' : (isBoss ? '#a855f7' : '#f59e0b');
+    ctx.globalAlpha = 0.35 + 0.15 * Math.sin(livePulse * 0.5);
+    const auraCount = isFinalBoss ? 8 : 5;
+    for (let i = 0; i < auraCount; i++) {
+      const ax = x - sw + ((i * 23 + livePulse * 5) % (sw * 2));
+      const ay = y - ((livePulse * 7 + i * 19) % Math.round(H * 0.85));
+      ctx.fillRect(Math.round(ax / 2) * 2, Math.round(ay / 2) * 2, 4, 4);
+    }
+    ctx.restore();
+  }
 
   const sprites = window.FIGHTER_SPRITES;
   const spriteKey = resolveSpriteKey(f, isPlayer);
