@@ -1870,13 +1870,14 @@ class YomiEngine {
         moveKey: this.player.moveKey,
         moveFrame: this.player.moveFrame,
         animTick: this.player.animTick,
+        vx: this.player.vx || 0,
         hp: this.player.hp,
         maxHp: this.player.maxHp,
         superMeter: this.player.superMeter,
         maxSuper: this.player.maxSuper,
         afterimages: this.player.afterimages.map(a => ({ ...a }))
       },
-      e: (this.enemy && this.enemy.hp > 0) ? {
+      e: this.enemy ? {
         x: this.enemy.x,
         y: this.enemy.y,
         floorY: this.enemy.floorY,
@@ -1896,16 +1897,20 @@ class YomiEngine {
         moveKey: this.enemy.moveKey,
         moveFrame: this.enemy.moveFrame,
         animTick: this.enemy.animTick,
+        vx: this.enemy.vx || 0,
         hp: this.enemy.hp,
         maxHp: this.enemy.maxHp,
         superMeter: this.enemy.superMeter,
         maxSuper: this.enemy.maxSuper,
         catalogKey: this.enemy.catalogKey,
+        isBoss: this.enemy.isBoss,
+        isMiniBoss: this.enemy.isMiniBoss,
+        isFinalBoss: this.enemy.isFinalBoss,
         name: this.enemy.name,
         title: (this.currentOpponentData && this.currentOpponentData.title) || '',
         afterimages: this.enemy.afterimages.map(a => ({ ...a }))
       } : null,
-      e2: (this.enemy2 && this.enemy2.hp > 0) ? {
+      e2: this.enemy2 ? {
         x: this.enemy2.x,
         y: this.enemy2.y,
         floorY: this.enemy2.floorY,
@@ -1925,11 +1930,15 @@ class YomiEngine {
         moveKey: this.enemy2.moveKey,
         moveFrame: this.enemy2.moveFrame,
         animTick: this.enemy2.animTick,
+        vx: this.enemy2.vx || 0,
         hp: this.enemy2.hp,
         maxHp: this.enemy2.maxHp,
         superMeter: this.enemy2.superMeter,
         maxSuper: this.enemy2.maxSuper,
         catalogKey: this.enemy2.catalogKey,
+        isBoss: this.enemy2.isBoss,
+        isMiniBoss: this.enemy2.isMiniBoss,
+        isFinalBoss: this.enemy2.isFinalBoss,
         name: this.enemy2.name,
         afterimages: this.enemy2.afterimages.map(a => ({ ...a }))
       } : null,
@@ -3420,6 +3429,10 @@ class YomiEngine {
 
     const btnTopReplay = document.getElementById('btn-top-replay');
     if (btnTopReplay) btnTopReplay.classList.add('hidden');
+    const btnTopDeck = document.getElementById('btn-top-deck');
+    if (btnTopDeck) btnTopDeck.classList.add('hidden');
+    const advDisplay = document.getElementById('advantage-display');
+    if (advDisplay) advDisplay.classList.add('hidden');
 
     const playIcon = document.getElementById('replay-play-icon');
     if (playIcon) playIcon.innerText = 'PAUSE';
@@ -3432,6 +3445,10 @@ class YomiEngine {
 
     const btnTopReplay = document.getElementById('btn-top-replay');
     if (btnTopReplay) btnTopReplay.classList.remove('hidden');
+    const btnTopDeck = document.getElementById('btn-top-deck');
+    if (btnTopDeck) btnTopDeck.classList.remove('hidden');
+    const advDisplay = document.getElementById('advantage-display');
+    if (advDisplay) advDisplay.classList.remove('hidden');
 
     if (window.PixelFX) window.PixelFX.clear();
 
@@ -3444,8 +3461,9 @@ class YomiEngine {
       return;
     }
 
-    // 2. Otherwise determine destination based on match outcome
-    if (this.enemy && this.enemy.hp <= 0) {
+    // 2. Otherwise determine destination based on match outcome (must check BOTH enemies in dual-boss)
+    const allEnemiesDead = (!this.enemy || this.enemy.hp <= 0) && (!this.enemy2 || this.enemy2.hp <= 0);
+    if (allEnemiesDead) {
       this.turnState = 'ROUND_OVER';
       if (this.floorStage >= 10) {
         if (this.currentFloor >= 4) {
@@ -3669,13 +3687,13 @@ class YomiEngine {
       const idx = Math.min(this.replayFrames.length - 1, Math.max(0, Math.floor(this.replayIndex)));
       const frame = this.replayFrames[idx];
       if (frame) {
-        if (frame.p && (frame.p.hp === undefined || frame.p.hp > 0)) {
+        if (frame.p) {
           renderFighterModel(this.ctx, frame.p, true);
         }
-        if (frame.e && (frame.e.hp === undefined || frame.e.hp > 0)) {
+        if (frame.e) {
           renderFighterModel(this.ctx, frame.e, false);
         }
-        if (frame.e2 && frame.e2.hp > 0) {
+        if (frame.e2) {
           renderFighterModel(this.ctx, frame.e2, false);
         }
 

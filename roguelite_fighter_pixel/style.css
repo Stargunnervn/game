@@ -1420,10 +1420,17 @@ input:checked + .slider:before {
 }
 
 /* UNIFIED OPPONENT STATUS (DUAL BOSS & GANG-UP) */
+.hidden {
+  display: none !important;
+}
+
 .hp-readout-box {
   display: flex;
   align-items: baseline;
   gap: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 12px;
 }
 
 .dual-hp-breakdown {
@@ -1436,10 +1443,20 @@ input:checked + .slider:before {
 .opponent-names-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  max-width: 250px;
+  justify-content: flex-end;
+  gap: 5px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.p2 .fighter-header {
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 2px;
+}
   white-space: nowrap;
 }
 
