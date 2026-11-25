@@ -3566,6 +3566,11 @@ class YomiEngine {
     const floorDefs = (typeof FLOOR_DEFINITIONS !== 'undefined' ? FLOOR_DEFINITIONS : (typeof window !== 'undefined' && window.FLOOR_DEFINITIONS ? window.FLOOR_DEFINITIONS : []));
     const floorDef = (floorDefs && floorDefs[floorIdx]) || (floorDefs && floorDefs[0]) || { bgTheme: 'dojo' };
 
+    if (typeof window !== 'undefined' && window.PixelStage) {
+      window.PixelStage.render(this.ctx, floorDef.bgTheme, Math.floor(performance.now() / 16));
+      return;
+    }
+
     const skyGrad = this.ctx.createLinearGradient(0, 0, 0, this.height);
     if (floorDef.bgTheme === 'dojo') {
       skyGrad.addColorStop(0, '#0d1527');
@@ -3607,6 +3612,7 @@ class YomiEngine {
 
   render() {
     this.ctx.save();
+    this.ctx.imageSmoothingEnabled = false;
 
     if (this.screenShake.duration > 0) {
       this.screenShake.duration--;
@@ -3636,32 +3642,38 @@ class YomiEngine {
             this.ctx.save();
             const progress = 1 - (sr.life / (sr.maxLife || 20));
             this.ctx.globalAlpha = Math.sin(progress * Math.PI);
-            this.ctx.strokeStyle = '#00f0ff';
-            this.ctx.shadowColor = '#00f0ff';
-            this.ctx.shadowBlur = 14;
-            this.ctx.lineWidth = 2.5;
-            this.ctx.beginPath();
-            this.ctx.arc(sr.x, sr.y, sr.radius * (0.8 + progress * 0.4), 0, Math.PI * 2);
-            this.ctx.stroke();
+            const px = Math.round(sr.x / 4) * 4;
+            const py = Math.round(sr.y / 4) * 4;
+            const r = Math.round((sr.radius * (0.8 + progress * 0.4)) / 4) * 4;
+            this.ctx.fillStyle = '#00f0ff';
+            for (let a = 0; a < 16; a++) {
+              const ang = (a * Math.PI * 2) / 16 + progress * 1.5;
+              const rx = px + Math.round((Math.cos(ang) * r) / 4) * 4;
+              const ry = py + Math.round((Math.sin(ang) * r) / 4) * 4;
+              this.ctx.fillRect(rx - 2, ry - 2, 4, 4);
+            }
             this.ctx.restore();
           });
         }
 
         frame.projectiles.forEach(p => {
           this.ctx.save();
+          const px = Math.round(p.x / 2) * 2;
+          const py = Math.round(p.y / 2) * 2;
+          const r = Math.round(p.radius / 2) * 2;
           this.ctx.fillStyle = p.color;
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          this.ctx.fill();
+          this.ctx.fillRect(px - r, py - r + 4, r * 2, r * 2 - 8);
+          this.ctx.fillRect(px - r + 4, py - r, r * 2 - 8, r * 2);
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.fillRect(px - r / 2, py - r / 2, r, r);
           this.ctx.restore();
         });
         frame.particles.forEach(pt => {
           this.ctx.save();
           this.ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
           this.ctx.fillStyle = pt.color;
-          this.ctx.beginPath();
-          this.ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-          this.ctx.fill();
+          const sz = Math.max(2, Math.round(pt.size * 1.5 / 2) * 2);
+          this.ctx.fillRect(Math.round(pt.x / 2) * 2 - sz / 2, Math.round(pt.y / 2) * 2 - sz / 2, sz, sz);
           this.ctx.restore();
         });
         frame.damageTexts.forEach(dt => {

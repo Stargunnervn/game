@@ -23,11 +23,10 @@ class Particle {
     ctx.save();
     ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
     ctx.fillStyle = this.color;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
+    const sz = Math.max(2, Math.round(this.size * 1.5 / 2) * 2);
+    const px = Math.round(this.x / 2) * 2 - sz / 2;
+    const py = Math.round(this.y / 2) * 2 - sz / 2;
+    ctx.fillRect(px, py, sz, sz);
     ctx.restore();
   }
 }
@@ -84,15 +83,21 @@ class Projectile {
   }
   draw(ctx) {
     ctx.save();
+    const px = Math.round(this.x / 2) * 2;
+    const py = Math.round(this.y / 2) * 2;
+    const r = Math.round(this.radius / 2) * 2;
+    // Pixel energy fireball (outer, mid, white core)
     ctx.fillStyle = this.color;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 18;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.fillRect(px - r, py - r + 4, r * 2, r * 2 - 8);
+    ctx.fillRect(px - r + 4, py - r, r * 2 - 8, r * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(px - r / 2, py - r / 2, r, r);
+    // Pixel trail behind projectile
+    const dir = this.vx >= 0 ? -1 : 1;
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = this.color;
+    ctx.fillRect(px + dir * (r + 4), py - 4, 8, 8);
+    ctx.fillRect(px + dir * (r + 14), py - 2, 4, 4);
     ctx.restore();
   }
 }
@@ -115,23 +120,20 @@ class SpatialRift {
     ctx.save();
     const progress = 1 - (this.life / this.maxLife);
     ctx.globalAlpha = Math.sin(progress * Math.PI);
-    ctx.strokeStyle = '#00f0ff';
-    ctx.shadowColor = '#00f0ff';
-    ctx.shadowBlur = 14;
-    ctx.lineWidth = 2.5;
-
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * (0.8 + progress * 0.4), 0, Math.PI * 2);
-    ctx.stroke();
-
-    for (let i = 0; i < 4; i++) {
-      const angle = (i * Math.PI / 4) + progress * 2;
-      const len = this.radius * 1.1;
-      ctx.beginPath();
-      ctx.moveTo(this.x - Math.cos(angle) * len, this.y - Math.sin(angle) * len);
-      ctx.lineTo(this.x + Math.cos(angle) * len, this.y + Math.sin(angle) * len);
-      ctx.stroke();
+    const px = Math.round(this.x / 4) * 4;
+    const py = Math.round(this.y / 4) * 4;
+    const r = Math.round((this.radius * (0.8 + progress * 0.4)) / 4) * 4;
+    ctx.fillStyle = '#00f0ff';
+    // Pixelated diamond ring + cross slash
+    for (let a = 0; a < 16; a++) {
+      const ang = (a * Math.PI * 2) / 16 + progress * 1.5;
+      const rx = px + Math.round((Math.cos(ang) * r) / 4) * 4;
+      const ry = py + Math.round((Math.sin(ang) * r) / 4) * 4;
+      ctx.fillRect(rx - 2, ry - 2, 4, 4);
     }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(px - r, py - 2, r * 2, 4);
+    ctx.fillRect(px - 2, py - r, 4, r * 2);
     ctx.restore();
   }
 }
