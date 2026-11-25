@@ -2995,10 +2995,16 @@ class YomiEngine {
   }
 
   // ── SKILL BREAKTHROUGH: FUSION OR APEX ──────────────────────────────────────
-  openBreakthrough(moveKey) {
-    if (MOVES[moveKey]?.isFusion || MOVES[moveKey]?.isTier4) return;
+  openBreakthrough(moveKey, onComplete = null) {
+    if (MOVES[moveKey]?.isFusion || MOVES[moveKey]?.isTier4) {
+      if (onComplete) onComplete();
+      return;
+    }
     const moveData = this.getMoveData(moveKey, true);
-    if (!moveData) return;
+    if (!moveData) {
+      if (onComplete) onComplete();
+      return;
+    }
 
     document.getElementById('breakthrough-sub').innerText = `Choose the evolutionary path for ${moveData.name}:`;
 
@@ -3088,7 +3094,9 @@ class YomiEngine {
 
         this.rebuildMoveButtons();
         document.getElementById('screen-breakthrough').classList.remove('active');
-        if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
+        if (onComplete) {
+          onComplete();
+        } else if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
           this.renderShopTab();
         }
       });
@@ -3099,7 +3107,9 @@ class YomiEngine {
       this.apexMoves.add(moveKey);
       this.rebuildMoveButtons();
       document.getElementById('screen-breakthrough').classList.remove('active');
-      if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
+      if (onComplete) {
+        onComplete();
+      } else if (this.turnState === 'ROUND_OVER' && document.getElementById('screen-shop').classList.contains('active')) {
         this.renderShopTab();
       }
     });
@@ -3145,24 +3155,34 @@ class YomiEngine {
       }
     });
 
-    // Ready Fusion Breakthrough candidates: If player holds both ingredient skills, offer Fusion Breakthrough directly!
+    // Ready Fusion Breakthrough candidates: require both ingredients AND either an upgraded ingredient or Floor >= 2 / Stage >= 3
+    const fusionUnlocked = this.currentFloor >= 2 || this.floorStage >= 3;
     for (const [keyPair, recipe] of Object.entries(FUSION_RECIPES)) {
       const [m1, m2] = keyPair.split('+');
       if (this.ownedMoves.has(m1) && this.ownedMoves.has(m2) && !this.ownedMoves.has(recipe.targetKey)) {
+        if (!fusionUnlocked && !this.moveUpgrades.has(m1) && !this.moveUpgrades.has(m2)) continue;
         const targetMove = MOVES[recipe.targetKey];
         upgradeCandidates.push({
-          kind: 'UPGRADE',
+          kind: 'FUSION',
           moveKey: m1,
+          fusionIngredients: [m1, m2],
+          fusionTarget: recipe.targetKey,
           name: `${recipe.name}`,
           rarity: 'legendary',
           icon: '<svg viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
           badge: 'FUSION BREAKTHROUGH',
-          desc: `Combine ingredients [${MOVES[m1]?.name || m1}] + [${MOVES[m2]?.name || m2}] into Tier 3 ${targetMove?.name || recipe.targetKey}!`
+          desc: `Combine [${MOVES[m1]?.name || m1}] + [${MOVES[m2]?.name || m2}] into Tier 3 ${targetMove?.name || recipe.targetKey}!`
         });
       }
     }
 
     // 2. Unowned skills from MOVES catalog (Excluding Fusion & Tier 4 moves - Fusions must be forged via Breakthrough, Tier 4 via Zenith Forge!)
+    const CATEGORY_BADGES = {
+      movement: 'NEW MOBILITY',
+      attack: 'NEW ATTACK',
+      defense: 'NEW DEFENSE',
+      special: 'NEW SPECIAL'
+    };
     Object.keys(MOVES).forEach(mKey => {
       if (!this.ownedMoves.has(mKey) && !MOVES[mKey]?.isFusion && !MOVES[mKey]?.isTier4) {
         const mData = MOVES[mKey];
@@ -3172,7 +3192,7 @@ class YomiEngine {
           name: mData.name,
           rarity: 'rare',
           icon: this.getMoveIconSVG(mKey),
-          badge: mData.category === 'movement' ? 'NEW MOBILITY' : 'NEW SKILL',
+          badge: CATEGORY_BADGES[mData.category] || 'NEW SKILL',
           desc: mData.desc
         });
       }
@@ -3198,13 +3218,17 @@ class YomiEngine {
       return arr.splice(idx, 1)[0];
     };
 
-    const cardUpgrade = popRandom(upgradeCandidates);
-    if (cardUpgrade) randomThree.push(cardUpgrade);
-
+    // Balanced 3-card draft: 1 New Move, 1 Upgrade/Fusion, 1 Passive Blessing
     const cardNewMove = popRandom(newMoveCandidates);
     if (cardNewMove) randomThree.push(cardNewMove);
 
-    const remainingPool = [...upgradeCandidates, ...newMoveCandidates, ...perkCandidates];
+    const cardUpgrade = popRandom(upgradeCandidates);
+    if (cardUpgrade) randomThree.push(cardUpgrade);
+
+    const cardPerk = popRandom(perkCandidates);
+    if (cardPerk) randomThree.push(cardPerk);
+
+    const remainingPool = [...newMoveCandidates, ...upgradeCandidates, ...perkCandidates];
     remainingPool.sort(() => 0.5 - Math.random());
 
     while (randomThree.length < 3 && remainingPool.length > 0) {
@@ -3218,7 +3242,7 @@ class YomiEngine {
       card.className = 'perk-card';
 
       let tierClass = `tier-${reward.rarity}`;
-      if (reward.kind === 'UPGRADE') {
+      if (reward.kind === 'UPGRADE' || reward.kind === 'FUSION') {
         tierClass = (reward.badge === 'BREAKTHROUGH' || reward.badge === 'FUSION BREAKTHROUGH') ? 'tier-fusion' : 'tier-upgrade';
       }
 
@@ -3230,19 +3254,37 @@ class YomiEngine {
       `;
 
       card.addEventListener('click', () => {
-        if (reward.kind === 'UPGRADE') {
-          if (this.moveUpgrades.has(reward.moveKey) || reward.badge === 'FUSION BREAKTHROUGH') {
-            this.openBreakthrough(reward.moveKey);
+        document.getElementById('screen-draft').classList.remove('active');
+
+        if (reward.kind === 'FUSION') {
+          SFX.playUpgradeFanfare();
+          const [ing1, ing2] = reward.fusionIngredients;
+          this.ownedMoves.delete(ing1);
+          this.ownedMoves.delete(ing2);
+          this.equippedMoves.delete(ing1);
+          this.equippedMoves.delete(ing2);
+          this.moveUpgrades.delete(ing1);
+          this.moveUpgrades.delete(ing2);
+          this.ownedMoves.add(reward.fusionTarget);
+          this.equippedMoves.add(reward.fusionTarget);
+          this.rebuildMoveButtons();
+          this.initStage(this.currentFloor, this.floorStage + 1);
+        } else if (reward.kind === 'UPGRADE') {
+          if (this.moveUpgrades.has(reward.moveKey)) {
+            this.openBreakthrough(reward.moveKey, () => {
+              this.initStage(this.currentFloor, this.floorStage + 1);
+            });
           } else {
             this.upgradeMove(reward.moveKey);
+            this.initStage(this.currentFloor, this.floorStage + 1);
           }
         } else if (reward.kind === 'SKILL') {
           this.unlockMove(reward.moveKey);
+          this.initStage(this.currentFloor, this.floorStage + 1);
         } else {
           this.activePerks.add(reward.id);
+          this.initStage(this.currentFloor, this.floorStage + 1);
         }
-        document.getElementById('screen-draft').classList.remove('active');
-        this.initStage(this.currentFloor, this.floorStage + 1);
       });
 
       container.appendChild(card);
