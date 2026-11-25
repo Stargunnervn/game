@@ -1044,6 +1044,18 @@ class YomiEngine {
   }
 
   initStage(floorNum, stageNum) {
+    this.isReplayPlaying = false;
+    this.overlayBeforeReplay = null;
+    this.simFramesLeft = 0;
+    const replayHud = document.getElementById('replay-hud');
+    if (replayHud) replayHud.classList.add('hidden');
+    const btnTopReplay = document.getElementById('btn-top-replay');
+    if (btnTopReplay) btnTopReplay.classList.remove('hidden');
+    const btnTopDeck = document.getElementById('btn-top-deck');
+    if (btnTopDeck) btnTopDeck.classList.remove('hidden');
+    const advDisplay = document.getElementById('advantage-display');
+    if (advDisplay) advDisplay.classList.remove('hidden');
+
     this.currentFloor = floorNum || 1;
     this.floorStage = stageNum || 1;
     this.enemyLastMoveKey = null;
@@ -1062,6 +1074,9 @@ class YomiEngine {
     if (enemyData.headColor) this.enemy.headColor = enemyData.headColor;
     if (enemyData.accentColor) this.enemy.accentColor = enemyData.accentColor;
     this.enemy.catalogKey = enemyData.catalogKey || null;
+    this.enemy.isBoss = !!enemyData.isBoss;
+    this.enemy.isMiniBoss = !!enemyData.isMiniBoss;
+    this.enemy.isFinalBoss = !!enemyData.isFinalBoss;
 
     // Multi-opponent Engine: Secondary Fighter Instantiation (Dual Boss / Gang-up Ambush)
     const p2bName = document.getElementById('p2b-name');
@@ -1077,6 +1092,9 @@ class YomiEngine {
       this.enemy2.hp = e2Data.maxHp;
       this.enemy2.superMeter = e2Data.isBoss ? 40 : 10;
       this.enemy2.catalogKey = e2Data.catalogKey || null;
+      this.enemy2.isBoss = !!e2Data.isBoss;
+      this.enemy2.isMiniBoss = !!e2Data.isMiniBoss;
+      this.enemy2.isFinalBoss = !!e2Data.isFinalBoss;
 
       if (p2bName) {
         p2bName.innerText = e2Data.name.toUpperCase();

@@ -88,7 +88,7 @@ function getAnimState(f) {
   if (f.isAirborne || (f.y !== undefined && f.floorY !== undefined && f.y < f.floorY - 5)) return 'jump';
   if (Math.abs(f.vx || 0) > 5) return 'dash';
   if (Math.abs(f.vx || 0) > 2.5) return 'run';
-  if (Math.abs(f.vx || 0) > 0.1) return 'walk';
+  if (Math.abs(f.vx || 0) > 0.05) return 'walk';
   return 'idle';
 }
 
@@ -102,9 +102,9 @@ function getAnimFrame(f, state, stateFrameCount, isPlayer) {
   if (state === 'hit') return Math.floor(tick / 4) % stateFrameCount;
   if (state === 'block') return liveTick % stateFrameCount;
   if (state === 'idle') return liveTick % stateFrameCount;
-  if (state === 'dash') return Math.floor(tick / 3) % stateFrameCount;
-  if (state === 'run') return Math.floor(tick / 4) % stateFrameCount;
-  if (state === 'walk') return Math.floor(tick / 5) % stateFrameCount;
+  if (state === 'dash') return Math.floor(tick / 2) % stateFrameCount;
+  if (state === 'run') return Math.floor(tick / 3) % stateFrameCount;
+  if (state === 'walk') return Math.floor(tick / 3) % stateFrameCount;
   if (state.startsWith('attack_')) {
     const mf = f.moveFrame || 0;
     return Math.min(Math.floor(mf / 3), stateFrameCount - 1);

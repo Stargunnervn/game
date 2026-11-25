@@ -23,11 +23,24 @@
 
   function closeAllOverlaysAndResume() {
     const e = window.engine;
-    if (e && e.hideAllOverlays) e.hideAllOverlays();
+    if (e) {
+      e.isReplayPlaying = false;
+      e.overlayBeforeReplay = null;
+      if (e.hideAllOverlays) e.hideAllOverlays();
+    }
+    const replayHud = document.getElementById('replay-hud');
+    if (replayHud) replayHud.classList.add('hidden');
+    const btnTopReplay = document.getElementById('btn-top-replay');
+    if (btnTopReplay) btnTopReplay.classList.remove('hidden');
+    const btnTopDeck = document.getElementById('btn-top-deck');
+    if (btnTopDeck) btnTopDeck.classList.remove('hidden');
+    const advDisplay = document.getElementById('advantage-display');
+    if (advDisplay) advDisplay.classList.remove('hidden');
+
     document.querySelectorAll('.overlay-screen').forEach(el => el.classList.remove('active'));
     const tacPanel = document.getElementById('tactical-panel');
     if (tacPanel) tacPanel.classList.remove('hidden');
-    if (e && e.turnState === 'ROUND_OVER' && e.enemy && e.enemy.hp > 0) {
+    if (e && (e.turnState === 'REPLAY' || (e.turnState === 'ROUND_OVER' && e.enemy && e.enemy.hp > 0))) {
       e.turnState = 'DECISION';
       if (e.openDecisionTurn) e.openDecisionTurn();
     }
@@ -131,6 +144,12 @@
 
     document.body.appendChild(panel);
     wireEvents(panel);
+    // Prevent Space/Enter from re-triggering the last clicked debug button
+    panel.addEventListener('click', (ev) => {
+      if (ev.target && ev.target.tagName === 'BUTTON') {
+        ev.target.blur();
+      }
+    });
   }
 
   function wireEvents(panel) {
