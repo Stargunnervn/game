@@ -1,6 +1,7 @@
 // =============================================================================
-// DEBUG MODE PANEL - Test animations, bosses, stages, skills & fusions fast
+// DEBUG MODE PANEL - Test animations, bosses, 4 floors x 10 nodes, skills & fusions
 // Toggle with F9 / backtick (`) or the DEBUG button on the top banner.
+// Press ESC or click CLOSE OVERLAYS to close any open modal (Shop/Draft/etc).
 // =============================================================================
 
 (function initDebugMode() {
@@ -20,8 +21,19 @@
     'attack_upper', 'attack_special', 'block', 'hit', 'death'
   ];
 
+  function closeAllOverlaysAndResume() {
+    const e = window.engine;
+    if (e && e.hideAllOverlays) e.hideAllOverlays();
+    document.querySelectorAll('.overlay-screen').forEach(el => el.classList.remove('active'));
+    const tacPanel = document.getElementById('tactical-panel');
+    if (tacPanel) tacPanel.classList.remove('hidden');
+    if (e && e.turnState === 'ROUND_OVER' && e.enemy && e.enemy.hp > 0) {
+      e.turnState = 'DECISION';
+      if (e.openDecisionTurn) e.openDecisionTurn();
+    }
+  }
+
   function createUI() {
-    // 1. Add toggle button to top banner
     const banner = document.getElementById('pixel-build-banner');
     if (banner) {
       const btn = document.createElement('button');
@@ -32,7 +44,6 @@
       banner.appendChild(btn);
     }
 
-    // 2. Create floating debug panel
     const panel = document.createElement('div');
     panel.id = 'debug-panel';
     panel.style.cssText = [
@@ -40,10 +51,10 @@
       'position:fixed',
       'top:34px',
       'right:10px',
-      'width:330px',
-      'max-height:85vh',
+      'width:360px',
+      'max-height:86vh',
       'overflow-y:auto',
-      'background:rgba(12, 16, 28, 0.95)',
+      'background:rgba(12, 16, 28, 0.96)',
       'border:2px solid #00f0ff',
       'border-radius:6px',
       'padding:10px',
@@ -51,13 +62,31 @@
       'color:#e2e8f0',
       'font-family:monospace',
       'font-size:11px',
-      'box-shadow:0 8px 30px rgba(0,0,0,0.8)'
+      'box-shadow:0 8px 30px rgba(0,0,0,0.85)'
     ].join(';');
+
+    const floorRowsHtml = [1, 2, 3, 4].map(f => {
+      const btns = Array.from({ length: 10 }, (_, idx) => {
+        const s = idx + 1;
+        const bg = s === 10 ? '#991b1b' : (s === 5 ? '#92400e' : '#1e293b');
+        const label = s === 10 ? '10B' : (s === 5 ? '5M' : `${s}`);
+        return `<button class="dbg-stage-btn" data-f="${f}" data-s="${s}" title="Floor ${f} Stage ${s}" style="background:${bg};color:#fff;border:1px solid #475569;padding:3px 0;cursor:pointer;font-size:10px;">${label}</button>`;
+      }).join('');
+      return `
+        <div style="display:grid;grid-template-columns:30px repeat(10, 1fr);gap:2px;align-items:center;margin-bottom:3px;">
+          <span style="color:#00f0ff;font-weight:bold;">F${f}</span>
+          ${btns}
+        </div>
+      `;
+    }).join('');
 
     panel.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:6px;margin-bottom:8px;">
         <strong style="color:#00f0ff;font-size:12px;">DEBUG SANDBOX</strong>
-        <button id="dbg-close" style="background:#ef4444;color:#fff;border:none;padding:2px 7px;cursor:pointer;border-radius:3px;">X</button>
+        <div style="display:flex;gap:4px;">
+          <button id="dbg-close-overlays" style="background:#0284c7;color:#fff;border:none;padding:2px 7px;cursor:pointer;border-radius:3px;font-weight:bold;">Close UI (ESC)</button>
+          <button id="dbg-close" style="background:#ef4444;color:#fff;border:none;padding:2px 7px;cursor:pointer;border-radius:3px;">X</button>
+        </div>
       </div>
 
       <div style="margin-bottom:8px;">
@@ -95,12 +124,8 @@
       </div>
 
       <div style="border-top:1px solid #334155;padding-top:6px;">
-        <div style="color:#ffd166;font-weight:bold;margin-bottom:4px;">4. JUMP TO STAGE / BOSS</div>
-        <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:3px;">
-          ${[1, 2, 3].map(f => [1, 2, 3, 4, 5].map(s =>
-            `<button class="dbg-stage-btn" data-f="${f}" data-s="${s}" style="background:${s===5?'#7f1d1d':'#1e293b'};color:#fff;border:1px solid #475569;padding:3px 0;cursor:pointer;font-size:10px;">F${f}-${s===5?'BOSS':s}</button>`
-          ).join('')).join('')}
-        </div>
+        <div style="color:#ffd166;font-weight:bold;margin-bottom:4px;">4. JUMP TO FLOOR (1-4) & NODE (1-10)</div>
+        ${floorRowsHtml}
       </div>
     `;
 
@@ -110,6 +135,7 @@
 
   function wireEvents(panel) {
     panel.querySelector('#dbg-close').onclick = togglePanel;
+    panel.querySelector('#dbg-close-overlays').onclick = closeAllOverlaysAndResume;
 
     const sprSel = panel.querySelector('#dbg-sprite-select');
     sprSel.onchange = () => {
@@ -217,7 +243,7 @@
         if (!e) return;
         const f = parseInt(b.dataset.f, 10);
         const s = parseInt(b.dataset.s, 10);
-        if (e.hideAllOverlays) e.hideAllOverlays();
+        closeAllOverlaysAndResume();
         e.initStage(f, s);
       };
     });
@@ -232,6 +258,8 @@
   window.addEventListener('keydown', (ev) => {
     if (ev.key === 'F9' || ev.key === '`') {
       togglePanel();
+    } else if (ev.key === 'Escape') {
+      closeAllOverlaysAndResume();
     }
   });
 

@@ -3448,7 +3448,7 @@ class YomiEngine {
     if (this.enemy && this.enemy.hp <= 0) {
       this.turnState = 'ROUND_OVER';
       if (this.floorStage >= 10) {
-        if (this.currentFloor >= 3) {
+        if (this.currentFloor >= 4) {
           this.showFinalVictory();
         } else {
           const vicEl = document.getElementById('screen-victory');
@@ -3604,7 +3604,7 @@ class YomiEngine {
   }
 
   drawArena() {
-    const floorIdx = Math.max(0, Math.min(2, (this.currentFloor || 1) - 1));
+    const floorIdx = Math.max(0, Math.min(3, (this.currentFloor || 1) - 1));
     const floorDefs = (typeof FLOOR_DEFINITIONS !== 'undefined' ? FLOOR_DEFINITIONS : (typeof window !== 'undefined' && window.FLOOR_DEFINITIONS ? window.FLOOR_DEFINITIONS : []));
     const floorDef = (floorDefs && floorDefs[floorIdx]) || (floorDefs && floorDefs[0]) || { bgTheme: 'dojo' };
 

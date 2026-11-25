@@ -132,6 +132,50 @@ const PixelStage = (() => {
         _px(g, x + 4, FLOOR_PY + 12, 8, 2, '#a855f7');
       }
 
+    } else if (theme === 'astral') {
+      // Floor 3: Astral Citadel
+      _px(g, 0, 0, LW, 38, '#090d24');
+      _px(g, 0, 38, LW, 40, '#121b42');
+      _px(g, 0, 78, LW, 40, '#1a2759');
+      [[24,14],[60,26],[96,12],[140,20],[182,10],[220,24],[40,50],[210,48]].forEach(([sx, sy]) => {
+        _px(g, sx, sy, 2, 2, '#fde047');
+      });
+      [34, 88, 168, 222].forEach(cx => {
+        _px(g, cx - 5, 30, 10, FLOOR_PY - 30, '#1e293b');
+        _px(g, cx - 3, 30, 3, FLOOR_PY - 30, '#475569');
+        _px(g, cx - 7, 26, 14, 4, '#eab308');
+        _px(g, cx - 7, FLOOR_PY - 5, 14, 5, '#eab308');
+      });
+      _px(g, 0, FLOOR_PY, LW, LH - FLOOR_PY, '#0f172a');
+      _px(g, 0, FLOOR_PY, LW, 2, '#facc15');
+      _px(g, 0, FLOOR_PY + 2, LW, 1, '#a16207');
+      for (let x = 0; x < LW; x += 20) {
+        _px(g, x, FLOOR_PY + 4, 1, LH - FLOOR_PY - 4, '#1e293b');
+      }
+
+    } else if (theme === 'singularity') {
+      // Floor 4: Astral Singularity
+      _px(g, 0, 0, LW, 40, '#07030f');
+      _px(g, 0, 40, LW, 40, '#140524');
+      _px(g, 0, 80, LW, 38, '#220836');
+      const bx = 128, by = 42;
+      for (let dx = -38; dx <= 38; dx++) {
+        _px(g, bx + dx, by, 1, 2, Math.abs(dx) > 16 ? '#ff2a55' : '#000000');
+      }
+      for (let dy = -16; dy <= 16; dy++) {
+        for (let dx = -16; dx <= 16; dx++) {
+          const d2 = dx * dx + dy * dy;
+          if (d2 <= 14 * 14) _px(g, bx + dx, by + dy, 1, 1, '#020205');
+          else if (d2 <= 16 * 16) _px(g, bx + dx, by + dy, 1, 1, '#f43f5e');
+        }
+      }
+      _px(g, 0, FLOOR_PY, LW, LH - FLOOR_PY, '#09030e');
+      _px(g, 0, FLOOR_PY, LW, 2, '#ff2a55');
+      _px(g, 0, FLOOR_PY + 2, LW, 1, '#9f1239');
+      for (let x = 12; x < LW; x += 24) {
+        _px(g, x, FLOOR_PY + 6, 10, 2, '#be123c');
+      }
+
     } else {
       // Cyber / Neon City (Default)
       _px(g, 0, 0, LW, 40, '#04121e');
@@ -208,6 +252,23 @@ const PixelStage = (() => {
         const ry = (60 + (i * 11 % 35) + Math.round(Math.sin(tick * 0.06 + i) * 3)) * S;
         ctx.fillStyle = i % 2 === 0 ? '#c084fc' : '#f472b6';
         ctx.fillRect(rx, ry, S, S * 2);
+      }
+    } else if (key === 'astral') {
+      // Twinkling golden stars
+      for (let i = 0; i < 4; i++) {
+        if ((Math.floor(tick / 18) + i) % 2 === 0) {
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect((30 + i * 62) * S, (16 + (i % 2) * 14) * S, S, S);
+        }
+      }
+    } else if (key === 'singularity') {
+      // Orbiting crimson singularity motes
+      for (let i = 0; i < 6; i++) {
+        const ang = tick * 0.04 + (i * Math.PI) / 3;
+        const mx = Math.round(128 + Math.cos(ang) * 28) * S;
+        const my = Math.round(42 + Math.sin(ang) * 10) * S;
+        ctx.fillStyle = i % 2 === 0 ? '#ff2a55' : '#fde047';
+        ctx.fillRect(mx, my, S, S);
       }
     } else {
       // Blinking neon rooftop beacons & drifting rain/sparks
