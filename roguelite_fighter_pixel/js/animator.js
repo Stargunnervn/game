@@ -32,6 +32,7 @@ const SPRITE_NAME_MAP = {
 };
 
 function resolveSpriteKey(f, isPlayer) {
+  if (f._debugSpriteKey) return f._debugSpriteKey;
   if (f.catalogKey && SPRITE_KEY_MAP[f.catalogKey]) return SPRITE_KEY_MAP[f.catalogKey];
   if (f.name) {
     const k = SPRITE_KEY_MAP[f.name] || SPRITE_NAME_MAP[f.name];
@@ -70,6 +71,7 @@ const MOVE_TO_ANIM = {
 };
 
 function getAnimState(f) {
+  if (f._debugAnimState) return f._debugAnimState;
   if (f.hp !== undefined && f.hp <= 0) return 'death';
   if ((f.hitstunFrames || 0) > 0) return 'hit';
   if (f.isBlocking || f.isParrying) return 'block';
@@ -89,6 +91,7 @@ function getAnimFrame(f, state, stateFrameCount, isPlayer) {
   const liveTick = Math.floor(performance.now() / 110) + (isPlayer ? 0 : 3);
 
   if (state === 'death') return Math.min(Math.floor(tick / 8), stateFrameCount - 1);
+  if (f._debugAnimState) return liveTick % stateFrameCount;
   if (state === 'hit') return Math.floor(tick / 4) % stateFrameCount;
   if (state === 'block') return liveTick % stateFrameCount;
   if (state === 'idle') return liveTick % stateFrameCount;
