@@ -1047,6 +1047,8 @@ class YomiEngine {
     this.isReplayPlaying = false;
     this.overlayBeforeReplay = null;
     this.simFramesLeft = 0;
+    this.hitStop = 0;
+    this.screenShake = { duration: 0, intensity: 0 };
     const replayHud = document.getElementById('replay-hud');
     if (replayHud) replayHud.classList.add('hidden');
     const btnTopReplay = document.getElementById('btn-top-replay');
@@ -1216,6 +1218,9 @@ class YomiEngine {
           f.vulnerableTurns = 0;
         }
       }
+      // Clear finished moveKey so fighters return to idle/walk breathing during DECISION
+      f.moveKey = null;
+      f.moveFrame = 0;
     });
 
     // Tactical Foresight Passive Perk
@@ -1887,6 +1892,7 @@ class YomiEngine {
         hitstunFrames: this.player.hitstunFrames,
         moveKey: this.player.moveKey,
         moveFrame: this.player.moveFrame,
+        isMoveActive: !!this.player.currentMove,
         animTick: this.player.animTick,
         vx: this.player.vx || 0,
         hp: this.player.hp,
@@ -1914,6 +1920,7 @@ class YomiEngine {
         hitstunFrames: this.enemy.hitstunFrames,
         moveKey: this.enemy.moveKey,
         moveFrame: this.enemy.moveFrame,
+        isMoveActive: !!this.enemy.currentMove,
         animTick: this.enemy.animTick,
         vx: this.enemy.vx || 0,
         hp: this.enemy.hp,
@@ -1947,6 +1954,7 @@ class YomiEngine {
         hitstunFrames: this.enemy2.hitstunFrames,
         moveKey: this.enemy2.moveKey,
         moveFrame: this.enemy2.moveFrame,
+        isMoveActive: !!this.enemy2.currentMove,
         animTick: this.enemy2.animTick,
         vx: this.enemy2.vx || 0,
         hp: this.enemy2.hp,

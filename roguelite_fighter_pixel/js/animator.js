@@ -83,8 +83,9 @@ function getAnimState(f) {
   if ((f.hitstunFrames || 0) > 0) return 'hit';
   if (f.isBlocking || f.isParrying) return 'block';
   const mk = f.moveKey;
-  if (mk && MOVE_TO_ANIM[mk]) return MOVE_TO_ANIM[mk];
-  if (mk && (mk === 'STEP_FWD' || mk === 'STEP_BACK')) return 'walk';
+  const moveActive = f.isMoveActive !== undefined ? f.isMoveActive : (f.currentMove !== undefined ? !!f.currentMove : true);
+  if (moveActive && mk && MOVE_TO_ANIM[mk]) return MOVE_TO_ANIM[mk];
+  if (moveActive && mk && (mk === 'STEP_FWD' || mk === 'STEP_BACK')) return 'walk';
   if (f.isAirborne || (f.y !== undefined && f.floorY !== undefined && f.y < f.floorY - 5)) return 'jump';
   if (Math.abs(f.vx || 0) > 5) return 'dash';
   if (Math.abs(f.vx || 0) > 2.5) return 'run';
